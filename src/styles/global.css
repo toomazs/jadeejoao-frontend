@@ -1,1 +1,50 @@
+@import './tokens.css';
 @import 'tailwindcss';
+
+/*
+ * Map design tokens to Tailwind utilities (values stay in tokens.css).
+ * The default Tailwind palette is removed so only brand colors exist.
+ */
+@theme {
+  --color-*: initial;
+}
+
+@theme inline {
+  --color-olive: var(--olive);
+  --color-deep-olive: var(--deep-olive);
+  --color-terracotta: var(--terracotta);
+  --color-gold-sand: var(--gold-sand);
+  --color-cream: var(--cream);
+  --color-dark-gray: var(--dark-gray);
+  --color-ink: var(--ink);
+
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+  --font-accent: var(--font-accent);
+}
+
+@layer base {
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
+  body {
+    background-color: var(--cream);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 1rem; /* body text floor: 16px */
+    line-height: 1.6;
+  }
+
+  /* Keep anchored sections clear of the sticky nav. */
+  section[id] {
+    scroll-margin-top: 5rem;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--olive);
+    outline-offset: 2px;
+  }
+}
