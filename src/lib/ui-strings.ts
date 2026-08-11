@@ -10,7 +10,17 @@ export const uiStrings = {
   errorBody: 'Verifique sua conexão e tente novamente em instantes.',
   retry: 'Tentar novamente',
   navLabel: 'Navegação principal',
+  backToTop: 'Voltar ao início',
   shuttleServed: 'Atendido pelo translado',
+  airbnbAreas: 'Bairros para buscar no Airbnb',
+  openMap: 'Ver no mapa',
+  countdownLabel: 'Contagem regressiva para o grande dia',
+  countdown: {
+    days: 'dias',
+    hours: 'horas',
+    minutes: 'min',
+    seconds: 'seg',
+  },
 } as const
 
 export interface NavItem {

@@ -1,3 +1,4 @@
+import { logoVertical } from '../../assets'
 import type { SectionSlug } from '../../lib/content'
 import { navItems, uiStrings } from '../../lib/ui-strings'
 
@@ -17,20 +18,25 @@ export function Nav({ presentSlugs }: NavProps) {
   return (
     <nav
       aria-label={uiStrings.navLabel}
-      className="sticky top-0 z-10 border-b border-gold-sand bg-cream"
+      className="sticky top-0 z-20 border-b border-sand-line bg-cream"
     >
-      <ul className="mx-auto flex max-w-3xl flex-wrap items-center gap-x-5 gap-y-1 px-4 py-3">
-        {items.map((item) => (
-          <li key={item.anchor}>
-            <a
-              href={`#${item.anchor}`}
-              className="inline-flex min-h-11 items-center text-ink underline-offset-4 hover:underline"
-            >
-              {item.label}
-            </a>
-          </li>
-        ))}
-      </ul>
+      <div className="mx-auto flex max-w-5xl items-center gap-5 px-4">
+        <a href="#hero" className="shrink-0 py-3" aria-label={uiStrings.backToTop}>
+          <img src={logoVertical} alt="" className="h-5 w-auto sm:h-6" />
+        </a>
+        <ul className="edge-fade-x no-scrollbar flex items-center gap-6 overflow-x-auto pr-6 pl-4 whitespace-nowrap">
+          {items.map((item) => (
+            <li key={item.anchor}>
+              <a
+                href={`#${item.anchor}`}
+                className="inline-flex min-h-12 items-center font-body text-sm tracking-[0.14em] text-ink uppercase underline-offset-8 transition-colors hover:text-terracotta hover:underline"
+              >
+                {item.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
     </nav>
   )
 }

@@ -18,6 +18,12 @@
   --color-dark-gray: var(--dark-gray);
   --color-ink: var(--ink);
 
+  --color-veil: var(--veil);
+  --color-sand-line: var(--sand-line);
+  --color-olive-line: var(--olive-line);
+  --color-terracotta-deep: var(--terracotta-deep);
+  --color-cream-soft: var(--cream-soft);
+
   --font-display: var(--font-display);
   --font-body: var(--font-body);
   --font-accent: var(--font-accent);
@@ -38,13 +44,37 @@
     line-height: 1.6;
   }
 
+  ::selection {
+    background-color: var(--gold-sand);
+    color: var(--ink);
+  }
+
   /* Keep anchored sections clear of the sticky nav. */
   section[id] {
-    scroll-margin-top: 5rem;
+    scroll-margin-top: 4.5rem;
   }
 
   :focus-visible {
     outline: 2px solid var(--olive);
     outline-offset: 2px;
+  }
+}
+
+@utility edge-fade-x {
+  /* Soft mask on horizontally scrollable strips (nav): keywords only, no palette values. */
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 1rem,
+    black calc(100% - 1.5rem),
+    transparent
+  );
+}
+
+@utility no-scrollbar {
+  /* Scrollable strips stay scrollable without chrome (nav). */
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
   }
 }

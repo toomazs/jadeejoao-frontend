@@ -54,6 +54,17 @@
   --dark-gray: #3e3e3e;
   --ink: #1a1818;
 
+  /*
+   * Derived tints — mixed exclusively from the seven brand colors above.
+   * Frame material for the "garden rooms" world: hairlines, panel fills,
+   * hover shades. Never introduce a new base hex here.
+   */
+  --veil: color-mix(in oklab, var(--cream) 88%, var(--gold-sand)); /* framed-room fill */
+  --sand-line: color-mix(in oklab, var(--gold-sand) 62%, var(--cream)); /* soft gold hairline */
+  --olive-line: color-mix(in oklab, var(--olive) 32%, var(--cream)); /* engraved outer hairline */
+  --terracotta-deep: color-mix(in oklab, var(--terracotta) 82%, var(--ink)); /* action hover */
+  --cream-soft: color-mix(in oklab, var(--cream) 82%, var(--gold-sand)); /* muted cream on deep-olive */
+
   /* Font stacks */
   --font-display: 'Afrah', 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
   --font-body: 'Arapey', Georgia, 'Times New Roman', serif;
