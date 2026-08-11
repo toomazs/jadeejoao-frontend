@@ -15,3 +15,25 @@ export function formatEventTime(iso: string): string {
     timeZone: SAO_PAULO_TZ,
   }).format(new Date(iso))
 }
+
+/** Capitalized PT-BR weekday ("Sábado") pinned to the event timezone. */
+export function formatEventWeekday(iso: string): string {
+  const weekday = new Intl.DateTimeFormat('pt-BR', {
+    weekday: 'long',
+    timeZone: SAO_PAULO_TZ,
+  }).format(new Date(iso))
+  return weekday.charAt(0).toUpperCase() + weekday.slice(1)
+}
+
+/** Compact Brazilian wall-clock ("15h", "15h30") for invitation-style display. */
+export function formatEventTimeShort(iso: string): string {
+  const parts = new Intl.DateTimeFormat('pt-BR', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hourCycle: 'h23',
+    timeZone: SAO_PAULO_TZ,
+  }).formatToParts(new Date(iso))
+  const hour = parts.find((part) => part.type === 'hour')?.value ?? ''
+  const minute = parts.find((part) => part.type === 'minute')?.value ?? ''
+  return minute === '00' ? `${hour}h` : `${hour}h${minute}`
+}
