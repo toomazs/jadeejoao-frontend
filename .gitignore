@@ -6,3 +6,8 @@ coverage
 .env
 .env.*
 !.env.example
+
+# impeccable per-developer state (PRODUCT.md, DESIGN.md and .impeccable/surfaces are committed)
+.impeccable/config.local.json
+.impeccable/hook.cache.json
+.impeccable/live/
