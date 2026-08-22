@@ -17,6 +17,8 @@ interface SectionShellProps {
    * `open` is a frameless prose passage (letter grammar).
    */
   variant?: 'framed' | 'veil' | 'open'
+  /** Desktop measure: `regular` for prose rooms, `wide` for grids and flows. */
+  width?: 'regular' | 'wide'
   /** The hero owns the page's single h1; every other section is an h2. */
   headingLevel?: 'h1' | 'h2'
   children?: ReactNode
@@ -28,11 +30,15 @@ export function SectionShell({
   title,
   ordinal,
   variant = 'framed',
+  width = 'regular',
   headingLevel = 'h2',
   children,
 }: SectionShellProps) {
   const Heading = headingLevel
   const headingId = `${slug}-heading`
+  // Desktop-first measures: rooms breathe on large screens instead of
+  // holding the phone column.
+  const measure = width === 'wide' ? 'max-w-6xl' : 'max-w-4xl'
 
   const heading = (
     <>
@@ -51,7 +57,7 @@ export function SectionShell({
   if (variant === 'open') {
     return (
       <section id={slug} aria-labelledby={headingId} className="px-4 py-14 sm:py-20">
-        <div className="mx-auto w-full max-w-2xl">
+        <div className={`mx-auto w-full ${measure}`}>
           {heading}
           <div className="mt-8">{children}</div>
         </div>
@@ -62,8 +68,8 @@ export function SectionShell({
   const fill = variant === 'veil' ? 'bg-veil' : 'bg-cream'
 
   return (
-    <section id={slug} aria-labelledby={headingId} className="px-4 py-10 sm:py-14">
-      <div className={`relative mx-auto w-full max-w-2xl border border-olive-line ${fill}`}>
+    <section id={slug} aria-labelledby={headingId} className="px-4 py-10 sm:px-8 sm:py-14">
+      <div className={`relative mx-auto w-full ${measure} border border-olive-line ${fill}`}>
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-1.5 border border-sand-line"
@@ -76,7 +82,7 @@ export function SectionShell({
             {ordinal}
           </span>
         ) : null}
-        <div className="relative px-5 py-12 sm:px-10 sm:py-14">
+        <div className="relative px-5 py-12 sm:px-10 sm:py-14 lg:px-14 lg:py-16">
           {heading}
           <div className="mt-8">{children}</div>
         </div>

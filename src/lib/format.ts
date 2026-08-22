@@ -25,6 +25,16 @@ export function formatEventWeekday(iso: string): string {
   return weekday.charAt(0).toUpperCase() + weekday.slice(1)
 }
 
+/** Long PT-BR date from a bare YYYY-MM-DD (e.g. the RSVP deadline). */
+export function formatPlainDate(date: string): string {
+  return formatEventDate(`${date}T12:00:00-03:00`)
+}
+
+/** Centavos as BRL currency ("R$ 150,00"). */
+export function formatCentavos(centavos: number): string {
+  return (centavos / 100).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+}
+
 /** Editorial short date ("24 JUN 2017") from a YYYY-MM-DD date, for the hero milestones. */
 export function formatMilestoneDate(date: string): string {
   const parts = new Intl.DateTimeFormat('pt-BR', {
