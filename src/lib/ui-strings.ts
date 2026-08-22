@@ -12,6 +12,7 @@ export const uiStrings = {
   navLabel: 'Navegação principal',
   backToTop: 'Voltar ao início',
   confirmCta: 'Confirmar presença',
+  invitedStamp: 'Você é nosso convidado · Jade & João ·',
   rsvpSoon: 'A confirmação abre em breve',
   shuttleServed: 'Atendido pelo traslado',
   airbnbAreas: 'Bairros para buscar no Airbnb',

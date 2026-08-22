@@ -25,6 +25,20 @@ export function formatEventWeekday(iso: string): string {
   return weekday.charAt(0).toUpperCase() + weekday.slice(1)
 }
 
+/** Editorial short date ("24 JUN 2017") from a YYYY-MM-DD date, for the hero milestones. */
+export function formatMilestoneDate(date: string): string {
+  const parts = new Intl.DateTimeFormat('pt-BR', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    timeZone: SAO_PAULO_TZ,
+  }).formatToParts(new Date(`${date}T12:00:00-03:00`))
+  const day = parts.find((part) => part.type === 'day')?.value ?? ''
+  const month = (parts.find((part) => part.type === 'month')?.value ?? '').replace('.', '')
+  const year = parts.find((part) => part.type === 'year')?.value ?? ''
+  return `${day} ${month} ${year}`.toUpperCase()
+}
+
 /** Compact Brazilian wall-clock ("15h", "15h30") for invitation-style display. */
 export function formatEventTimeShort(iso: string): string {
   const parts = new Intl.DateTimeFormat('pt-BR', {

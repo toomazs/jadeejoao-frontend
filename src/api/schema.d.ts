@@ -822,6 +822,23 @@ export interface components {
              */
             status: string;
         };
+        HeroMilestone: {
+            /**
+             * Format: date
+             * @description Optional date shown above the label.
+             */
+            date?: string;
+            /**
+             * Format: uri
+             * @description Public CDN photo; the site shows brand art while empty.
+             */
+            image_url?: string;
+            /**
+             * @description Short caption under the arch.
+             * @example O pedido
+             */
+            label: string;
+        };
         HeroPayload: {
             /** @description Rich text as Markdown. */
             body?: string;
@@ -839,6 +856,8 @@ export interface components {
             hero_image_url?: string;
             /** @description Public CDN image URLs. */
             images?: string[] | null;
+            /** @description Up to three story arches rendered beside the names. */
+            milestones?: components["schemas"]["HeroMilestone"][] | null;
             /** @description Section heading shown on the site. */
             title: string;
         };

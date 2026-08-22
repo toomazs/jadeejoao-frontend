@@ -3,10 +3,10 @@ import type { components } from '../../api/schema'
 type ContentOutputBody = components['schemas']['ContentOutputBody']
 
 /**
- * Synthetic PT-BR editorial content for dev iteration and tests.
- * Mirrors what the couple will author in the admin — realistic in tone and
- * shape, but every word here is fixture data, never shipped to guests.
- * Serves: the dev mock (`src/test/dev-mock.ts`) and section render tests.
+ * Fixture content for tests and the dev-gated mock transport.
+ * It MIRRORS the API's real seed migrations (00002 + 00007) — never invented
+ * facts: what the mock shows is exactly what a fresh database serves. When a
+ * seed changes, update this mirror.
  */
 export const fixtureContent: ContentOutputBody = {
   sections: [
@@ -14,20 +14,25 @@ export const fixtureContent: ContentOutputBody = {
       slug: 'hero',
       enabled: true,
       hero: {
-        title: 'Vamos nos casar',
+        title: 'Jade & João',
+        body: 'Vamos nos casar! E queremos você com a gente nesse dia tão especial.',
+        images: [],
         couple_names: 'Jade & João',
         event_datetime: '2027-08-07T15:00:00-03:00',
         city_label: 'Atibaia – SP',
-        body: 'No jardim de casa, debaixo da nossa seriguela, com as pessoas que a gente mais ama.',
-        images: [],
+        milestones: [
+          { label: 'Nosso começo' },
+          { label: 'O pedido' },
+          { label: 'O grande dia', date: '2027-08-07' },
+        ],
       },
     },
     {
       slug: 'our_story',
       enabled: true,
       our_story: {
-        title: 'Nossa história',
-        body: 'A gente se conheceu numa festa junina, entre uma quadrilha e um quentão — a Jade jura que foi o João quem puxou assunto, e o João jura de pé junto que foi ela.\n\nDe lá pra cá foram muitas viagens, três mudanças, um gato chamado *Farofa* e uma casa com quintal em Atibaia. Foi nesse quintal, debaixo da seriguela que o avô do João plantou, que veio o pedido — num domingo comum, de chinelo, do jeitinho que a gente gosta.\n\nAgora queremos celebrar esse capítulo com **vocês**, no lugar onde tudo aconteceu.',
+        title: 'Nossa História',
+        body: 'Entre risadas, viagens e muitos cafés, construímos uma história que agora ganha o seu capítulo mais bonito. Em breve contamos tudo por aqui — com fotos e os melhores momentos.',
         images: [],
       },
     },
@@ -35,83 +40,61 @@ export const fixtureContent: ContentOutputBody = {
       slug: 'big_day',
       enabled: true,
       big_day: {
-        title: 'O grande dia',
-        body: 'A cerimônia e a festa acontecem no mesmo lugar: o jardim da nossa casa. Chegue com calma, pegue um refresco e escolha um lugar à sombra.',
-        venue_notes:
-          'A celebração é ao ar livre, na grama. Prefira salto bloco ou sapato baixo — salto fino afunda no gramado.',
-        programme: [
-          { time: '14:30', label: 'Chegada dos convidados' },
-          { time: '15:00', label: 'Cerimônia no jardim' },
-          { time: '16:00', label: 'Drinques e fotos' },
-          { time: '17:30', label: 'Jantar servido' },
-          { time: '19:00', label: 'Bolo e brinde' },
-          { time: '20:00', label: 'Pista aberta' },
-        ],
+        title: 'O Grande Dia',
+        body: 'A cerimônia e a festa acontecem na casa dos noivos, em Atibaia. O espaço é ao ar livre, com grama — escolha um calçado confortável!',
         images: [],
+        venue_notes: 'Espaço externo com grama. Evite salto fino e prefira calçados confortáveis.',
+        programme: [
+          { time: '15:00', label: 'Recepção dos convidados' },
+          { time: '16:00', label: 'Entrada do noivo' },
+          { time: '16:10', label: 'Padrinhos e madrinhas' },
+          { time: '16:30', label: 'Entrada da noiva' },
+          { time: '16:35', label: 'Início da cerimônia' },
+          { time: '17:30', label: 'Encerramento e começo da festa' },
+        ],
       },
     },
     {
       slug: 'rsvp',
       enabled: true,
       rsvp: {
-        title: 'Confirme sua presença',
-        body: 'Procure seu nome completo como está no convite e confirme por toda a sua família de uma vez só. Se o seu nome não aparecer, **fale com os noivos** pelo WhatsApp — a gente resolve rapidinho.',
-        deadline: '2027-07-07',
+        title: 'Confirmação de Presença',
+        body: 'Digite seu nome completo para encontrar seu convite e confirmar a presença de cada pessoa do seu grupo. Se não encontrar seu nome, fale com os noivos.',
         images: [],
+        deadline: '2027-07-07',
       },
     },
     {
       slug: 'getting_there',
       enabled: true,
       getting_there: {
-        title: 'Como chegar',
-        address: 'Rua Piraju, 306 – Jardim Paulista, Atibaia – SP, 12947-321',
-        body: 'Estamos a uns 10 minutos do centro de Atibaia e a mais ou menos 1h de São Paulo pela Fernão Dias. Vindo de fora, a saída 36 é a mais tranquila.',
-        parking_notes:
-          'Dá para estacionar na rua, dos dois lados — combinamos com os vizinhos. Se puder, venha de aplicativo: a volta fica mais leve depois do brinde.',
-        map_embed_url: 'https://maps.google.com/?q=Rua+Piraju,+306,+Atibaia+-+SP',
+        title: 'Como Chegar',
+        body: 'A festa será na casa dos noivos, no Jardim Paulista, em Atibaia – SP.',
         images: [],
+        address: 'Rua Piraju, 306 – Jardim Paulista, Atibaia – SP, 12947-321',
+        map_embed_url:
+          'https://www.google.com/maps?q=Rua+Piraju,+306,+Jardim+Paulista,+Atibaia+-+SP&output=embed',
+        parking_notes:
+          'Não há estacionamento próximo ao local. Sugerimos dormir na cidade e usar Uber ou o translado que vamos oferecer.',
       },
     },
     {
       slug: 'stay',
       enabled: true,
       stay: {
-        title: 'Onde ficar',
-        body: 'Para quem vem de longe, separamos cantinhos que a gente conhece e gosta. Reserve com antecedência — agosto é alta temporada na serra.',
-        lodgings: [
-          {
-            name: 'Pousada Recanto da Seriguela',
-            area: 'Centro',
-            link: 'https://example.com/recanto-da-seriguela',
-            notes: 'A 5 minutos de carro da nossa casa, café da manhã na varanda.',
-            shuttle_served: true,
-          },
-          {
-            name: 'Chalés do Alto da Serra',
-            area: 'Alvinópolis',
-            link: 'https://example.com/chales-alto-da-serra',
-            notes: 'Vista para a Pedra Grande, lareira nos chalés.',
-            shuttle_served: true,
-          },
-          {
-            name: 'Hotel Jardim das Palmeiras',
-            area: 'Jardim do Lago',
-            link: 'https://example.com/jardim-das-palmeiras',
-            notes: 'Opção maior, boa para famílias, com piscina aquecida.',
-            shuttle_served: false,
-          },
-        ],
-        airbnb_areas: ['Centro', 'Alvinópolis', 'Vila Giglio', 'Jardim do Lago'],
+        title: 'Onde Ficar',
+        body: 'Separamos sugestões de hotéis e pousadas em Atibaia. Haverá van/translado entre as hospedagens sugeridas e o local da festa.',
         images: [],
+        lodgings: [],
+        airbnb_areas: ['Jardim Paulista', 'Centro'],
       },
     },
     {
       slug: 'gifts_intro',
       enabled: true,
       gifts_intro: {
-        title: 'Presenteie os noivos',
-        body: 'Sua presença é o que mais importa pra gente — de verdade. Mas se quiser nos mimar, montamos listas em algumas lojas e algumas metas dos sonhos, do nosso jeito.\n\n*Nada de caixa de som nem jogo de panela repetido, prometido.*',
+        title: 'Lista de Presentes',
+        body: 'O maior presente é ter você com a gente! Mas, se quiser nos mimar, preparamos uma lista com metas e cotas — cada contribuição vira um pedacinho do nosso novo capítulo. O pagamento é por PIX, direto para os noivos.',
         images: [],
       },
     },
@@ -119,34 +102,33 @@ export const fixtureContent: ContentOutputBody = {
       slug: 'dress_code',
       enabled: true,
       dress_code: {
-        title: 'O que vestir',
-        attire: 'Esporte fino de jardim — leve, elegante e confortável.',
-        body: 'Pense em tecidos frescos e cores vivas: a festa é à tarde, no meio das flores. Só pedimos que deixem o **branco** e o **off-white** para a noiva.\n\nAgosto em Atibaia esfria quando o sol se põe — traga um casaco para a noite.',
+        title: 'Dress Code',
+        body: 'Traje esporte fino: elegância com conforto. Lembre que a festa é ao ar livre, em grama — escolha calçados que combinem com o gramado. Vista-se bonito e sinta-se à vontade para dançar!',
         images: [],
+        attire: 'Sofisticado, confortável, vestido longo, esporte fino.',
       },
     },
     {
       slug: 'good_practices',
       enabled: true,
       good_practices: {
-        title: 'Boas práticas',
-        body: 'Combinados de quem recebe em casa — pouquinhos, mas importantes.',
-        rules: [
-          'Cerimônia desplugada: durante o "sim", celulares guardados — nossos fotógrafos cuidam de tudo.',
-          'Respeite o horário: a cerimônia começa pontualmente às 15h.',
-          'A festa é ao ar livre — traga repelente e um agasalho para a noite.',
-          'Crianças são bem-vindas e amadas; apenas fiquem de olho perto do lago.',
-          'Beba com alegria e volte com segurança: vá de aplicativo ou combine carona.',
-        ],
+        title: 'Para Aproveitar Nosso Dia',
+        body: 'Algumas combinações carinhosas para o nosso dia sair perfeito:',
         images: [],
+        rules: [
+          'Deixe as opiniões polêmicas em casa — dia de casamento não é dia de discutir',
+          'O open bar é generoso, mas não vire decoração no chão',
+          'Se beber, não dirija: haverá translado para os hotéis sugeridos',
+          'Aproveite muito, dance e celebre com a gente!',
+        ],
       },
     },
     {
       slug: 'messages_intro',
       enabled: true,
       messages_intro: {
-        title: 'Recado aos noivos',
-        body: 'Deixe aqui um recado, um conselho ou aquela história que só você sabe — vamos ler tudo juntinhos na lua de mel.',
+        title: 'Recado aos Noivos',
+        body: 'Deixe aqui seu carinho, um conselho ou aquela história que só você sabe. Os noivos vão ler cada recado com o coração quentinho.',
         images: [],
       },
     },
