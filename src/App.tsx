@@ -1,3 +1,5 @@
+import { Fragment } from 'react'
+
 import { $api } from './api/client'
 import { Button } from './components/ui/Button'
 import { Footer } from './components/ui/Footer'
@@ -115,7 +117,15 @@ export function App() {
   return (
     <>
       <Nav presentSlugs={presentSlugs} />
-      <main>{sections.map(renderSection)}</main>
+      <main>
+        {sections.map((section, index) => (
+          <Fragment key={section.slug}>
+            {/* The garden path: a sprig marks the walk between rooms. */}
+            {index > 0 ? <LeafDivider size="md" /> : null}
+            {renderSection(section, index)}
+          </Fragment>
+        ))}
+      </main>
       <Footer
         coupleNames={hero?.payload.couple_names}
         eventDatetime={hero?.payload.event_datetime}
