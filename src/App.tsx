@@ -43,7 +43,6 @@ function renderSection(
           content={section.payload}
           coupleNames={hero?.couple_names}
           portraits={hero?.images}
-          milestones={hero?.milestones}
         />
       )
     case 'big_day':

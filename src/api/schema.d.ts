@@ -404,6 +404,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/instagram/{person}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get an Instagram feed
+         * @description Returns the cached recent posts of one of the couple's Instagram accounts (Instagram API with Instagram Login). While no token is configured, configured=false and posts is empty — never an error.
+         */
+        get: operations["get-instagram-feed"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/messages": {
         parameters: {
             query?: never;
@@ -635,6 +655,17 @@ export interface components {
              * @example https://example.com/errors/example
              */
             type: string;
+        };
+        FeedOutputBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/FeedOutputBody.json
+             */
+            readonly $schema?: string;
+            /** @description False while this person's Instagram token is not set up — the site links to the profile instead. */
+            configured: boolean;
+            posts: components["schemas"]["PostView"][] | null;
         };
         GettingTherePayload: {
             /** @example Rua Piraju, 306 – Jardim Paulista, Atibaia – SP, 12947-321 */
@@ -1036,10 +1067,31 @@ export interface components {
         OurStoryPayload: {
             /** @description Rich text as Markdown. */
             body?: string;
+            bride?: components["schemas"]["PersonPayload"];
+            groom?: components["schemas"]["PersonPayload"];
             /** @description Public CDN image URLs. */
             images?: string[] | null;
             /** @description Section heading shown on the site. */
             title: string;
+        };
+        PersonPayload: {
+            /** @description Short bio, written by the couple. */
+            bio?: string;
+            /**
+             * @description Instagram handle, without the @.
+             * @example xadenascimento
+             */
+            instagram?: string;
+            /**
+             * @description Display name for the chapter.
+             * @example Jade
+             */
+            name: string;
+            /**
+             * Format: uri
+             * @description Chapter portrait (public CDN URL).
+             */
+            photo_url?: string;
         };
         PixOutputBody: {
             /**
@@ -1054,6 +1106,26 @@ export interface components {
             gift_id: string;
             /** @description Static PIX BR Code (copia-e-cola), CRC included. */
             pix_code: string;
+        };
+        PostView: {
+            caption?: string;
+            id: string;
+            /**
+             * @description IMAGE, VIDEO or CAROUSEL_ALBUM.
+             * @example IMAGE
+             */
+            media_type: string;
+            /** Format: uri */
+            media_url?: string;
+            /** Format: uri */
+            permalink: string;
+            /**
+             * Format: uri
+             * @description Preview image, present for VIDEO posts.
+             */
+            thumbnail_url?: string;
+            /** @description Publish time, ISO 8601. */
+            timestamp?: string;
         };
         ProgrammeItem: {
             /** @example Recepção dos convidados */
@@ -1895,6 +1967,38 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["GroupView"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "get-instagram-feed": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Whose feed: the bride's or the groom's. */
+                person: "bride" | "groom";
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FeedOutputBody"];
                 };
             };
             /** @description Error */

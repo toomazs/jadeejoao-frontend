@@ -36,6 +36,18 @@ export const fixtureContent: ContentOutputBody = {
         title: 'Nossa História',
         body: 'Entre risadas, viagens e muitos cafés, construímos uma história que agora ganha o seu capítulo mais bonito. Em breve contamos tudo por aqui — com fotos e os melhores momentos.',
         images: [],
+        bride: {
+          name: 'Jade',
+          photo_url:
+            'https://ykvsimxpchaqbsqsqsfs.supabase.co/storage/v1/object/public/jadeejoao-bucket/couple/jade.jpg',
+          instagram: 'xadenascimento',
+        },
+        groom: {
+          name: 'João',
+          photo_url:
+            'https://ykvsimxpchaqbsqsqsfs.supabase.co/storage/v1/object/public/jadeejoao-bucket/couple/joao.jpg',
+          instagram: 'joaodiaspedro',
+        },
       },
     },
     {

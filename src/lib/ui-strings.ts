@@ -16,7 +16,7 @@ export const uiStrings = {
     bride: 'A noiva',
     groom: 'O noivo',
   },
-  momentsLabel: 'Nossos momentos',
+  instagramCta: 'Ver no Instagram',
   rsvp: {
     searchLabel: 'Seu nome completo',
     searchPlaceholder: 'Digite seu nome como está no convite…',
