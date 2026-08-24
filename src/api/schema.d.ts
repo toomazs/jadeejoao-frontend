@@ -413,7 +413,7 @@ export interface paths {
         };
         /**
          * Get an Instagram feed
-         * @description Returns the cached recent posts of one of the couple's Instagram accounts (Instagram API with Instagram Login). While no token is configured, configured=false and posts is empty — never an error.
+         * @description Returns one person's imported Instagram posts, served from the site's own storage (one-shot operator import — the site never calls Instagram at runtime). Before any import, configured=false and posts is empty — never an error.
          */
         get: operations["get-instagram-feed"];
         put?: never;
@@ -663,7 +663,7 @@ export interface components {
              * @example https://example.com/schemas/FeedOutputBody.json
              */
             readonly $schema?: string;
-            /** @description False while this person's Instagram token is not set up — the site links to the profile instead. */
+            /** @description False until an Instagram import has been run for this person — the site links to the profile instead. */
             configured: boolean;
             posts: components["schemas"]["PostView"][] | null;
         };
@@ -1115,7 +1115,10 @@ export interface components {
              * @example IMAGE
              */
             media_type: string;
-            /** Format: uri */
+            /**
+             * Format: uri
+             * @description Display image, served from the site's own bucket.
+             */
             media_url?: string;
             /** Format: uri */
             permalink: string;
