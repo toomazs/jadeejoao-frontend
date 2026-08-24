@@ -179,7 +179,7 @@ function PixFlow({ gift }: { gift: GiftView }) {
           {uiStrings.gifts.soldOut}
         </p>
       ) : (
-        <Button variant="outline" className="mt-5 w-full" onClick={() => setOpen(true)}>
+        <Button className="mt-5 w-full" onClick={() => setOpen(true)}>
           {uiStrings.gifts.pixCta}
         </Button>
       )}
@@ -367,81 +367,102 @@ function PixFlow({ gift }: { gift: GiftView }) {
   )
 }
 
-/** One PIX gift: a meta or cota the guest funds with the copia-e-cola. */
-function GiftCard({ gift, index }: { gift: GiftView; index: number }) {
+/**
+ * The shared shell every gift wears: the same frame, the same rhythm of
+ * title and words, the same plaque at the foot — so a PIX meta and a store
+ * list read as two entries of one list, not two designs.
+ */
+function GiftShell({
+  index,
+  media,
+  title,
+  description,
+  children,
+}: {
+  index: number
+  media?: ReactNode
+  title: string
+  description?: string
+  children: ReactNode
+}) {
   return (
     <Reveal
       as="li"
       delay={index * 110}
       className="lift flex flex-col border border-olive-line bg-cream px-5 py-6"
     >
-      {gift.image_url ? (
-        <img
-          src={gift.image_url}
-          alt=""
-          className="mb-4 aspect-[16/10] w-full border border-sand-line object-cover"
-          loading="lazy"
-        />
+      {media}
+      <h3 className="font-display text-2xl text-olive">{title}</h3>
+      {description ? (
+        <p className="mt-2 font-body text-base leading-relaxed text-dark-gray">{description}</p>
       ) : null}
-      <h3 className="font-display text-2xl text-olive">{gift.title}</h3>
-      {gift.description ? (
-        <p className="mt-2 font-body text-base leading-relaxed text-dark-gray">
-          {gift.description}
-        </p>
-      ) : null}
-
-      <div className="mt-auto">
-        <Progress gift={gift} />
-        {typeof gift.units_left === 'number' ? (
-          <p className="mt-2 font-body text-sm text-dark-gray">
-            {gift.units_left} {uiStrings.gifts.unitsLeftSuffix}
-          </p>
-        ) : null}
-        <PixFlow gift={gift} />
-      </div>
+      <div className="mt-auto">{children}</div>
     </Reveal>
   )
 }
 
+/** One PIX gift: a meta or cota the guest funds with the copia-e-cola. */
+function GiftCard({ gift, index }: { gift: GiftView; index: number }) {
+  return (
+    <GiftShell
+      index={index}
+      title={gift.title}
+      description={gift.description}
+      media={
+        gift.image_url ? (
+          <img
+            src={gift.image_url}
+            alt=""
+            className="mb-4 aspect-[16/10] w-full border border-sand-line object-cover"
+            loading="lazy"
+          />
+        ) : undefined
+      }
+    >
+      <Progress gift={gift} />
+      {typeof gift.units_left === 'number' ? (
+        <p className="mt-2 font-body text-sm text-dark-gray">
+          {gift.units_left} {uiStrings.gifts.unitsLeftSuffix}
+        </p>
+      ) : null}
+      <PixFlow gift={gift} />
+    </GiftShell>
+  )
+}
+
 /**
- * One store list: the shop's own logo on white — a shelf label — over the
- * couple's note about what they picked there.
+ * One store list: the shop's own logo on the brand veil — a shelf label —
+ * over the couple's note about what they picked there.
  */
 function RegistryCard({ gift, index }: { gift: GiftView; index: number }) {
   if (!gift.external_url) return null
   return (
-    <Reveal
-      as="li"
-      delay={index * 110}
-      className="lift flex flex-col border border-olive-line bg-cream px-5 py-6"
+    <GiftShell
+      index={index}
+      title={gift.title}
+      description={gift.description}
+      media={
+        gift.image_url ? (
+          <div className="mb-5 flex h-24 items-center justify-center border border-sand-line bg-veil px-6">
+            <img
+              src={gift.image_url}
+              alt={gift.platform ?? gift.title}
+              className="max-h-14 w-auto max-w-full object-contain"
+              loading="lazy"
+            />
+          </div>
+        ) : undefined
+      }
     >
-      {gift.image_url ? (
-        <div className="mb-5 flex h-24 items-center justify-center border border-sand-line bg-veil px-6">
-          <img
-            src={gift.image_url}
-            alt={gift.platform ?? gift.title}
-            className="max-h-14 w-auto max-w-full object-contain"
-            loading="lazy"
-          />
-        </div>
-      ) : null}
-      <h3 className="font-display text-2xl text-olive">{gift.title}</h3>
-      {gift.description ? (
-        <p className="mt-2 font-body text-base leading-relaxed text-dark-gray">
-          {gift.description}
-        </p>
-      ) : null}
-      <div className="mt-auto">
-        <ButtonLink
-          href={gift.external_url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-5 w-full"
-        >
-          {uiStrings.gifts.linkCta}
-        </ButtonLink>
-      </div>
-    </Reveal>
+      <ButtonLink
+        href={gift.external_url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="mt-5 w-full"
+      >
+        {uiStrings.gifts.linkCta}
+      </ButtonLink>
+    </GiftShell>
   )
 }
 

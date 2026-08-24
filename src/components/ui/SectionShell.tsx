@@ -2,6 +2,7 @@ import type { LucideIcon } from 'lucide-react'
 import type { ReactNode } from 'react'
 
 import type { SectionSlug } from '../../lib/content'
+import { BOTANICALS } from './Botanicals'
 import { LeafDivider } from './LeafDivider'
 import { Reveal } from './Reveal'
 
@@ -12,18 +13,21 @@ const TONES = {
     kicker: 'text-terracotta',
     rule: 'bg-terracotta',
     title: 'text-olive',
+    foliage: 'text-olive/25',
   },
   veil: {
     section: 'bg-veil',
     kicker: 'text-terracotta',
     rule: 'bg-terracotta',
     title: 'text-deep-olive',
+    foliage: 'text-deep-olive/25',
   },
   terracotta: {
     section: 'bg-terracotta',
     kicker: 'text-gold-sand',
     rule: 'bg-gold-sand',
     title: 'text-cream',
+    foliage: 'text-gold-sand/30',
   },
 } as const
 
@@ -61,14 +65,26 @@ export function SectionShell({
   const headingId = `${slug}-heading`
   const palette = TONES[tone]
   const measure = width === 'wide' ? 'max-w-6xl' : 'max-w-4xl'
+  // Each room draws two different plants, cycling through the set so the
+  // page never repeats the same pair twice in a row.
+  const seed = slug.length
+  const NearPlant = BOTANICALS[seed % BOTANICALS.length]
+  const FarPlant = BOTANICALS[(seed + 2) % BOTANICALS.length]
 
   return (
     <section
       id={slug}
       aria-labelledby={headingId}
-      className={`${palette.section} px-4 py-16 sm:px-8 sm:py-20 lg:py-24`}
+      className={`relative overflow-hidden ${palette.section} px-4 py-16 sm:px-8 sm:py-20 lg:py-24`}
     >
-      <div className={`mx-auto w-full ${measure}`}>
+      {/* The garden behind the room: two plants of the set, faint, turning
+          slowly enough that you notice only if you stop to look. */}
+      <div aria-hidden="true" className={`pointer-events-none absolute inset-0 ${palette.foliage}`}>
+        <NearPlant className="turn-slow absolute -top-16 -left-14 h-64 w-auto opacity-25 sm:h-80" />
+        <FarPlant className="turn-slower absolute -right-16 -bottom-20 h-72 w-auto opacity-20 sm:h-96" />
+      </div>
+
+      <div className={`relative mx-auto w-full ${measure}`}>
         <Reveal className="flex flex-col items-center text-center">
           {Icon ? (
             <span aria-hidden="true" className={palette.kicker}>

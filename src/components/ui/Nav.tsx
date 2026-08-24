@@ -115,7 +115,7 @@ export function Nav({ presentSlugs }: NavProps) {
       }`}
     >
       <div
-        className={`relative flex h-12 overflow-hidden rounded-full border border-olive-line/80 bg-cream/80 shadow-[0_10px_32px_-14px_rgba(26,24,24,0.35),0_2px_6px_-2px_rgba(26,24,24,0.12)] backdrop-blur-xl transition-[width] duration-[640ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
+        className={`relative flex h-12 overflow-hidden border border-olive-line/80 bg-cream/80 shadow-[0_10px_32px_-14px_rgba(26,24,24,0.35),0_2px_6px_-2px_rgba(26,24,24,0.12)] backdrop-blur-xl transition-[width] duration-[640ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
           visible ? 'pointer-events-auto' : ''
         }`}
         style={{
@@ -182,7 +182,7 @@ export function Nav({ presentSlugs }: NavProps) {
             onClick={() => setMenuOpen((open) => !open)}
             aria-label={menuOpen ? 'Fechar menu' : 'Abrir menu'}
             aria-expanded={menuOpen}
-            className={`ml-auto flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full text-olive transition-[opacity,transform,background-color] duration-300 hover:bg-olive/10 active:bg-olive/15 lg:hidden ${
+            className={`ml-auto flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center text-olive transition-[opacity,transform,background-color] duration-300 hover:bg-olive/10 active:bg-olive/15 lg:hidden ${
               expanded ? 'translate-x-0 opacity-100' : 'translate-x-1.5 opacity-0'
             }`}
             style={{ transitionDelay: expanded ? '420ms' : '0ms' }}
@@ -199,7 +199,7 @@ export function Nav({ presentSlugs }: NavProps) {
       {/* Mobile popover under the pill — full labels here. */}
       <div
         ref={popoverRef}
-        className={`mt-2 overflow-hidden rounded-3xl border border-olive-line/80 bg-cream/90 shadow-[0_18px_40px_-16px_rgba(26,24,24,0.4)] backdrop-blur-xl transition-[opacity,transform] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] lg:hidden ${
+        className={`mt-2 overflow-hidden border border-olive-line/80 bg-cream/90 shadow-[0_18px_40px_-16px_rgba(26,24,24,0.4)] backdrop-blur-xl transition-[opacity,transform] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] lg:hidden ${
           menuOpen && expanded
             ? 'pointer-events-auto translate-y-0 opacity-100'
             : 'pointer-events-none -translate-y-2 opacity-0'
