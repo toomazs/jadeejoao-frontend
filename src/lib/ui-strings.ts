@@ -41,6 +41,7 @@ export const uiStrings = {
     generateCode: 'Gerar código PIX',
     generating: 'Gerando…',
     copyCode: 'Copiar código',
+    scanQr: 'Ou aponte a câmera do banco',
     copied: 'Copiado!',
     declareName: 'Seu nome',
     declareCta: 'Já fiz o PIX',

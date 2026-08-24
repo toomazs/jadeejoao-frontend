@@ -1112,6 +1112,8 @@ export interface components {
             gift_id: string;
             /** @description Static PIX BR Code (copia-e-cola), CRC included. */
             pix_code: string;
+            /** @description The same BR Code as an inline SVG QR symbol; inherits the surrounding text colour. */
+            qr_svg?: string;
         };
         PostView: {
             caption?: string;

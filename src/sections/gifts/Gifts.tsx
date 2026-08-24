@@ -51,6 +51,7 @@ function PixFlow({ gift }: { gift: GiftView }) {
   const [units, setUnits] = useState(1)
   const [reais, setReais] = useState('')
   const [code, setCode] = useState<string | null>(null)
+  const [qrSvg, setQrSvg] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
   const [contributor, setContributor] = useState('')
 
@@ -66,7 +67,12 @@ function PixFlow({ gift }: { gift: GiftView }) {
     setCopied(false)
     preview.mutate(
       { params: { path: { gift_id: gift.gift_id }, query: { amount_centavos: amountCentavos } } },
-      { onSuccess: (data) => setCode(data.pix_code) },
+      {
+        onSuccess: (data) => {
+          setCode(data.pix_code)
+          setQrSvg(data.qr_svg ?? null)
+        },
+      },
     )
   }
 
@@ -143,6 +149,23 @@ function PixFlow({ gift }: { gift: GiftView }) {
 
       {code ? (
         <div className="mt-5">
+          {qrSvg ? (
+            /*
+             * The symbol is drawn by our own API from the BR Code's module
+             * matrix — no guest input reaches it — so inlining the SVG is
+             * safe, and it lets the QR take the couple's olive ink.
+             */
+            <figure className="mb-4 flex flex-col items-center">
+              <div
+                aria-hidden="true"
+                className="w-40 border border-sand-line bg-cream p-2 text-olive [&>svg]:block [&>svg]:h-auto [&>svg]:w-full"
+                dangerouslySetInnerHTML={{ __html: qrSvg }}
+              />
+              <figcaption className="mt-2 font-body text-xs tracking-[0.14em] text-dark-gray uppercase">
+                {uiStrings.gifts.scanQr}
+              </figcaption>
+            </figure>
+          ) : null}
           <p className="max-h-24 overflow-y-auto border border-sand-line bg-veil p-3 font-body text-xs break-all text-dark-gray">
             {code}
           </p>
