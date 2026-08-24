@@ -19,7 +19,7 @@ export function LeafDivider({ className = '', size = 'sm' }: LeafDividerProps) {
         src={siriguela}
         alt=""
         loading="lazy"
-        className={`${sprigHeight} w-auto rotate-12 select-none`}
+        className={`sway ${sprigHeight} w-auto rotate-12 select-none`}
       />
       <span className="h-px w-14 bg-sand-line" />
     </div>

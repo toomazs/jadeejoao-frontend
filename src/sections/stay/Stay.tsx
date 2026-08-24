@@ -1,5 +1,6 @@
 import { LeafGlyph } from '../../components/ui/LeafGlyph'
 import { Markdown } from '../../components/ui/Markdown'
+import { Reveal } from '../../components/ui/Reveal'
 import { SectionShell } from '../../components/ui/SectionShell'
 import type { StayContent } from '../../lib/content'
 import { uiStrings } from '../../lib/ui-strings'
@@ -12,18 +13,20 @@ interface StayProps {
 /** Guest rooms: lodging entries as ruled ledger rows, shuttle marked by the leaf badge. */
 export function Stay({ content, ordinal }: StayProps) {
   return (
-    <SectionShell slug="stay" title={content.title} ordinal={ordinal} variant="veil" width="wide">
+    <SectionShell slug="stay" title={content.title} ordinal={ordinal} tone="veil" width="wide">
       {content.body ? (
-        <Markdown
-          text={content.body}
-          className="mx-auto max-w-prose text-center font-body text-lg leading-relaxed"
-        />
+        <Markdown text={content.body} className="max-w-prose font-body text-lg leading-relaxed" />
       ) : null}
 
       {content.lodgings.length > 0 ? (
         <ul className="mt-9 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {content.lodgings.map((lodging) => (
-            <li key={lodging.name} className="flex flex-col border border-olive-line bg-cream px-5 py-6">
+          {content.lodgings.map((lodging, index) => (
+            <Reveal
+              as="li"
+              key={lodging.name}
+              delay={index * 110}
+              className="lift flex flex-col border border-olive-line bg-cream px-5 py-6"
+            >
               {lodging.link ? (
                 <a
                   href={lodging.link}
@@ -47,12 +50,12 @@ export function Stay({ content, ordinal }: StayProps) {
               {lodging.shuttle_served ? (
                 <p className="mt-auto flex items-center gap-2 pt-4 text-deep-olive">
                   <LeafGlyph className="h-4 w-4 shrink-0" />
-                  <span className="font-body text-xs tracking-[0.14em] uppercase">
+                  <span className="font-body text-sm tracking-[0.14em] uppercase">
                     {uiStrings.shuttleServed}
                   </span>
                 </p>
               ) : null}
-            </li>
+            </Reveal>
           ))}
         </ul>
       ) : null}

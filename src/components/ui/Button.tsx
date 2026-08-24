@@ -6,6 +6,8 @@ const VARIANT_CLASSES = {
     'bg-terracotta text-cream hover:bg-terracotta-deep border border-terracotta hover:border-terracotta-deep',
   /** Quiet action — engraved olive outline on paper. */
   outline: 'border border-olive text-olive hover:bg-olive hover:text-cream',
+  /** Action on dark grounds (the photo hero) — solid cream plaque. */
+  light: 'border border-cream bg-cream text-ink hover:border-gold-sand hover:bg-gold-sand',
 } as const
 
 type ButtonProps = ComponentPropsWithoutRef<'button'> & {
@@ -13,7 +15,7 @@ type ButtonProps = ComponentPropsWithoutRef<'button'> & {
 }
 
 const BASE_CLASSES =
-  'inline-flex min-h-12 cursor-pointer items-center justify-center gap-2 px-7 py-2 font-body text-base tracking-[0.08em] uppercase transition-colors'
+  'inline-flex min-h-13 cursor-pointer items-center justify-center gap-2 px-8 py-2.5 font-body text-base tracking-[0.1em] uppercase transition-colors'
 
 /** Token-driven button primitive in the engraved-plaque grammar; comfortable touch target. */
 export function Button({ type = 'button', variant = 'primary', className = '', ...rest }: ButtonProps) {

@@ -40,7 +40,7 @@
     background-color: var(--cream);
     color: var(--ink);
     font-family: var(--font-body);
-    font-size: 1rem; /* body text floor: 16px */
+    font-size: 1.125rem; /* body text floor: 18px — Arapey is light, small sizes read thin */
     line-height: 1.6;
   }
 
@@ -76,5 +76,143 @@
   scrollbar-width: none;
   &::-webkit-scrollbar {
     display: none;
+  }
+}
+
+/*
+ * Motion system — reveals on entry (IntersectionObserver adds .is-revealed),
+ * ambient sways, the marquee band, and scroll-scrubbed drift where the
+ * browser supports scroll-driven animations. Everything collapses to static
+ * under prefers-reduced-motion.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  .reveal {
+    opacity: 0;
+    transform: translateY(26px);
+    transition:
+      opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay: var(--reveal-delay, 0s);
+  }
+
+  .reveal.is-revealed {
+    opacity: 1;
+    transform: none;
+  }
+
+  .sway {
+    animation: sway 7s ease-in-out infinite;
+    transform-origin: 50% 0%;
+  }
+
+  /* The hero photograph breathes — a slow, endless push-in. */
+  .kenburns {
+    animation: kenburns 26s ease-in-out infinite alternate;
+  }
+
+  @keyframes kenburns {
+    from {
+      scale: 1;
+    }
+    to {
+      scale: 1.08;
+    }
+  }
+
+  @keyframes sway {
+    0%,
+    100% {
+      rotate: -3deg;
+    }
+    50% {
+      rotate: 3deg;
+    }
+  }
+
+  .hero-enter > * {
+    animation: fade-up 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .hero-enter > *:nth-child(1) { animation-delay: 0.05s; }
+  .hero-enter > *:nth-child(2) { animation-delay: 0.15s; }
+  .hero-enter > *:nth-child(3) { animation-delay: 0.28s; }
+  .hero-enter > *:nth-child(4) { animation-delay: 0.38s; }
+  .hero-enter > *:nth-child(5) { animation-delay: 0.48s; }
+  .hero-enter > *:nth-child(6) { animation-delay: 0.58s; }
+
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .tick {
+    animation: tick 0.45s ease-out;
+  }
+
+  @keyframes tick {
+    from {
+      opacity: 0.25;
+      transform: translateY(-0.35em);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .marquee-track {
+    animation: marquee 48s linear infinite;
+  }
+
+  @keyframes marquee {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  /* Scroll-scrubbed drift for decorative sprigs (progressive enhancement). */
+  @supports (animation-timeline: view()) {
+    .drift {
+      animation: drift linear both;
+      animation-timeline: view();
+      animation-range: entry 0% exit 100%;
+    }
+
+    @keyframes drift {
+      from {
+        translate: 0 3rem;
+      }
+      to {
+        translate: 0 -3rem;
+      }
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Card lift — shared hover grammar for gift and lodging cards. */
+.lift {
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.35s ease,
+    box-shadow 0.35s ease;
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .lift:hover {
+    transform: translateY(-0.4rem);
+    border-color: var(--olive);
+    box-shadow: 0 18px 40px -28px color-mix(in srgb, var(--ink) 45%, transparent);
   }
 }

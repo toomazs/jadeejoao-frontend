@@ -27,15 +27,34 @@ const CONTENT_STALE_TIME_MS = 10 * 60 * 1000
  * Position on the walk, engraved as the room's plaque ("02"…"10").
  * Derived from render order — the hero is the unnumbered gate.
  */
-function renderSection(section: NormalizedSection, index: number) {
+function renderSection(
+  section: NormalizedSection,
+  index: number,
+  hero: Extract<NormalizedSection, { slug: 'hero' }>['payload'] | undefined,
+) {
   const ordinal = String(index + 1).padStart(2, '0')
   switch (section.slug) {
     case 'hero':
       return <Hero key={section.slug} content={section.payload} />
     case 'our_story':
-      return <OurStory key={section.slug} content={section.payload} />
+      return (
+        <OurStory
+          key={section.slug}
+          content={section.payload}
+          coupleNames={hero?.couple_names}
+          portraits={hero?.images}
+          milestones={hero?.milestones}
+        />
+      )
     case 'big_day':
-      return <BigDay key={section.slug} content={section.payload} ordinal={ordinal} />
+      return (
+        <BigDay
+          key={section.slug}
+          content={section.payload}
+          ordinal={ordinal}
+          eventDatetime={hero?.event_datetime}
+        />
+      )
     case 'rsvp':
       return <Rsvp key={section.slug} content={section.payload} ordinal={ordinal} />
     case 'getting_there':
@@ -118,12 +137,9 @@ export function App() {
     <>
       <Nav presentSlugs={presentSlugs} />
       <main>
+        {/* Color rooms stack edge to edge — the palette separates them. */}
         {sections.map((section, index) => (
-          <Fragment key={section.slug}>
-            {/* The garden path: a sprig marks the walk between rooms. */}
-            {index > 0 ? <LeafDivider size="md" /> : null}
-            {renderSection(section, index)}
-          </Fragment>
+          <Fragment key={section.slug}>{renderSection(section, index, hero?.payload)}</Fragment>
         ))}
       </main>
       <Footer

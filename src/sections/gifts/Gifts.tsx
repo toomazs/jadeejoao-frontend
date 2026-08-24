@@ -4,6 +4,7 @@ import { $api } from '../../api/client'
 import type { components } from '../../api/schema'
 import { Button, ButtonLink } from '../../components/ui/Button'
 import { Markdown } from '../../components/ui/Markdown'
+import { Reveal } from '../../components/ui/Reveal'
 import { SectionShell } from '../../components/ui/SectionShell'
 import { Skeleton } from '../../components/ui/Skeleton'
 import type { GiftsIntroContent } from '../../lib/content'
@@ -31,12 +32,12 @@ function Progress({ gift }: { gift: GiftView }) {
   const percent = Math.min(100, Math.round((raised / gift.goal_centavos) * 100))
   return (
     <div className="mt-4">
-      <div className="h-1.5 w-full bg-sand-line">
-        <div className="h-full bg-olive" style={{ width: `${percent}%` }} />
+      <div className="h-2 w-full bg-sand-line">
+        <div className="h-full bg-terracotta" style={{ width: `${percent}%` }} />
       </div>
-      <p className="mt-2 flex justify-between font-body text-sm text-dark-gray">
-        <span>{formatCentavos(raised)}</span>
-        <span>{formatCentavos(gift.goal_centavos)}</span>
+      <p className="mt-2 flex justify-between font-body text-base">
+        <span className="text-terracotta">{formatCentavos(raised)}</span>
+        <span className="text-dark-gray">{formatCentavos(gift.goal_centavos)}</span>
       </p>
     </div>
   )
@@ -190,9 +191,13 @@ function PixFlow({ gift }: { gift: GiftView }) {
 }
 
 /** One gift card — PIX meta/cota with the flow, or an outbound registry card. */
-function GiftCard({ gift }: { gift: GiftView }) {
+function GiftCard({ gift, index }: { gift: GiftView; index: number }) {
   return (
-    <li className="flex flex-col border border-olive-line bg-cream px-5 py-6">
+    <Reveal
+      as="li"
+      delay={index * 110}
+      className="lift flex flex-col border border-olive-line bg-cream px-5 py-6"
+    >
       {gift.image_url ? (
         <img
           src={gift.image_url}
@@ -237,7 +242,7 @@ function GiftCard({ gift }: { gift: GiftView }) {
           </>
         )}
       </div>
-    </li>
+    </Reveal>
   )
 }
 
@@ -265,8 +270,8 @@ export function Gifts({ content, ordinal }: GiftsProps) {
 
       {gifts.length > 0 ? (
         <ul className="mt-9 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {gifts.map((gift) => (
-            <GiftCard key={gift.gift_id} gift={gift} />
+          {gifts.map((gift, index) => (
+            <GiftCard key={gift.gift_id} gift={gift} index={index} />
           ))}
         </ul>
       ) : null}

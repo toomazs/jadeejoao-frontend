@@ -1,5 +1,5 @@
-import { LeafGlyph } from '../../components/ui/LeafGlyph'
 import { Markdown } from '../../components/ui/Markdown'
+import { Reveal } from '../../components/ui/Reveal'
 import { SectionShell } from '../../components/ui/SectionShell'
 import type { GoodPracticesContent } from '../../lib/content'
 
@@ -8,10 +8,10 @@ interface GoodPracticesProps {
   ordinal?: string
 }
 
-/** House rules, each marked by the seriguela leaflet — the etiquette of being received at home. */
+/** House rules as numbered cards — the etiquette of being received at home. */
 export function GoodPractices({ content, ordinal }: GoodPracticesProps) {
   return (
-    <SectionShell slug="good_practices" title={content.title} ordinal={ordinal}>
+    <SectionShell slug="good_practices" title={content.title} ordinal={ordinal} width="wide">
       {content.body ? (
         <Markdown
           text={content.body}
@@ -19,13 +19,26 @@ export function GoodPractices({ content, ordinal }: GoodPracticesProps) {
         />
       ) : null}
       {content.rules.length > 0 ? (
-        <ul className="mx-auto mt-9 max-w-prose space-y-5">
-          {content.rules.map((rule) => (
-            <li key={rule} className="flex items-start gap-3.5">
-              <LeafGlyph className="mt-1.5 h-4 w-4 shrink-0 text-olive" />
-              <span className="font-body text-lg leading-relaxed">{rule}</span>
-            </li>
-          ))}
+        <ul className="mt-9 grid gap-5 sm:grid-cols-2">
+          {content.rules.map((rule, index) => {
+            const numeralColors = ['text-terracotta', 'text-olive', 'text-gold-sand', 'text-deep-olive']
+            return (
+              <Reveal
+                as="li"
+                key={rule}
+                delay={index * 90}
+                className="lift flex items-start gap-5 border border-olive-line bg-cream px-6 py-6"
+              >
+                <span
+                  aria-hidden="true"
+                  className={`font-display text-5xl leading-none ${numeralColors[index % numeralColors.length]}`}
+                >
+                  {String(index + 1).padStart(2, '0')}
+                </span>
+                <span className="font-body text-lg leading-relaxed">{rule}</span>
+              </Reveal>
+            )
+          })}
         </ul>
       ) : null}
     </SectionShell>

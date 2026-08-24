@@ -4,7 +4,7 @@ type ContentOutputBody = components['schemas']['ContentOutputBody']
 
 /**
  * Fixture content for tests and the dev-gated mock transport.
- * It MIRRORS the API's real seed migrations (00002 + 00007) — never invented
+ * It MIRRORS the API's real seed migrations (00002 + 00007–00009) — never invented
  * facts: what the mock shows is exactly what a fresh database serves. When a
  * seed changes, update this mirror.
  */
@@ -20,6 +20,8 @@ export const fixtureContent: ContentOutputBody = {
         couple_names: 'Jade & João',
         event_datetime: '2027-08-07T15:00:00-03:00',
         city_label: 'Atibaia – SP',
+        hero_image_url:
+          'https://ykvsimxpchaqbsqsqsfs.supabase.co/storage/v1/object/public/jadeejoao-bucket/hero/jade-e-joao.jpg',
         milestones: [
           { label: 'Nossa família' },
           { label: 'Nossa casa em Atibaia' },
