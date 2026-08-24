@@ -159,14 +159,30 @@ export function GettingThere({ content, stay }: GettingThereProps) {
                   {lodging.notes ? (
                     <p className="mt-2.5 font-body text-base leading-relaxed">{lodging.notes}</p>
                   ) : null}
-                  {lodging.shuttle_served ? (
-                    <p className="mt-auto flex items-center gap-2 pt-4 text-deep-olive">
+                  {/* Both answers are spoken. Drawing only the positive one
+                      left a card with no line at all, which reads as missing
+                      information rather than as "the van does not come here". */}
+                  <p
+                    className={`mt-auto flex items-center gap-2 pt-4 ${
+                      lodging.shuttle_served ? 'text-deep-olive' : 'text-dark-gray/55'
+                    }`}
+                  >
+                    {lodging.shuttle_served ? (
                       <LeafGlyph className="h-4 w-4 shrink-0" />
-                      <span className="font-body text-sm tracking-[0.14em] uppercase">
-                        {uiStrings.shuttleServed}
+                    ) : (
+                      <span
+                        aria-hidden="true"
+                        className="flex h-4 w-4 shrink-0 items-center justify-center"
+                      >
+                        <span className="h-px w-2.5 bg-current" />
                       </span>
-                    </p>
-                  ) : null}
+                    )}
+                    <span className="font-body text-sm tracking-[0.14em] uppercase">
+                      {lodging.shuttle_served
+                        ? uiStrings.shuttleServed
+                        : uiStrings.shuttleNotServed}
+                    </span>
+                  </p>
                 </Reveal>
               ))}
             </ul>

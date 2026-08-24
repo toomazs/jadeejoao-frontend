@@ -84,6 +84,7 @@ export const uiStrings = {
   },
   genericActionError: 'Não deu certo agora. Tente novamente em instantes.',
   shuttleServed: 'Atendido pelo traslado',
+  shuttleNotServed: 'Sem traslado',
   airbnbAreas: 'Bairros para buscar no Airbnb',
   openMap: 'Ver no mapa',
   openInApp: 'Abrir rota',

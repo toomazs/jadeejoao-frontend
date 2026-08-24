@@ -225,6 +225,24 @@
     }
   }
 
+  /* And the mirror of it: a form bowing out so the thank-you can take the
+     place it was occupying, instead of both being on screen at once. */
+  .card-out {
+    animation: card-out 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+    pointer-events: none;
+  }
+
+  @keyframes card-out {
+    from {
+      opacity: 1;
+      transform: none;
+    }
+    to {
+      opacity: 0;
+      transform: translateY(-12px) scale(0.99);
+    }
+  }
+
   /* An answer settling into place — the same easing the rest of the page
      moves with, so the confirmation feels calm rather than springy. */
   .answer-kick {
