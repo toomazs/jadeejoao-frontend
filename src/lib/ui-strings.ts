@@ -40,6 +40,16 @@ export const uiStrings = {
     changeHint: 'Mudou algum plano? Você pode alterar até a data limite.',
     deadlinePrefix: 'Confirme até',
     answerAll: 'Responda por todas as pessoas do grupo para enviar.',
+    companions: {
+      open: 'Convidar alguém com você',
+      nameLabel: 'Nome e sobrenome',
+      namePlaceholder: 'Quem vem com você…',
+      goingLabel: 'Essa pessoa vai?',
+      add: 'Adicionar ao convite',
+      adding: 'Adicionando…',
+      cancel: 'Cancelar',
+      full: 'Você já usou os acompanhantes deste convite. Para levar mais alguém, fale com os noivos.',
+    },
   },
   gifts: {
     pixCta: 'Presentear via PIX',

@@ -3,6 +3,7 @@ import { useEffect, useId, useState } from 'react'
 import { Check, X } from 'lucide-react'
 
 import { $api } from '../../api/client'
+import { AddCompanion } from './AddCompanion'
 import type { components } from '../../api/schema'
 import { Button } from '../../components/ui/Button'
 import { Skeleton } from '../../components/ui/Skeleton'
@@ -302,6 +303,27 @@ export function Rsvp({ content }: RsvpProps) {
                 </li>
               ))}
             </ul>
+
+            {/* Answering happens above; adding someone is a smaller, quieter
+                move, so it sits under the list rather than beside the send
+                button where it would compete with it. */}
+            <AddCompanion
+              group={group}
+              onAdded={(updated) => {
+                setGroup(updated)
+                // The companion arrives already answered — carry that into the
+                // local answers so the send button does not ask again.
+                setAnswers((prev) => {
+                  const next = { ...prev }
+                  for (const member of updated.members ?? []) {
+                    if (member.attending === 'yes' || member.attending === 'no') {
+                      next[member.guest_id] = member.attending
+                    }
+                  }
+                  return next
+                })
+              }}
+            />
 
             {submit.isError ? (
               <p role="alert" className="mt-6 text-center font-body text-base text-terracotta">

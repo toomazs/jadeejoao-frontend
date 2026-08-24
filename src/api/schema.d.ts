@@ -115,7 +115,7 @@ export interface paths {
         };
         /**
          * Export guest list as CSV
-         * @description PT-BR headers and values (grupo, nome, principal, categoria, presenca).
+         * @description PT-BR headers and values (convite, nome, principal, categoria, presenca). Re-importable as-is.
          */
         get: operations["admin-export-guests"];
         put?: never;
@@ -384,6 +384,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/guests/{group_id}/companions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Add a companion
+         * @description Adds one more person to an existing invitation and records their answer in the same move. Capped at 5 per invitation. Rejected after the RSVP deadline. Returns the whole group, so the caller can render the new list without refetching.
+         */
+        post: operations["add-companion"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/guests/{group_id}/rsvp": {
         parameters: {
             query?: never;
@@ -509,6 +529,24 @@ export interface components {
             title: string;
             /** @description Venue guidance (outdoor, grass — advise footwear). */
             venue_notes?: string;
+        };
+        CompanionInputBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/CompanionInputBody.json
+             */
+            readonly $schema?: string;
+            /**
+             * @description Se essa pessoa vai ao casamento.
+             * @enum {string}
+             */
+            attending: "yes" | "no";
+            /**
+             * @description Nome e sobrenome de quem vem junto.
+             * @example Maria Silva
+             */
+            full_name: string;
         };
         Conflict: {
             db_group?: string;
@@ -1028,10 +1066,12 @@ export interface components {
             public_url: string;
         };
         MemberView: {
+            /** @description True when a guest added this person to the invitation themselves. */
+            added_by_guest: boolean;
             /** @enum {string} */
             attending: "pending" | "yes" | "no";
             /** @enum {string} */
-            category?: "adult" | "child" | "baby" | "elderly";
+            category?: "adult" | "teen" | "child" | "baby" | "elderly";
             /** @example Eduardo Silva */
             full_name: string;
             /** Format: uuid */
@@ -2031,6 +2071,41 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SuggestOutputBody"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "add-companion": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                group_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CompanionInputBody"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GroupView"];
                 };
             };
             /** @description Error */

@@ -14,3 +14,7 @@ coverage
 
 # Wrangler local state
 .wrangler/
+
+# Ferramenta de design local, fora do repositorio
+.impeccable/
+PRODUCT.md
