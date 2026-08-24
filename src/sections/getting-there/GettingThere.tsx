@@ -1,12 +1,45 @@
-import { MapPin, Navigation } from 'lucide-react'
+import { Navigation } from 'lucide-react'
 
-import { ButtonLink } from '../../components/ui/Button'
 import { LeafGlyph } from '../../components/ui/LeafGlyph'
 import { Markdown } from '../../components/ui/Markdown'
 import { Reveal } from '../../components/ui/Reveal'
 import { SectionShell } from '../../components/ui/SectionShell'
 import type { GettingThereContent, StayContent } from '../../lib/content'
 import { uiStrings } from '../../lib/ui-strings'
+
+/** One navigation app, as a card: its own mark, its own name, one tap away. */
+function NavCard({
+  href,
+  logo,
+  name,
+  hint,
+}: {
+  href: string
+  logo?: string
+  name: string
+  hint: string
+}) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="lift flex items-center gap-4 border border-olive-line bg-cream px-4 py-3.5"
+    >
+      <span className="flex h-11 w-11 shrink-0 items-center justify-center">
+        {logo ? (
+          <img src={logo} alt="" className="max-h-9 w-auto object-contain" loading="lazy" />
+        ) : (
+          <Navigation aria-hidden="true" size={22} strokeWidth={1.8} className="text-olive" />
+        )}
+      </span>
+      <span className="flex flex-col">
+        <span className="font-display text-lg leading-tight text-olive">{name}</span>
+        <span className="font-body text-xs tracking-[0.14em] text-dark-gray uppercase">{hint}</span>
+      </span>
+    </a>
+  )
+}
 
 interface GettingThereProps {
   content: GettingThereContent
@@ -21,8 +54,11 @@ interface GettingThereProps {
  * stay?".
  */
 export function GettingThere({ content, stay }: GettingThereProps) {
-  const hasLodging =
-    stay && (stay.lodgings.length > 0 || stay.airbnb_areas.length > 0 || Boolean(stay.body))
+  // Two kinds of answer: places the couple vouches for, and the platforms
+  // where a guest can look for themselves.
+  const hotels = stay?.lodgings.filter((lodging) => !lodging.platform) ?? []
+  const platforms = stay?.lodgings.filter((lodging) => lodging.platform) ?? []
+  const hasLodging = stay && (hotels.length > 0 || platforms.length > 0 || Boolean(stay.body))
 
   return (
     <SectionShell slug="getting_there" title={content.title} tone="veil" width="wide">
@@ -46,23 +82,22 @@ export function GettingThere({ content, stay }: GettingThereProps) {
           ) : null}
 
           {content.maps_url || content.waze_url ? (
-            <div className="mt-7 flex flex-wrap gap-3">
+            <div className="mt-7 grid gap-4 sm:grid-cols-2">
               {content.maps_url ? (
-                <ButtonLink href={content.maps_url} target="_blank" rel="noopener noreferrer">
-                  <MapPin aria-hidden="true" size={18} strokeWidth={2} />
-                  {uiStrings.openInMaps}
-                </ButtonLink>
+                <NavCard
+                  href={content.maps_url}
+                  logo={content.maps_logo_url}
+                  name="Google Maps"
+                  hint={uiStrings.openInApp}
+                />
               ) : null}
               {content.waze_url ? (
-                <ButtonLink
+                <NavCard
                   href={content.waze_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  variant="outline"
-                >
-                  <Navigation aria-hidden="true" size={18} strokeWidth={2} />
-                  {uiStrings.openInWaze}
-                </ButtonLink>
+                  logo={content.waze_logo_url}
+                  name="Waze"
+                  hint={uiStrings.openInApp}
+                />
               ) : null}
             </div>
           ) : null}
@@ -95,9 +130,9 @@ export function GettingThere({ content, stay }: GettingThereProps) {
             ) : null}
           </Reveal>
 
-          {stay.lodgings.length > 0 ? (
+          {hotels.length > 0 ? (
             <ul className="mt-9 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {stay.lodgings.map((lodging, index) => (
+              {hotels.map((lodging, index) => (
                 <Reveal
                   as="li"
                   key={lodging.name}
@@ -137,20 +172,42 @@ export function GettingThere({ content, stay }: GettingThereProps) {
             </ul>
           ) : null}
 
-          {stay.airbnb_areas.length > 0 ? (
-            <div className="mt-8 text-center">
-              <p className="font-body text-base text-dark-gray italic">{uiStrings.airbnbAreas}</p>
-              <ul className="mt-3 flex flex-wrap justify-center gap-2">
-                {stay.airbnb_areas.map((area) => (
-                  <li
-                    key={area}
-                    className="border border-sand-line bg-cream px-4 py-1.5 font-body text-base text-olive"
+          {platforms.length > 0 ? (
+            <ul className="mt-6 grid gap-4 sm:grid-cols-2">
+              {platforms.map((platform, index) => (
+                <Reveal
+                  as="li"
+                  key={platform.name}
+                  delay={index * 110}
+                  className="lift border border-olive-line bg-cream"
+                >
+                  <a
+                    href={platform.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-4 px-4 py-3.5"
                   >
-                    {area}
-                  </li>
-                ))}
-              </ul>
-            </div>
+                    <span className="flex h-9 w-24 shrink-0 items-center justify-start">
+                      {platform.logo_url ? (
+                        <img
+                          src={platform.logo_url}
+                          alt={platform.name}
+                          className="max-h-7 w-auto max-w-full object-contain"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <span className="font-display text-lg text-olive">{platform.name}</span>
+                      )}
+                    </span>
+                    {platform.notes ? (
+                      <span className="font-body text-sm leading-snug text-dark-gray">
+                        {platform.notes}
+                      </span>
+                    ) : null}
+                  </a>
+                </Reveal>
+              ))}
+            </ul>
           ) : null}
         </div>
       ) : null}

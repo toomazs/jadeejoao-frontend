@@ -150,7 +150,7 @@ export function BigDay({ content, eventDatetime }: BigDayProps) {
         ) : null}
 
         {programme.length > 0 ? (
-          <div className="relative mt-14">
+          <div className="relative mx-auto mt-14 w-fit">
             {/* One continuous rail behind every marker. */}
             <span
               aria-hidden="true"

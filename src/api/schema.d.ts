@@ -703,12 +703,22 @@ export interface components {
             map_embed_url?: string;
             /**
              * Format: uri
+             * @description Google Maps mark for the navigation card.
+             */
+            maps_logo_url?: string;
+            /**
+             * Format: uri
              * @description Deep link that opens Google Maps at the venue.
              */
             maps_url?: string;
             parking_notes?: string;
             /** @description Section heading shown on the site. */
             title: string;
+            /**
+             * Format: uri
+             * @description Waze mark for the navigation card.
+             */
+            waze_logo_url?: string;
             /**
              * Format: uri
              * @description Deep link that opens Waze at the venue.
@@ -950,9 +960,16 @@ export interface components {
             area?: string;
             /** Format: uri */
             link?: string;
+            /**
+             * Format: uri
+             * @description Brand mark, for platforms that have one.
+             */
+            logo_url?: string;
             /** @example Pousada Jardim */
             name: string;
             notes?: string;
+            /** @description True for a search platform (Booking, Airbnb): rendered as a compact branded card, not a hotel entry. */
+            platform?: boolean;
             /** @description Whether the wedding shuttle (translado) serves this lodging. */
             shuttle_served: boolean;
         };
