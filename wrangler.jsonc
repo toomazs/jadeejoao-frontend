@@ -1,0 +1,17 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "jadeejoao-frontend",
+  "compatibility_date": "2026-08-24",
+
+  // Assets-only Worker: there is no server code here, just the built SPA.
+  // Omitting "main" (and therefore the ASSETS binding) is deliberate — the
+  // API lives in its own service on Railway.
+  "assets": {
+    "directory": "./dist",
+    // Unlike Pages, Workers does not guess that this is a single-page app.
+    // Without this, deep links and refreshes on any path would 404 instead
+    // of handing the request to the router. Replaces the old _redirects
+    // fallback, which is why that file is gone.
+    "not_found_handling": "single-page-application"
+  }
+}

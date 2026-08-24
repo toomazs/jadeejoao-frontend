@@ -11,3 +11,6 @@ coverage
 .impeccable/config.local.json
 .impeccable/hook.cache.json
 .impeccable/live/
+
+# Wrangler local state
+.wrangler/
