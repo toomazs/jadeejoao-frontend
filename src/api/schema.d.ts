@@ -404,6 +404,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/guests/{group_id}/companions/{guest_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Remove a companion
+         * @description Takes back someone the guest added to their own invitation. Refuses for anyone the couple invited: a guest can undo their own additions, never edit the couple's list. Rejected after the RSVP deadline. Returns the remaining group.
+         */
+        delete: operations["remove-companion"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/guests/{group_id}/rsvp": {
         parameters: {
             query?: never;
@@ -543,10 +563,20 @@ export interface components {
              */
             attending: "yes" | "no";
             /**
+             * @description Faixa da pessoa, para a conta dos noivos. Omitido vira adulto.
+             * @enum {string}
+             */
+            category?: "adult" | "teen" | "child" | "baby" | "elderly";
+            /**
              * @description Nome e sobrenome de quem vem junto.
              * @example Maria Silva
              */
             full_name: string;
+            /**
+             * @description Opcional; serve só à organização do casal.
+             * @enum {string}
+             */
+            gender?: "female" | "male";
         };
         Conflict: {
             db_group?: string;
@@ -2101,6 +2131,38 @@ export interface operations {
         responses: {
             /** @description Created */
             201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GroupView"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "remove-companion": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                group_id: string;
+                guest_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };

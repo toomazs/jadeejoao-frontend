@@ -1,6 +1,6 @@
 import { useEffect, useId, useState } from 'react'
 
-import { Check, X } from 'lucide-react'
+import { Check, Trash2, X } from 'lucide-react'
 
 import { $api } from '../../api/client'
 import { AddCompanion } from './AddCompanion'
@@ -55,6 +55,10 @@ export function Rsvp({ content }: RsvpProps) {
   )
 
   const lookup = $api.useMutation('post', '/api/v1/guests/lookup')
+  const removeCompanion = $api.useMutation(
+    'delete',
+    '/api/v1/guests/{group_id}/companions/{guest_id}',
+  )
   const submit = $api.useMutation('post', '/api/v1/guests/{group_id}/rsvp')
 
   const openInvitation = (fullName: string) => {
@@ -272,7 +276,7 @@ export function Rsvp({ content }: RsvpProps) {
                   style={{ animationDelay: `${140 + index * 70}ms` }}
                 >
                   <span className="font-body text-lg text-ink">{member.full_name}</span>
-                  <div className="flex gap-2" role="group" aria-label={member.full_name}>
+                  <div className="flex items-center gap-2" role="group" aria-label={member.full_name}>
                     {(['yes', 'no'] as const).map((option) => {
                       const active = answers[member.guest_id] === option
                       const label =
@@ -299,10 +303,50 @@ export function Rsvp({ content }: RsvpProps) {
                         </button>
                       )
                     })}
+                    {/* Only for names the guest put here themselves — the
+                        couple's own list is not theirs to edit, and the API
+                        refuses it regardless. */}
+                    {member.added_by_guest ? (
+                      <button
+                        type="button"
+                        title={uiStrings.rsvp.companions.remove}
+                        aria-label={`${uiStrings.rsvp.companions.remove}: ${member.full_name}`}
+                        disabled={removeCompanion.isPending}
+                        onClick={() => {
+                          if (!group) return
+                          removeCompanion.mutate(
+                            {
+                              params: {
+                                path: { group_id: group.group_id, guest_id: member.guest_id },
+                              },
+                            },
+                            {
+                              onSuccess: (data) => {
+                                setGroup(data)
+                                setAnswers((prev) => {
+                                  const next = { ...prev }
+                                  delete next[member.guest_id]
+                                  return next
+                                })
+                              },
+                            },
+                          )
+                        }}
+                        className="min-h-11 cursor-pointer px-2 text-dark-gray/55 transition-colors hover:text-terracotta disabled:cursor-not-allowed disabled:opacity-45"
+                      >
+                        <Trash2 className="h-4 w-4" aria-hidden="true" />
+                      </button>
+                    ) : null}
                   </div>
                 </li>
               ))}
             </ul>
+
+            {removeCompanion.isError ? (
+              <p role="alert" className="mt-4 text-center font-body text-base text-terracotta">
+                {problemDetail(removeCompanion.error)}
+              </p>
+            ) : null}
 
             {/* Answering happens above; adding someone is a smaller, quieter
                 move, so it sits under the list rather than beside the send

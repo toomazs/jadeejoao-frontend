@@ -8,6 +8,8 @@ import { uiStrings } from '../../lib/ui-strings'
 
 type GroupView = components['schemas']['GroupView']
 type Answer = 'yes' | 'no'
+type Category = 'adult' | 'teen' | 'child' | 'baby' | 'elderly'
+type Gender = 'female' | 'male'
 
 /**
  * Mirrors MaxCompanionsPerGroup in the API. Duplicated on purpose: the number
@@ -16,6 +18,35 @@ type Answer = 'yes' | 'no'
  * server's PT-BR message instead of a silent failure.
  */
 const MAX_COMPANIONS = 5
+
+const CATEGORIES: Category[] = ['adult', 'teen', 'child', 'baby', 'elderly']
+const GENDERS: Gender[] = ['female', 'male']
+
+/** Small pill used for every choice in the form, so they read as one family. */
+function Chip({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean
+  onClick: () => void
+  children: React.ReactNode
+}) {
+  return (
+    <button
+      type="button"
+      aria-pressed={active}
+      onClick={onClick}
+      className={`min-h-9 cursor-pointer border px-3.5 font-body text-sm transition-colors ${
+        active
+          ? 'border-olive bg-olive text-cream'
+          : 'border-olive-line text-dark-gray hover:border-olive hover:text-olive'
+      }`}
+    >
+      {children}
+    </button>
+  )
+}
 
 interface AddCompanionProps {
   group: GroupView
@@ -29,18 +60,31 @@ interface AddCompanionProps {
  *
  * The answer is asked together with the name because whoever is bringing
  * someone already knows whether that person is coming; making them add first
- * and answer after would be two steps for one decision.
+ * and answer after would be two steps for one decision. The age bracket is
+ * asked because the couple counts meals by it — every companion silently
+ * filed as an adult would overstate the children at the party.
  */
 export function AddCompanion({ group, onAdded }: AddCompanionProps) {
   const nameId = useId()
   const [open, setOpen] = useState(false)
   const [name, setName] = useState('')
   const [attending, setAttending] = useState<Answer | null>(null)
+  const [category, setCategory] = useState<Category>('adult')
+  const [gender, setGender] = useState<Gender | null>(null)
   const add = $api.useMutation('post', '/api/v1/guests/{group_id}/companions')
 
   const used = (group.members ?? []).filter((m) => m.added_by_guest).length
   const left = MAX_COMPANIONS - used
   const canAdd = name.trim().length > 1 && attending !== null && !add.isPending
+
+  const close = () => {
+    setOpen(false)
+    setName('')
+    setAttending(null)
+    setCategory('adult')
+    setGender(null)
+    add.reset()
+  }
 
   if (left <= 0) {
     return (
@@ -110,6 +154,42 @@ export function AddCompanion({ group, onAdded }: AddCompanionProps) {
         })}
       </div>
 
+      <p className="mt-4 font-body text-sm text-dark-gray">
+        {uiStrings.rsvp.companions.categoryLabel}
+      </p>
+      <div
+        className="mt-2 flex flex-wrap gap-2"
+        role="group"
+        aria-label={uiStrings.rsvp.companions.categoryLabel}
+      >
+        {CATEGORIES.map((option) => (
+          <Chip key={option} active={category === option} onClick={() => setCategory(option)}>
+            {uiStrings.rsvp.companions.categories[option]}
+          </Chip>
+        ))}
+      </div>
+
+      <p className="mt-4 font-body text-sm text-dark-gray">
+        {uiStrings.rsvp.companions.genderLabel}
+      </p>
+      <div
+        className="mt-2 flex flex-wrap gap-2"
+        role="group"
+        aria-label={uiStrings.rsvp.companions.genderLabel}
+      >
+        {GENDERS.map((option) => (
+          <Chip
+            key={option}
+            active={gender === option}
+            // Tapping the chosen one again clears it: the field is optional,
+            // and a guest who picked by accident needs a way back out.
+            onClick={() => setGender((prev) => (prev === option ? null : option))}
+          >
+            {uiStrings.rsvp.companions.genders[option]}
+          </Chip>
+        ))}
+      </div>
+
       {add.isError ? (
         <p role="alert" className="mt-4 font-body text-base text-terracotta">
           {add.error &&
@@ -124,12 +204,7 @@ export function AddCompanion({ group, onAdded }: AddCompanionProps) {
       <div className="mt-5 flex flex-wrap items-center justify-end gap-3">
         <button
           type="button"
-          onClick={() => {
-            setOpen(false)
-            setName('')
-            setAttending(null)
-            add.reset()
-          }}
+          onClick={close}
           className="min-h-11 cursor-pointer px-2 font-body text-base text-dark-gray underline decoration-1 underline-offset-4 transition-colors hover:text-olive"
         >
           {uiStrings.rsvp.companions.cancel}
@@ -142,14 +217,17 @@ export function AddCompanion({ group, onAdded }: AddCompanionProps) {
             add.mutate(
               {
                 params: { path: { group_id: group.group_id } },
-                body: { full_name: name.trim(), attending },
+                body: {
+                  full_name: name.trim(),
+                  attending,
+                  category,
+                  ...(gender ? { gender } : {}),
+                },
               },
               {
                 onSuccess: (data) => {
                   onAdded(data)
-                  setOpen(false)
-                  setName('')
-                  setAttending(null)
+                  close()
                 },
               },
             )
