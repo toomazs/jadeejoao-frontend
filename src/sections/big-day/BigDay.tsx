@@ -1,10 +1,23 @@
-import { Church, Heart, MapPin, PartyPopper, Sparkles, Users } from 'lucide-react'
+import {
+  Cake,
+  Camera,
+  Church,
+  Flower2,
+  Heart,
+  MapPin,
+  Martini,
+  Music,
+  PartyPopper,
+  Sparkles,
+  Users,
+} from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
 import { ButtonLink } from '../../components/ui/Button'
 import { Markdown } from '../../components/ui/Markdown'
 import { Reveal } from '../../components/ui/Reveal'
 import type { BigDayContent } from '../../lib/content'
+import { formatEventDate } from '../../lib/format'
 import { uiStrings } from '../../lib/ui-strings'
 import { useCountdown } from '../../lib/useCountdown'
 
@@ -17,20 +30,20 @@ interface BigDayProps {
 type ProgrammeItem = BigDayContent['programme'][number]
 
 /**
- * The moments that anchor the day get an emblem and a louder line; everything
- * between them is a quiet step. Matching on the couple's own words keeps the
- * programme editable in the admin without touching this file.
+ * The emblems the couple can choose from in the admin. The payload carries a
+ * name, this file draws it — so the schedule is editable without a deploy.
  */
-const ANCHORS: { test: RegExp; icon: LucideIcon }[] = [
-  { test: /recep/i, icon: Users },
-  { test: /in[íi]cio da cerim|cerim/i, icon: Church },
-  { test: /votos/i, icon: Heart },
-  { test: /alian/i, icon: Sparkles },
-  { test: /festa|encerramento/i, icon: PartyPopper },
-]
-
-function anchorFor(label: string): LucideIcon | null {
-  return ANCHORS.find((anchor) => anchor.test.test(label))?.icon ?? null
+const PROGRAMME_ICONS: Record<string, LucideIcon> = {
+  guests: Users,
+  ceremony: Church,
+  vows: Heart,
+  rings: Sparkles,
+  party: PartyPopper,
+  music: Music,
+  toast: Martini,
+  cake: Cake,
+  photo: Camera,
+  flowers: Flower2,
 }
 
 /** One unit of the countdown: the numeral leads, its name whispers beneath. */
@@ -52,7 +65,7 @@ function CountdownUnit({ value, unit }: { value: number; unit: string }) {
 
 /** One line of the programme, hung on the rail. */
 function ProgrammeRow({ item, index }: { item: ProgrammeItem; index: number }) {
-  const Icon = anchorFor(item.label)
+  const Icon = item.icon ? (PROGRAMME_ICONS[item.icon] ?? null) : null
   return (
     <Reveal as="li" delay={Math.min(index, 6) * 60} className="relative grid grid-cols-[4.5rem_2.5rem_1fr] items-baseline">
       <time
@@ -121,6 +134,11 @@ export function BigDay({ content, eventDatetime }: BigDayProps) {
               <CountdownUnit value={countdown.minutes} unit={uiStrings.countdown.minutes} />
               <CountdownUnit value={countdown.seconds} unit={uiStrings.countdown.seconds} />
             </div>
+            {eventDatetime ? (
+              <p className="mt-4 text-center font-body text-xs tracking-[0.28em] text-dark-gray uppercase">
+                {formatEventDate(eventDatetime)}
+              </p>
+            ) : null}
           </Reveal>
         ) : null}
 

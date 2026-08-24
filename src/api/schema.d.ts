@@ -494,8 +494,8 @@ export interface components {
              */
             image_url: string;
             /**
-             * @description The caption written on the frame.
-             * @example Mamãe e papai vão se casar!
+             * @description The caption written on the frame; **double asterisks** set a phrase in bold.
+             * @example Mamãe e papai **vão se casar!**
              */
             label: string;
         };
@@ -1162,6 +1162,11 @@ export interface components {
             timestamp?: string;
         };
         ProgrammeItem: {
+            /**
+             * @description Emblem for a moment that anchors the day; empty renders a plain mark.
+             * @enum {string}
+             */
+            icon?: "guests" | "ceremony" | "vows" | "rings" | "party" | "music" | "toast" | "cake" | "photo" | "flowers";
             /** @example Recepção dos convidados */
             label: string;
             /**

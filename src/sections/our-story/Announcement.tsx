@@ -1,5 +1,5 @@
 import { useLayoutEffect, useRef, useState } from 'react'
-import type { RefObject } from 'react'
+import type { CSSProperties, RefObject } from 'react'
 
 import type { components } from '../../api/schema'
 import { clamp01, seg, useChapterProgress, usePrefersReducedMotion } from '../../lib/scrollytelling'
@@ -18,17 +18,32 @@ const DEFAULT_EYE = { x: 60.6, y: 16.9 }
  * angle, distance and delay — so the burst looks authored rather than random,
  * and renders identically on every visit.
  */
-const SPARKS = Array.from({ length: 14 }, (_, index) => {
-  const angle = -140 + index * 17
+const SPARKS = Array.from({ length: 16 }, (_, index) => {
+  const angle = -148 + index * 15
   const radians = (angle * Math.PI) / 180
-  const reach = 7 + (index % 5) * 3.5
+  const reach = 6 + (index % 5) * 3
   return {
     dx: Math.cos(radians) * reach,
     dy: Math.sin(radians) * reach,
-    size: index % 3 === 0 ? 7 : index % 3 === 1 ? 5 : 3.5,
-    from: 0.02 + (index % 7) * 0.05,
+    // Four-pointed sparkles, in three sizes — the big ones lead the burst.
+    size: index % 4 === 0 ? 26 : index % 4 === 2 ? 17 : 11,
+    spin: -30 + index * 11,
+    warm: index % 3 === 0,
+    from: (index % 8) * 0.06,
   }
 })
+
+/** A four-pointed glint — the shape a light actually makes, not a dot. */
+function Glint({ className = '', style }: { className?: string; style?: CSSProperties }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} style={style} aria-hidden="true">
+      <path
+        d="M12 0c.9 6.6 4.5 10.2 12 12-7.5 1.8-11.1 5.4-12 12-.9-6.6-4.5-10.2-12-12C7.5 10.2 11.1 6.6 12 0z"
+        fill="currentColor"
+      />
+    </svg>
+  )
+}
 
 /**
  * How much the frame must grow to swallow the viewport whole. Measured from
@@ -77,7 +92,7 @@ export function Announcement({ announcement }: AnnouncementProps) {
   // Three quick beats over a short scroll: arrive, wink, swallow the screen.
   const rise = seg(progress, 0, 0.3)
   const zoom = seg(progress, 0.34, 0.86)
-  const burst = seg(progress, 0.22, 0.62)
+  const burst = seg(progress, 0.55, 0.9)
   const wash = seg(progress, 0.72, 0.97)
 
   const scale = reduced ? 1 : 0.5 + rise * 0.5 + zoom * (coverScale - 1)
@@ -124,21 +139,23 @@ export function Announcement({ announcement }: AnnouncementProps) {
               style={{ left: `${eyeX}%`, top: `${eyeY}%` }}
             >
               {SPARKS.map((spark, index) => {
-                const life = reduced ? 1 : clamp01((burst - spark.from) / 0.38)
+                const life = reduced ? 1 : clamp01((burst - spark.from) / 0.42)
                 // Quick to light, slow to fade — and never fully out while
                 // the scene still holds the screen.
-                const glow = Math.min(1, life * 3.5) * (1 - life * 0.25)
+                const glow = Math.min(1, life * 3.5) * (1 - life * 0.2)
                 const travel = life * life
                 return (
-                  <span
+                  <Glint
                     key={index}
-                    className="absolute rounded-full bg-gold-sand"
+                    className={`absolute ${spark.warm ? 'text-gold-sand' : 'text-cream'}`}
                     style={{
                       width: spark.size,
                       height: spark.size,
+                      marginLeft: -spark.size / 2,
+                      marginTop: -spark.size / 2,
                       opacity: life === 0 ? 0 : glow,
-                      transform: `translate(${spark.dx * travel}vh, ${spark.dy * travel}vh) scale(${0.5 + life})`,
-                      boxShadow: '0 0 10px rgba(210,190,129,0.75)',
+                      transform: `translate(${spark.dx * travel}vh, ${spark.dy * travel}vh) rotate(${spark.spin + life * 90}deg) scale(${0.35 + life * 0.9})`,
+                      filter: 'drop-shadow(0 0 6px rgba(239,232,216,0.55))',
                     }}
                   />
                 )
@@ -151,7 +168,15 @@ export function Announcement({ announcement }: AnnouncementProps) {
             style={reduced ? undefined : { opacity: 1 - seg(progress, 0.42, 0.6) }}
           >
             <span className="font-accent text-[clamp(1.1rem,1.6vw,1.6rem)] leading-tight text-ink">
-              {announcement.label}
+              {announcement.label.split(/\*\*/).map((piece, index) =>
+                index % 2 === 1 ? (
+                  <strong key={index} className="font-bold text-terracotta">
+                    {piece}
+                  </strong>
+                ) : (
+                  piece
+                ),
+              )}
             </span>
           </figcaption>
         </figure>

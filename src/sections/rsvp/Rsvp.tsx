@@ -149,8 +149,8 @@ export function Rsvp({ content }: RsvpProps) {
 
           {suggestions.length > 0 ? (
             <ul className="mt-3 divide-y divide-sand-line border border-olive-line bg-cream">
-              {suggestions.map((name) => (
-                <li key={name}>
+              {suggestions.map((name, index) => (
+                <li key={name} className="name-in" style={{ animationDelay: `${index * 45}ms` }}>
                   <button
                     type="button"
                     onClick={() => openInvitation(name)}
@@ -171,7 +171,7 @@ export function Rsvp({ content }: RsvpProps) {
         </div>
       ) : (
         <div className="mx-auto mt-10 max-w-2xl">
-          <div className="border border-olive-line bg-cream px-5 py-8 sm:px-8">
+          <div key={group.group_id} className="card-in border border-olive-line bg-cream px-5 py-8 sm:px-8">
             <p className="text-center font-display text-2xl text-olive sm:text-3xl">
               {group.label}
             </p>
@@ -180,10 +180,11 @@ export function Rsvp({ content }: RsvpProps) {
             </p>
 
             <ul className="mt-7 divide-y divide-sand-line border-y border-sand-line">
-              {members.map((member) => (
+              {members.map((member, index) => (
                 <li
                   key={member.guest_id}
-                  className="flex flex-wrap items-center justify-between gap-3 py-4"
+                  className="name-in flex flex-wrap items-center justify-between gap-3 py-4"
+                  style={{ animationDelay: `${140 + index * 70}ms` }}
                 >
                   <span className="font-body text-lg text-ink">{member.full_name}</span>
                   <div className="flex gap-2" role="group" aria-label={member.full_name}>
@@ -193,13 +194,15 @@ export function Rsvp({ content }: RsvpProps) {
                         option === 'yes' ? uiStrings.rsvp.attendingYes : uiStrings.rsvp.attendingNo
                       return (
                         <button
-                          key={option}
+                          key={`${option}-${active}`}
                           type="button"
                           aria-pressed={active}
                           onClick={() =>
                             setAnswers((prev) => ({ ...prev, [member.guest_id]: option }))
                           }
                           className={`min-h-11 cursor-pointer border px-5 font-body text-base tracking-[0.06em] uppercase transition-colors ${
+                            active ? 'answer-kick ' : ''
+                          }${
                             active
                               ? option === 'yes'
                                 ? 'border-olive bg-olive text-cream'
