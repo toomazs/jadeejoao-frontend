@@ -1,5 +1,8 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
+
+/** Kept in step with the .modal-out animation in global.css. */
+const EXIT_MS = 220
 
 interface ModalProps {
   open: boolean
@@ -16,22 +19,42 @@ interface ModalProps {
  */
 export function Modal({ open, onClose, title, children }: ModalProps) {
   const ref = useRef<HTMLDialogElement>(null)
+  const [closing, setClosing] = useState(false)
 
   useEffect(() => {
     const dialog = ref.current
     if (!dialog) return
+
     if (open && !dialog.open) {
       dialog.showModal()
       // The page must not scroll behind the sheet.
       document.body.style.overflow = 'hidden'
+      return
     }
+
     if (!open && dialog.open) {
-      dialog.close()
+      // The page scrolls again the moment the sheet starts leaving.
+      document.body.style.overflow = ''
+      // Let it fade out before the browser tears it down.
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      if (reduced) {
+        dialog.close()
+        return
+      }
+      setClosing(true)
+      const timer = setTimeout(() => {
+        setClosing(false)
+        dialog.close()
+      }, EXIT_MS)
+      return () => clearTimeout(timer)
     }
+  }, [open])
+
+  useEffect(() => {
     return () => {
       document.body.style.overflow = ''
     }
-  }, [open])
+  }, [])
 
   return (
     <dialog
@@ -42,7 +65,9 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
       onClick={(event) => {
         if (event.target === ref.current) onClose()
       }}
-      className="m-auto w-[min(30rem,calc(100vw-2rem))] border border-olive-line bg-cream p-0 text-ink backdrop:bg-ink/60 backdrop:backdrop-blur-sm"
+      className={`m-auto w-[min(30rem,calc(100vw-2rem))] border border-olive-line bg-cream p-0 text-ink backdrop:bg-ink/60 backdrop:backdrop-blur-sm ${
+        closing ? 'modal-out' : 'modal-in'
+      }`}
     >
       <div className="relative max-h-[85svh] overflow-y-auto px-6 py-7 sm:px-8">
         <div className="flex items-start justify-between gap-4">

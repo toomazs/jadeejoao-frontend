@@ -63,7 +63,7 @@ export function Messages({ content, ordinal }: MessagesProps) {
           <div>
             <label
               htmlFor={bodyId}
-              className="font-body text-sm tracking-[0.18em] text-dark-gray uppercase"
+              className="font-body text-sm text-dark-gray"
             >
               {uiStrings.messagesForm.bodyLabel}
             </label>

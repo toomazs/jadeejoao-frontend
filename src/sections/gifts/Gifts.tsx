@@ -1,4 +1,5 @@
 import { useId, useState } from 'react'
+import type { ReactNode } from 'react'
 
 import { $api } from '../../api/client'
 import type { components } from '../../api/schema'
@@ -42,6 +43,31 @@ function Progress({ gift }: { gift: GiftView }) {
         <span className="text-dark-gray">{formatCentavos(gift.goal_centavos)}</span>
       </p>
     </div>
+  )
+}
+
+/** One side of the quota stepper: a quiet square, sized for a finger. */
+function StepButton({
+  label,
+  onClick,
+  disabled,
+  children,
+}: {
+  label: string
+  onClick: () => void
+  disabled?: boolean
+  children: ReactNode
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      aria-label={label}
+      className="h-10 w-10 cursor-pointer font-body text-lg leading-none text-olive transition-colors hover:bg-veil disabled:cursor-not-allowed disabled:text-sand-line"
+    >
+      {children}
+    </button>
   )
 }
 
@@ -91,8 +117,13 @@ function PixFlow({ gift }: { gift: GiftView }) {
   const declare = $api.useMutation('post', '/api/v1/gifts/{gift_id}/contributions')
 
   const quota = gift.quota_centavos ?? null
+  const maxUnits = typeof gift.units_left === 'number' ? gift.units_left : null
   const amountCentavos = quota ? units * quota : Math.round(Number(reais.replace(',', '.')) * 100)
   const amountValid = amountCentavos > 0
+
+  // Every quota already reserved: the card says so instead of walking the
+  // guest through three steps only to fail at the end.
+  const soldOut = maxUnits === 0
 
   // One beat at a time: amount → payment → signature.
   const step: 'amount' | 'pay' | 'sign' = code === null ? 'amount' : signing ? 'sign' : 'pay'
@@ -142,9 +173,15 @@ function PixFlow({ gift }: { gift: GiftView }) {
 
   return (
     <>
-      <Button variant="outline" className="mt-5 w-full" onClick={() => setOpen(true)}>
-        {uiStrings.gifts.pixCta}
-      </Button>
+      {soldOut ? (
+        <p className="mt-5 border border-sand-line bg-veil py-3 text-center font-body text-sm tracking-[0.16em] text-dark-gray uppercase">
+          {uiStrings.gifts.soldOut}
+        </p>
+      ) : (
+        <Button variant="outline" className="mt-5 w-full" onClick={() => setOpen(true)}>
+          {uiStrings.gifts.pixCta}
+        </Button>
+      )}
 
       <Modal open={open} onClose={close} title={gift.title}>
         <p className="font-body text-xs tracking-[0.24em] text-terracotta uppercase">{stepLabel}</p>
@@ -156,29 +193,34 @@ function PixFlow({ gift }: { gift: GiftView }) {
                 <label htmlFor={amountId} className="font-body text-sm text-dark-gray">
                   {uiStrings.gifts.quotasLabel} ({formatCentavos(quota)})
                 </label>
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="outline"
-                    className="min-h-9 px-3"
+                <div className="flex items-center border border-olive-line">
+                  <StepButton
+                    label={uiStrings.gifts.oneLess}
                     onClick={() => setUnits((u) => Math.max(1, u - 1))}
+                    disabled={units <= 1}
                   >
                     −
-                  </Button>
+                  </StepButton>
                   <input
                     id={amountId}
                     type="text"
                     inputMode="numeric"
                     readOnly
                     value={units}
-                    className="w-10 border border-olive-line bg-cream py-1 text-center font-body text-lg"
+                    className="w-10 border-x border-olive-line bg-cream py-1.5 text-center font-body text-base"
                   />
-                  <Button
-                    variant="outline"
-                    className="min-h-9 px-3"
-                    onClick={() => setUnits((u) => u + 1)}
+                  <StepButton
+                    label={uiStrings.gifts.oneMore}
+                    // The ceiling lives in the updater, not only in `disabled`:
+                    // rapid clicks batch, and the guest could otherwise ask for
+                    // more quotas than the gift still has.
+                    onClick={() =>
+                      setUnits((u) => (maxUnits === null ? u + 1 : Math.min(maxUnits, u + 1)))
+                    }
+                    disabled={maxUnits !== null && units >= maxUnits}
                   >
                     +
-                  </Button>
+                  </StepButton>
                 </div>
               </div>
             ) : (
