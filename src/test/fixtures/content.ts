@@ -33,9 +33,23 @@ export const fixtureContent: ContentOutputBody = {
       slug: 'our_story',
       enabled: true,
       our_story: {
-        title: 'Nossa História',
+        title: 'Vamos te mostrar um pouco da nossa história!',
         body: 'Estamos muito felizes de te convidar para o nosso casamento!',
         images: [],
+        moments: [
+          {
+            label: 'Jade e Francisca',
+            date: '12 de maio de 2020',
+            image_url: 'https://ykvsimxpchaqbsqsqsfs.supabase.co/storage/v1/object/public/jadeejoao-bucket/story/01-jade-e-francisca.jpg',
+          },
+          {
+            label: 'Jade e João',
+            date: '12 de junho de 2020',
+            image_url: 'https://ykvsimxpchaqbsqsqsfs.supabase.co/storage/v1/object/public/jadeejoao-bucket/story/02-jade-e-joao.jpg',
+          },
+        ],
+        letter_from_groom: 'É muito fácil ser feliz com a Jade.',
+        letter_from_bride: 'Eu tirei cartas no tarô e João tava lá.',
         bride: {
           name: 'Jade',
           photo_url:

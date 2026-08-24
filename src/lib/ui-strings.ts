@@ -17,6 +17,10 @@ export const uiStrings = {
     groom: 'O noivo',
   },
   instagramCta: 'Ver no Instagram',
+  letters: {
+    fromGroom: 'João para Jade',
+    fromBride: 'Jade para João',
+  },
   rsvp: {
     searchLabel: 'Seu nome completo',
     searchPlaceholder: 'Digite seu nome como está no convite…',

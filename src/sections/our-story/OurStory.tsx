@@ -2,15 +2,16 @@ import type { OurStoryContent } from '../../lib/content'
 import { uiStrings } from '../../lib/ui-strings'
 import { InvitationInterlude } from './InvitationInterlude'
 import { PersonChapter } from './PersonChapter'
+import { StoryAlbum } from './StoryAlbum'
 
 interface OurStoryProps {
   content: OurStoryContent
 }
 
 /**
- * The couple's block, cut like a film: her chapter, his chapter, then the
- * invitation interlude — the sentence that hands the story to the big day.
- * (The oval-portraits room was retired by the couple's direction.)
+ * The couple's block, cut like a film: her chapter, his chapter, the instax
+ * album of their years together, then the invitation interlude — the sentence
+ * that hands the story to the big day.
  */
 export function OurStory({ content }: OurStoryProps) {
   return (
@@ -34,6 +35,12 @@ export function OurStory({ content }: OurStoryProps) {
           tone="olive"
         />
       ) : null}
+      <StoryAlbum
+        title={content.title}
+        moments={content.moments}
+        letterFromGroom={content.letter_from_groom}
+        letterFromBride={content.letter_from_bride}
+      />
       {content.body ? <InvitationInterlude text={content.body} /> : null}
     </>
   )

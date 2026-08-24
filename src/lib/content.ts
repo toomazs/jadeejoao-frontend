@@ -23,7 +23,10 @@ export type SectionSlug = (typeof SECTION_ORDER)[number]
 type WithArrays<T, K extends keyof T> = Omit<T, K> & { [P in K]-?: NonNullable<T[P]> }
 
 export type HeroContent = WithArrays<components['schemas']['HeroPayload'], 'images' | 'milestones'>
-export type OurStoryContent = WithArrays<components['schemas']['OurStoryPayload'], 'images'>
+export type OurStoryContent = WithArrays<
+  components['schemas']['OurStoryPayload'],
+  'images' | 'moments'
+>
 export type BigDayContent = WithArrays<components['schemas']['BigDayPayload'], 'images' | 'programme'>
 export type RsvpContent = WithArrays<components['schemas']['RSVPPayload'], 'images'>
 export type GettingThereContent = WithArrays<components['schemas']['GettingTherePayload'], 'images'>
@@ -79,7 +82,10 @@ export function normalizeContent(body: ContentOutputBody): NormalizedSection[] {
 
   const ourStory = bySlug('our_story')
   if (ourStory) {
-    view.push({ slug: 'our_story', payload: { ...ourStory, images: arr(ourStory.images) } })
+    view.push({
+      slug: 'our_story',
+      payload: { ...ourStory, images: arr(ourStory.images), moments: arr(ourStory.moments) },
+    })
   }
 
   const bigDay = bySlug('big_day')

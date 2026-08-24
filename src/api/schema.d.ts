@@ -1071,6 +1071,12 @@ export interface components {
             groom?: components["schemas"]["PersonPayload"];
             /** @description Public CDN image URLs. */
             images?: string[] | null;
+            /** @description Jade's letter to João, shown inside the album. */
+            letter_from_bride?: string;
+            /** @description João's letter to Jade, shown inside the album. */
+            letter_from_groom?: string;
+            /** @description Chronological photo timeline rendered as instax frames. */
+            moments?: components["schemas"]["StoryMoment"][] | null;
             /** @description Section heading shown on the site. */
             title: string;
         };
@@ -1218,6 +1224,23 @@ export interface components {
             lodgings?: components["schemas"]["Lodging"][] | null;
             /** @description Section heading shown on the site. */
             title: string;
+        };
+        StoryMoment: {
+            /**
+             * @description Freeform date line under the caption.
+             * @example 12 de maio de 2020
+             */
+            date?: string;
+            /**
+             * Format: uri
+             * @description Public CDN photo.
+             */
+            image_url: string;
+            /**
+             * @description Caption written on the frame.
+             * @example Jade e Francisca
+             */
+            label: string;
         };
         SuggestOutputBody: {
             /**
