@@ -39,11 +39,11 @@ function CountdownUnit({ value, unit }: { value: number; unit: string }) {
     <div className="flex min-w-[4.5rem] flex-col items-center">
       <span
         key={value}
-        className="tick font-display text-[clamp(2.6rem,7vw,4rem)] leading-none text-cream tabular-nums"
+        className="tick font-display text-[clamp(2.6rem,7vw,4rem)] leading-none text-olive tabular-nums"
       >
         {String(value).padStart(2, '0')}
       </span>
-      <span className="mt-2 font-body text-[0.7rem] tracking-[0.3em] text-gold-sand uppercase">
+      <span className="mt-2 font-body text-[0.7rem] tracking-[0.3em] text-terracotta uppercase">
         {unit}
       </span>
     </div>
@@ -57,7 +57,7 @@ function ProgrammeRow({ item, index }: { item: ProgrammeItem; index: number }) {
     <Reveal as="li" delay={Math.min(index, 6) * 60} className="relative grid grid-cols-[4.5rem_2.5rem_1fr] items-baseline">
       <time
         className={`pb-8 text-right font-display tabular-nums ${
-          Icon ? 'text-2xl text-cream' : 'text-lg text-cream/70'
+          Icon ? 'text-2xl text-olive' : 'text-lg text-dark-gray'
         }`}
       >
         {item.time}
@@ -66,16 +66,16 @@ function ProgrammeRow({ item, index }: { item: ProgrammeItem; index: number }) {
       {/* The rail passes through this column; the marker sits on it. */}
       <span aria-hidden="true" className="relative flex justify-center self-stretch">
         {Icon ? (
-          <span className="relative z-10 mt-0.5 flex h-9 w-9 items-center justify-center rounded-full border border-gold-sand bg-terracotta text-gold-sand">
+          <span className="relative z-10 mt-0.5 flex h-9 w-9 items-center justify-center rounded-full border border-olive bg-cream text-olive">
             <Icon size={17} strokeWidth={1.7} />
           </span>
         ) : (
-          <span className="relative z-10 mt-2.5 h-1.5 w-1.5 rotate-45 bg-gold-sand/70" />
+          <span className="relative z-10 mt-2.5 h-1.5 w-1.5 rotate-45 bg-terracotta" />
         )}
       </span>
 
       <span
-        className={`pb-8 font-body ${Icon ? 'text-lg text-cream' : 'text-base text-cream/70'}`}
+        className={`pb-8 font-body ${Icon ? 'text-lg text-ink' : 'text-base text-dark-gray'}`}
       >
         {item.label}
       </span>
@@ -84,7 +84,7 @@ function ProgrammeRow({ item, index }: { item: ProgrammeItem; index: number }) {
 }
 
 /**
- * The day itself, in the invitation's own terracotta: the countdown, the
+ * The day itself, on cream: the countdown, the
  * couple's guidance, and the programme hung on a single gold rail — the
  * moments that anchor the day carrying an emblem, the steps between them
  * kept quiet.
@@ -97,13 +97,13 @@ export function BigDay({ content, eventDatetime }: BigDayProps) {
     <section
       id="big_day"
       aria-labelledby="big_day-heading"
-      className="relative overflow-hidden bg-terracotta px-4 py-20 sm:px-8 sm:py-28"
+      className="relative overflow-hidden bg-cream px-4 py-20 sm:px-8 sm:py-28"
     >
       <div className="relative mx-auto w-full max-w-3xl">
         <Reveal className="flex flex-col items-center text-center">
           <h2
             id="big_day-heading"
-            className="font-display text-[clamp(2.4rem,6vw,3.8rem)] leading-[1.05] text-balance text-cream"
+            className="font-display text-[clamp(2.4rem,6vw,3.8rem)] leading-[1.05] text-balance text-olive"
           >
             {content.title}
           </h2>
@@ -114,7 +114,7 @@ export function BigDay({ content, eventDatetime }: BigDayProps) {
             <div
               role="timer"
               aria-label={uiStrings.countdownLabel}
-              className="mt-12 flex flex-wrap justify-center gap-x-6 gap-y-8 border-y border-gold-sand/40 py-8 sm:gap-x-12"
+              className="mt-12 flex flex-wrap justify-center gap-x-6 gap-y-8 border-y border-sand-line py-8 sm:gap-x-12"
             >
               <CountdownUnit value={countdown.days} unit={uiStrings.countdown.days} />
               <CountdownUnit value={countdown.hours} unit={uiStrings.countdown.hours} />
@@ -128,7 +128,7 @@ export function BigDay({ content, eventDatetime }: BigDayProps) {
           <Reveal delay={130}>
             <Markdown
               text={content.body}
-              className="mx-auto mt-12 max-w-prose text-center font-body text-lg leading-relaxed text-cream/90"
+              className="mx-auto mt-12 max-w-prose text-center font-body text-lg leading-relaxed"
             />
           </Reveal>
         ) : null}
@@ -138,7 +138,7 @@ export function BigDay({ content, eventDatetime }: BigDayProps) {
             {/* One continuous rail behind every marker. */}
             <span
               aria-hidden="true"
-              className="absolute top-2 bottom-6 left-[5.75rem] w-px bg-gold-sand/35"
+              className="absolute top-2 bottom-6 left-[5.75rem] w-px bg-sand-line"
             />
             <ol className="relative">
               {programme.map((item, index) => (
@@ -149,13 +149,13 @@ export function BigDay({ content, eventDatetime }: BigDayProps) {
         ) : null}
 
         <Reveal className="mt-4 flex flex-col items-center">
-          <ButtonLink href="#getting_there" variant="light">
+          <ButtonLink href="#getting_there" variant="outline">
             <MapPin aria-hidden="true" size={18} strokeWidth={2} />
             {uiStrings.openMap}
           </ButtonLink>
 
           {content.venue_notes ? (
-            <p className="mt-8 max-w-prose border-t border-gold-sand/30 pt-6 text-center font-body text-base text-cream/75 italic">
+            <p className="mt-8 max-w-prose border-t border-sand-line pt-6 text-center font-body text-base text-dark-gray italic">
               {content.venue_notes}
             </p>
           ) : null}

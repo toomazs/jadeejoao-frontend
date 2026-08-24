@@ -477,6 +477,28 @@ export interface components {
             readonly $schema?: string;
             gifts: components["schemas"]["GiftView"][] | null;
         };
+        AnnouncementPayload: {
+            /**
+             * Format: double
+             * @description Horizontal position of the wink, in percent.
+             */
+            eye_x?: number;
+            /**
+             * Format: double
+             * @description Vertical position of the wink, in percent.
+             */
+            eye_y?: number;
+            /**
+             * Format: uri
+             * @description Public CDN photo.
+             */
+            image_url: string;
+            /**
+             * @description The caption written on the frame.
+             * @example Mamãe e papai vão se casar!
+             */
+            label: string;
+        };
         BigDayPayload: {
             /** @description Rich text as Markdown. */
             body?: string;
@@ -1065,6 +1087,7 @@ export interface components {
             status: "approved" | "rejected";
         };
         OurStoryPayload: {
+            announcement?: components["schemas"]["AnnouncementPayload"];
             /** @description Rich text as Markdown. */
             body?: string;
             bride?: components["schemas"]["PersonPayload"];

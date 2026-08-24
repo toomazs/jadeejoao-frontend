@@ -1,5 +1,6 @@
 import type { OurStoryContent } from '../../lib/content'
 import { uiStrings } from '../../lib/ui-strings'
+import { Announcement } from './Announcement'
 import { InvitationInterlude } from './InvitationInterlude'
 import { PersonChapter } from './PersonChapter'
 import { StoryAlbum } from './StoryAlbum'
@@ -10,8 +11,8 @@ interface OurStoryProps {
 
 /**
  * The couple's block, cut like a film: her chapter, his chapter, the instax
- * album of their years together, then the invitation interlude — the sentence
- * that hands the story to the big day.
+ * album of their years together, the invitation, and Catarina's announcement
+ * — the last scene of the film, which cuts straight to the day itself.
  */
 export function OurStory({ content }: OurStoryProps) {
   return (
@@ -42,6 +43,7 @@ export function OurStory({ content }: OurStoryProps) {
         letterFromBride={content.letter_from_bride}
       />
       {content.body ? <InvitationInterlude text={content.body} /> : null}
+      {content.announcement ? <Announcement announcement={content.announcement} /> : null}
     </>
   )
 }
