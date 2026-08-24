@@ -105,6 +105,25 @@
     transform-origin: 50% 0%;
   }
 
+  /* The monogram fades in on the curtain — nothing moves, it just appears. */
+  .splash-mark {
+    animation: fade-in 0.9s ease-out both;
+  }
+
+  /* And the site fades in under the lifting curtain, just as quietly. */
+  .site-enter {
+    animation: fade-in 1s ease-out both;
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
   /* The hero photograph breathes — a slow, endless push-in. */
   .kenburns {
     animation: kenburns 26s ease-in-out infinite alternate;

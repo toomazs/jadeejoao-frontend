@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 
 import { logo } from '../../assets'
 import type { SectionSlug } from '../../lib/content'
@@ -27,23 +27,19 @@ export function Nav({ presentSlugs }: NavProps) {
   const [compact, setCompact] = useState(false)
   const popoverRef = useRef<HTMLDivElement>(null)
   const kebabRef = useRef<HTMLButtonElement>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
+  const [contentWidth, setContentWidth] = useState(0)
 
   useEffect(() => {
     const onScroll = () => {
-      const pastHero = window.scrollY > window.innerHeight * 0.55
-      // The pill steps aside while a film chapter (data-nav-hide) holds the
-      // screen, and returns as soon as the page moves past it.
-      let overChapter = false
-      if (pastHero) {
-        for (const chapter of Array.from(document.querySelectorAll('[data-nav-hide]'))) {
-          const rect = chapter.getBoundingClientRect()
-          if (rect.top < 96 && rect.bottom > 0) {
-            overChapter = true
-            break
-          }
-        }
+      // The whole opening — hero, the couple's film, the album, the invitation
+      // — runs uninterrupted. The pill only joins from the big day onwards.
+      const bigDay = document.getElementById('big_day')
+      if (bigDay) {
+        setVisible(bigDay.getBoundingClientRect().top <= 80)
+        return
       }
-      setVisible(pastHero && !overChapter)
+      setVisible(window.scrollY > window.innerHeight * 1.5)
     }
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
@@ -68,6 +64,24 @@ export function Nav({ presentSlugs }: NavProps) {
     return () => mq.removeEventListener('change', handler)
   }, [])
 
+  useLayoutEffect(() => {
+    const el = contentRef.current
+    if (!el) return
+    const measure = () => {
+      const kids = Array.from(el.children).filter(
+        (kid) => getComputedStyle(kid).display !== 'none',
+      )
+      if (kids.length === 0) return
+      const first = kids[0].getBoundingClientRect()
+      const last = kids[kids.length - 1].getBoundingClientRect()
+      setContentWidth(Math.ceil(last.right - first.left))
+    }
+    measure()
+    const observer = new ResizeObserver(measure)
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [compact, items.length])
+
   useEffect(() => {
     if (!menuOpen) return
     const onDocClick = (event: MouseEvent) => {
@@ -91,7 +105,8 @@ export function Nav({ presentSlugs }: NavProps) {
     return null
   }
 
-  const expandedWidth = compact ? 180 : 660
+  const padding = compact ? 24 : 42
+  const expandedWidth = contentWidth > 0 ? contentWidth + padding : compact ? 180 : 620
 
   return (
     <header
@@ -121,6 +136,7 @@ export function Nav({ presentSlugs }: NavProps) {
 
         {/* Expanded state: monogram left, links (or the kebab) to the right. */}
         <div
+          ref={contentRef}
           className={`absolute inset-y-0 right-0 left-0 flex items-center pr-2 pl-4 transition-opacity duration-300 lg:pr-5 lg:pl-5 ${
             expanded ? 'opacity-100' : 'pointer-events-none opacity-0'
           }`}
@@ -136,7 +152,7 @@ export function Nav({ presentSlugs }: NavProps) {
 
           <span
             aria-hidden="true"
-            className={`ml-auto hidden h-4 w-px shrink-0 bg-olive-line transition-[opacity,transform] duration-300 lg:inline-block ${
+            className={`ml-4 hidden h-4 w-px shrink-0 bg-olive-line transition-[opacity,transform] duration-300 lg:inline-block ${
               expanded ? 'scale-y-100 opacity-100' : 'scale-y-0 opacity-0'
             }`}
             style={{ transitionDelay: expanded ? '360ms' : '0ms' }}
@@ -144,7 +160,7 @@ export function Nav({ presentSlugs }: NavProps) {
 
           <nav
             aria-label={uiStrings.navLabel}
-            className="hidden shrink-0 items-center gap-5 lg:ml-4 lg:flex"
+            className="hidden shrink-0 items-center gap-5 lg:ml-4 lg:mr-1 lg:flex"
           >
             {pillItems.map((item, index) => (
               <a

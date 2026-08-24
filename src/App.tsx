@@ -1,11 +1,11 @@
-import { Fragment } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 
 import { $api } from './api/client'
 import { Button } from './components/ui/Button'
 import { Footer } from './components/ui/Footer'
 import { LeafDivider } from './components/ui/LeafDivider'
 import { Nav } from './components/ui/Nav'
-import { Skeleton } from './components/ui/Skeleton'
+import { Splash } from './components/ui/Splash'
 import { normalizeContent } from './lib/content'
 import type { NormalizedSection, SectionSlug } from './lib/content'
 import { uiStrings } from './lib/ui-strings'
@@ -22,6 +22,11 @@ import { Stay } from './sections/stay/Stay'
 
 /** Editorial content barely changes mid-visit — keep it fresh for the whole session. */
 const CONTENT_STALE_TIME_MS = 10 * 60 * 1000
+
+/** The monogram holds the screen this long before the invitation opens. */
+const SPLASH_HOLD_MS = 2000
+/** How long the curtain takes to fade once it starts lifting. */
+const SPLASH_FADE_MS = 700
 
 /**
  * Position on the walk, engraved as the room's plaque ("02"…"10").
@@ -64,27 +69,6 @@ function renderSection(
   }
 }
 
-/** Loading gate: the hero frame's silhouette in skeleton blocks — never a white screen. */
-function LoadingState() {
-  return (
-    <main aria-busy="true" className="px-4 pt-6 pb-12 sm:pt-10">
-      <p role="status" className="sr-only">
-        {uiStrings.loading}
-      </p>
-      <div className="relative mx-auto flex min-h-[calc(100svh-6rem)] w-full max-w-3xl flex-col items-center justify-center gap-6 border border-olive-line px-6 py-16">
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-1.5 border border-sand-line"
-        />
-        <Skeleton className="h-20 w-14" />
-        <Skeleton className="h-12 w-3/4 max-w-md" />
-        <Skeleton className="h-5 w-56" />
-        <Skeleton className="mt-8 h-24 w-full max-w-md" />
-      </div>
-    </main>
-  )
-}
-
 export function App() {
   const contentQuery = $api.useQuery(
     'get',
@@ -93,8 +77,25 @@ export function App() {
     { staleTime: CONTENT_STALE_TIME_MS },
   )
 
-  if (contentQuery.isPending) {
-    return <LoadingState />
+  // The opening: the monogram alone, then the curtain lifts and the hero
+  // plays its entrance. The site only mounts once the curtain starts moving,
+  // so its animations are seen from the first frame.
+  const [curtainLifting, setCurtainLifting] = useState(false)
+  const [curtainGone, setCurtainGone] = useState(false)
+
+  useEffect(() => {
+    const lift = setTimeout(() => setCurtainLifting(true), SPLASH_HOLD_MS)
+    const gone = setTimeout(() => setCurtainGone(true), SPLASH_HOLD_MS + SPLASH_FADE_MS)
+    return () => {
+      clearTimeout(lift)
+      clearTimeout(gone)
+    }
+  }, [])
+
+  const ready = curtainLifting && !contentQuery.isPending
+
+  if (!ready) {
+    return <Splash leaving={false} />
   }
 
   if (contentQuery.isError || !contentQuery.data) {
@@ -127,8 +128,9 @@ export function App() {
 
   return (
     <>
+      {curtainGone ? null : <Splash leaving />}
       <Nav presentSlugs={presentSlugs} />
-      <main>
+      <main className="site-enter">
         {/* Color rooms stack edge to edge — the palette separates them. */}
         {sections.map((section, index) => (
           <Fragment key={section.slug}>{renderSection(section, index, hero?.payload)}</Fragment>
