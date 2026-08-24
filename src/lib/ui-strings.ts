@@ -12,16 +12,11 @@ export const uiStrings = {
   navLabel: 'Navegação principal',
   backToTop: 'Voltar ao início',
   confirmCta: 'Confirmar presença',
-  heroKicker: 'A união de',
   couple: {
     bride: 'A noiva',
     groom: 'O noivo',
   },
   momentsLabel: 'Nossos momentos',
-  bigDay: {
-    ceremony: 'Cerimônia',
-    party: 'Festa',
-  },
   rsvp: {
     searchLabel: 'Seu nome completo',
     searchPlaceholder: 'Digite seu nome como está no convite…',

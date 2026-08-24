@@ -1,8 +1,7 @@
 import { siriguela } from '../../assets'
 import { Reveal } from '../../components/ui/Reveal'
 import type { HeroContent } from '../../lib/content'
-import { formatEventDate, formatEventTimeShort, formatEventWeekday } from '../../lib/format'
-import { uiStrings } from '../../lib/ui-strings'
+import { formatEventDate } from '../../lib/format'
 
 interface HeroProps {
   content: HeroContent
@@ -66,9 +65,6 @@ export function Hero({ content }: HeroProps) {
 
         <div className="relative mx-auto flex w-full max-w-7xl flex-col gap-9 px-5 pt-28 pb-12 sm:px-10 lg:flex-row lg:items-end lg:justify-between lg:gap-12 lg:pb-16">
           <div className="hero-enter">
-            <p className="font-body text-xs tracking-[0.5em] text-cream/75 uppercase sm:text-sm">
-              {uiStrings.heroKicker}
-            </p>
             <StackedNames names={content.couple_names} />
           </div>
 
@@ -77,8 +73,7 @@ export function Hero({ content }: HeroProps) {
               {formatEventDate(content.event_datetime)}
             </p>
             <p className="mt-3 font-body text-xs tracking-[0.35em] text-cream/75 uppercase sm:text-sm">
-              {formatEventWeekday(content.event_datetime)} ·{' '}
-              {formatEventTimeShort(content.event_datetime)} · {content.city_label}
+              {content.city_label}
             </p>
           </div>
         </div>
