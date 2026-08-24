@@ -6,6 +6,8 @@ const VARIANT_CLASSES = {
     'bg-terracotta text-cream hover:bg-terracotta-deep border border-terracotta hover:border-terracotta-deep',
   /** Quiet action — engraved olive outline on paper. */
   outline: 'border border-olive text-olive hover:bg-olive hover:text-cream',
+  /** For dark grounds (terracotta and olive rooms) — a cream plaque. */
+  light: 'border border-cream bg-cream text-ink hover:border-gold-sand hover:bg-gold-sand',
 } as const
 
 type ButtonProps = ComponentPropsWithoutRef<'button'> & {
