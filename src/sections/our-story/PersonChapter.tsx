@@ -206,15 +206,17 @@ export function PersonChapter({ person, personKey, roleLabel, align, tone }: Per
       }
     >
       {handleUrl ? (
-        <a
-          href={handleUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-2.5 font-body text-sm tracking-[0.2em] text-gold-sand uppercase"
-        >
-          <InstagramGlyph />
-          @{person.instagram}
-        </a>
+        <div className={align === 'right' ? 'text-right' : ''}>
+          <a
+            href={handleUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2.5 font-body text-sm tracking-[0.2em] text-gold-sand uppercase"
+          >
+            <InstagramGlyph />
+            @{person.instagram}
+          </a>
+        </div>
       ) : null}
 
       {posts.length > 0 ? (
