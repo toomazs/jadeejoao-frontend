@@ -3,7 +3,9 @@ import { useId, useState } from 'react'
 import { $api } from '../../api/client'
 import type { components } from '../../api/schema'
 import { Button, ButtonLink } from '../../components/ui/Button'
+import { GuestNameField } from '../../components/ui/GuestNameField'
 import { Markdown } from '../../components/ui/Markdown'
+import { Modal } from '../../components/ui/Modal'
 import { Reveal } from '../../components/ui/Reveal'
 import { SectionShell } from '../../components/ui/SectionShell'
 import { Skeleton } from '../../components/ui/Skeleton'
@@ -43,9 +45,38 @@ function Progress({ gift }: { gift: GiftView }) {
   )
 }
 
-/** The PIX flow inside a card: pick the amount, generate the copia-e-cola, declare. */
+/** Small clipboard glyph — copying is an icon, not a wall of text. */
+function CopyGlyph({ copied }: { copied: boolean }) {
+  return (
+    <svg
+      width="17"
+      height="17"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      {copied ? (
+        <path d="M20 6 9 17l-5-5" />
+      ) : (
+        <>
+          <rect width="13" height="13" x="9" y="9" rx="2" />
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+        </>
+      )}
+    </svg>
+  )
+}
+
+/**
+ * The PIX flow, on a sheet over the page and split into three beats so no
+ * step shouts over the next: choose the amount, pay (QR or copia-e-cola),
+ * then sign it. The card itself only carries the invitation.
+ */
 function PixFlow({ gift }: { gift: GiftView }) {
-  const nameId = useId()
   const amountId = useId()
   const [open, setOpen] = useState(false)
   const [units, setUnits] = useState(1)
@@ -54,6 +85,7 @@ function PixFlow({ gift }: { gift: GiftView }) {
   const [qrSvg, setQrSvg] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
   const [contributor, setContributor] = useState('')
+  const [signing, setSigning] = useState(false)
 
   const preview = $api.useMutation('get', '/api/v1/gifts/{gift_id}/pix')
   const declare = $api.useMutation('post', '/api/v1/gifts/{gift_id}/contributions')
@@ -61,6 +93,9 @@ function PixFlow({ gift }: { gift: GiftView }) {
   const quota = gift.quota_centavos ?? null
   const amountCentavos = quota ? units * quota : Math.round(Number(reais.replace(',', '.')) * 100)
   const amountValid = amountCentavos > 0
+
+  // One beat at a time: amount → payment → signature.
+  const step: 'amount' | 'pay' | 'sign' = code === null ? 'amount' : signing ? 'sign' : 'pay'
 
   const generate = () => {
     if (!amountValid) return
@@ -76,140 +111,216 @@ function PixFlow({ gift }: { gift: GiftView }) {
     )
   }
 
+  const backToAmount = () => {
+    setCode(null)
+    setQrSvg(null)
+    setCopied(false)
+    preview.reset()
+  }
+
   const copy = async () => {
     if (!code) return
     await navigator.clipboard.writeText(code)
     setCopied(true)
   }
 
-  if (!open) {
-    return (
+  const close = () => {
+    setOpen(false)
+    // The next opening starts clean: a stale code for another amount would
+    // be the worst kind of bug in a payment screen.
+    backToAmount()
+    setSigning(false)
+    declare.reset()
+  }
+
+  const stepLabel =
+    step === 'amount'
+      ? uiStrings.gifts.stepAmount
+      : step === 'pay'
+        ? uiStrings.gifts.stepPay
+        : uiStrings.gifts.stepSign
+
+  return (
+    <>
       <Button variant="outline" className="mt-5 w-full" onClick={() => setOpen(true)}>
         {uiStrings.gifts.pixCta}
       </Button>
-    )
-  }
 
-  return (
-    <div className="mt-5 border-t border-sand-line pt-5">
-      {quota ? (
-        <div className="flex items-center justify-between gap-3">
-          <label htmlFor={amountId} className="font-body text-sm text-dark-gray">
-            {uiStrings.gifts.quotasLabel} ({formatCentavos(quota)})
-          </label>
-          <div className="flex items-center gap-2">
+      <Modal open={open} onClose={close} title={gift.title}>
+        <p className="font-body text-xs tracking-[0.24em] text-terracotta uppercase">{stepLabel}</p>
+
+        {step === 'amount' ? (
+          <div className="mt-5">
+            {quota ? (
+              <div className="flex items-center justify-between gap-3">
+                <label htmlFor={amountId} className="font-body text-sm text-dark-gray">
+                  {uiStrings.gifts.quotasLabel} ({formatCentavos(quota)})
+                </label>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    className="min-h-9 px-3"
+                    onClick={() => setUnits((u) => Math.max(1, u - 1))}
+                  >
+                    −
+                  </Button>
+                  <input
+                    id={amountId}
+                    type="text"
+                    inputMode="numeric"
+                    readOnly
+                    value={units}
+                    className="w-10 border border-olive-line bg-cream py-1 text-center font-body text-lg"
+                  />
+                  <Button
+                    variant="outline"
+                    className="min-h-9 px-3"
+                    onClick={() => setUnits((u) => u + 1)}
+                  >
+                    +
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <div className="flex items-center justify-between gap-3">
+                <label htmlFor={amountId} className="font-body text-sm text-dark-gray">
+                  {uiStrings.gifts.amountLabel}
+                </label>
+                <input
+                  id={amountId}
+                  type="text"
+                  inputMode="decimal"
+                  value={reais}
+                  onChange={(event) => setReais(event.target.value)}
+                  placeholder="100,00"
+                  className="w-28 border border-olive-line bg-cream px-3 py-2 text-right font-body text-lg"
+                />
+              </div>
+            )}
+
+            <p className="mt-4 border-t border-sand-line pt-4 text-right font-display text-2xl text-olive">
+              {amountValid ? formatCentavos(amountCentavos) : '—'}
+            </p>
+
             <Button
-              variant="outline"
-              className="min-h-9 px-3"
-              onClick={() => setUnits((u) => Math.max(1, u - 1))}
+              className="mt-4 w-full"
+              onClick={generate}
+              disabled={!amountValid || preview.isPending}
             >
-              −
+              {preview.isPending ? uiStrings.gifts.generating : uiStrings.gifts.generateCode}
             </Button>
-            <input
-              id={amountId}
-              type="text"
-              inputMode="numeric"
-              readOnly
-              value={units}
-              className="w-10 border border-olive-line bg-cream py-1 text-center font-body text-lg"
-            />
-            <Button variant="outline" className="min-h-9 px-3" onClick={() => setUnits((u) => u + 1)}>
-              +
-            </Button>
-          </div>
-        </div>
-      ) : (
-        <div className="flex items-center justify-between gap-3">
-          <label htmlFor={amountId} className="font-body text-sm text-dark-gray">
-            {uiStrings.gifts.amountLabel}
-          </label>
-          <input
-            id={amountId}
-            type="text"
-            inputMode="decimal"
-            value={reais}
-            onChange={(event) => setReais(event.target.value)}
-            placeholder="100,00"
-            className="w-28 border border-olive-line bg-cream px-3 py-2 text-right font-body text-lg"
-          />
-        </div>
-      )}
-      <p className="mt-2 text-right font-body text-base text-olive">
-        {amountValid ? formatCentavos(amountCentavos) : '—'}
-      </p>
-
-      <Button className="mt-4 w-full" onClick={generate} disabled={!amountValid || preview.isPending}>
-        {preview.isPending ? uiStrings.gifts.generating : uiStrings.gifts.generateCode}
-      </Button>
-      {preview.isError ? (
-        <p role="alert" className="mt-3 font-body text-sm text-terracotta">
-          {problemDetail(preview.error)}
-        </p>
-      ) : null}
-
-      {code ? (
-        <div className="mt-5">
-          {qrSvg ? (
-            /*
-             * The symbol is drawn by our own API from the BR Code's module
-             * matrix — no guest input reaches it — so inlining the SVG is
-             * safe, and it lets the QR take the couple's olive ink.
-             */
-            <figure className="mb-4 flex flex-col items-center">
-              <div
-                aria-hidden="true"
-                className="w-40 border border-sand-line bg-cream p-2 text-olive [&>svg]:block [&>svg]:h-auto [&>svg]:w-full"
-                dangerouslySetInnerHTML={{ __html: qrSvg }}
-              />
-              <figcaption className="mt-2 font-body text-xs tracking-[0.14em] text-dark-gray uppercase">
-                {uiStrings.gifts.scanQr}
-              </figcaption>
-            </figure>
-          ) : null}
-          <p className="max-h-24 overflow-y-auto border border-sand-line bg-veil p-3 font-body text-xs break-all text-dark-gray">
-            {code}
-          </p>
-          <Button variant="outline" className="mt-3 w-full" onClick={() => void copy()}>
-            {copied ? uiStrings.gifts.copied : uiStrings.gifts.copyCode}
-          </Button>
-
-          <div className="mt-5 border-t border-sand-line pt-4">
-            <label htmlFor={nameId} className="font-body text-sm text-dark-gray">
-              {uiStrings.gifts.declareName}
-            </label>
-            <input
-              id={nameId}
-              type="text"
-              value={contributor}
-              onChange={(event) => setContributor(event.target.value)}
-              className="mt-1.5 w-full border border-olive-line bg-cream px-3 py-2.5 font-body text-lg"
-            />
-            <Button
-              className="mt-3 w-full"
-              disabled={contributor.trim().length === 0 || declare.isPending || declare.isSuccess}
-              onClick={() =>
-                declare.mutate({
-                  params: { path: { gift_id: gift.gift_id } },
-                  body: { contributor_name: contributor.trim(), amount_centavos: amountCentavos },
-                })
-              }
-            >
-              {declare.isPending ? uiStrings.gifts.declaring : uiStrings.gifts.declareCta}
-            </Button>
-            {declare.isSuccess ? (
-              <p role="status" className="mt-3 font-body text-base text-deep-olive">
-                {uiStrings.gifts.declared}
+            {preview.isError ? (
+              <p role="alert" className="mt-3 font-body text-sm text-terracotta">
+                {problemDetail(preview.error)}
               </p>
             ) : null}
+          </div>
+        ) : null}
+
+        {step === 'pay' && code ? (
+          <div className="mt-5">
+            <p className="text-center font-display text-3xl text-olive">
+              {formatCentavos(amountCentavos)}
+            </p>
+
+            {qrSvg ? (
+              /*
+               * The symbol is drawn by our own API from the BR Code's module
+               * matrix — no guest input reaches it — so inlining the SVG is
+               * safe, and it lets the QR take the couple's olive ink.
+               */
+              <figure className="mt-5 flex flex-col items-center">
+                <div
+                  aria-hidden="true"
+                  className="w-44 border border-sand-line bg-cream p-2.5 text-olive [&>svg]:block [&>svg]:h-auto [&>svg]:w-full"
+                  dangerouslySetInnerHTML={{ __html: qrSvg }}
+                />
+                <figcaption className="mt-2.5 font-body text-xs tracking-[0.14em] text-dark-gray uppercase">
+                  {uiStrings.gifts.scanQr}
+                </figcaption>
+              </figure>
+            ) : null}
+
+            <div className="mt-5 flex items-start gap-2">
+              <p className="max-h-20 flex-1 overflow-y-auto border border-sand-line bg-veil p-3 font-body text-xs break-all text-dark-gray">
+                {code}
+              </p>
+              <button
+                type="button"
+                onClick={() => void copy()}
+                aria-label={copied ? uiStrings.gifts.copied : uiStrings.gifts.copyCode}
+                title={copied ? uiStrings.gifts.copied : uiStrings.gifts.copyCode}
+                className={`flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center border transition-colors ${
+                  copied
+                    ? 'border-olive bg-olive text-cream'
+                    : 'border-olive-line text-olive hover:bg-veil'
+                }`}
+              >
+                <CopyGlyph copied={copied} />
+              </button>
+            </div>
+
+            <Button className="mt-5 w-full" onClick={() => setSigning(true)}>
+              {uiStrings.gifts.declareCta}
+            </Button>
+            <button
+              type="button"
+              onClick={backToAmount}
+              className="mt-3 w-full cursor-pointer font-body text-sm text-dark-gray underline underline-offset-4 transition-colors hover:text-terracotta"
+            >
+              {uiStrings.gifts.changeAmount}
+            </button>
+          </div>
+        ) : null}
+
+        {step === 'sign' ? (
+          <div className="mt-5">
+            {declare.isSuccess ? (
+              <p role="status" className="font-body text-lg text-deep-olive">
+                {uiStrings.gifts.declared}
+              </p>
+            ) : (
+              <>
+                <GuestNameField
+                  label={uiStrings.gifts.declareName}
+                  value={contributor}
+                  onChange={setContributor}
+                  placeholder={uiStrings.gifts.declareNamePlaceholder}
+                  autoFocus
+                />
+                <Button
+                  className="mt-4 w-full"
+                  disabled={contributor.trim().length === 0 || declare.isPending}
+                  onClick={() =>
+                    declare.mutate({
+                      params: { path: { gift_id: gift.gift_id } },
+                      body: {
+                        contributor_name: contributor.trim(),
+                        amount_centavos: amountCentavos,
+                      },
+                    })
+                  }
+                >
+                  {declare.isPending ? uiStrings.gifts.declaring : uiStrings.gifts.confirmGift}
+                </Button>
+                <button
+                  type="button"
+                  onClick={() => setSigning(false)}
+                  className="mt-3 w-full cursor-pointer font-body text-sm text-dark-gray underline underline-offset-4 transition-colors hover:text-terracotta"
+                >
+                  {uiStrings.gifts.backToCode}
+                </button>
+              </>
+            )}
             {declare.isError ? (
               <p role="alert" className="mt-3 font-body text-sm text-terracotta">
                 {problemDetail(declare.error)}
               </p>
             ) : null}
           </div>
-        </div>
-      ) : null}
-    </div>
+        ) : null}
+      </Modal>
+    </>
   )
 }
 

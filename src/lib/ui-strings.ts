@@ -17,6 +17,9 @@ export const uiStrings = {
     groom: 'O noivo',
   },
   instagramCta: 'Ver no Instagram',
+  guestField: {
+    suggestions: 'Nomes encontrados na lista de convidados',
+  },
   letters: {
     fromGroom: 'João para Jade',
     fromBride: 'Jade para João',
@@ -42,6 +45,13 @@ export const uiStrings = {
     generating: 'Gerando…',
     copyCode: 'Copiar código',
     scanQr: 'Ou aponte a câmera do banco',
+    stepAmount: 'Passo 1 de 3 · Valor',
+    stepPay: 'Passo 2 de 3 · Pagamento',
+    stepSign: 'Passo 3 de 3 · Quem presenteou',
+    changeAmount: 'Trocar o valor',
+    backToCode: 'Voltar ao código',
+    confirmGift: 'Confirmar',
+    declareNamePlaceholder: 'Como está no convite…',
     copied: 'Copiado!',
     declareName: 'Seu nome',
     declareCta: 'Já fiz o PIX',
@@ -55,6 +65,7 @@ export const uiStrings = {
   },
   messagesForm: {
     nameLabel: 'Seu nome',
+    namePlaceholder: 'Como está no convite…',
     bodyLabel: 'Seu recado',
     bodyPlaceholder: 'Escreva com o coração…',
     send: 'Enviar recado',

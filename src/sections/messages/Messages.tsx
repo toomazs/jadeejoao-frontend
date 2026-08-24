@@ -2,6 +2,7 @@ import { useId, useState } from 'react'
 
 import { $api } from '../../api/client'
 import { Button } from '../../components/ui/Button'
+import { GuestNameField } from '../../components/ui/GuestNameField'
 import { Markdown } from '../../components/ui/Markdown'
 import { SectionShell } from '../../components/ui/SectionShell'
 import type { MessagesIntroContent } from '../../lib/content'
@@ -21,7 +22,6 @@ function problemDetail(error: unknown): string {
 
 /** The guestbook: write-only — the couple reads every recado in their panel (AD-14). */
 export function Messages({ content, ordinal }: MessagesProps) {
-  const nameId = useId()
   const bodyId = useId()
   const [author, setAuthor] = useState('')
   const [body, setBody] = useState('')
@@ -54,21 +54,12 @@ export function Messages({ content, ordinal }: MessagesProps) {
             send.mutate({ body: { author_name: author.trim(), body: body.trim() } })
           }}
         >
-          <div>
-            <label
-              htmlFor={nameId}
-              className="font-body text-sm tracking-[0.18em] text-dark-gray uppercase"
-            >
-              {uiStrings.messagesForm.nameLabel}
-            </label>
-            <input
-              id={nameId}
-              type="text"
-              value={author}
-              onChange={(event) => setAuthor(event.target.value)}
-              className="mt-1.5 w-full border border-olive-line bg-cream px-4 py-3 font-body text-lg"
-            />
-          </div>
+          <GuestNameField
+            label={uiStrings.messagesForm.nameLabel}
+            value={author}
+            onChange={setAuthor}
+            placeholder={uiStrings.messagesForm.namePlaceholder}
+          />
           <div>
             <label
               htmlFor={bodyId}
