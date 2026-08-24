@@ -46,29 +46,50 @@ function Glint({ className = '', style }: { className?: string; style?: CSSPrope
 }
 
 /**
- * How much the frame must grow to swallow the viewport whole. Measured from
- * the frame's own unscaled box, so it covers on a phone and on a 27" screen
- * alike — the scene has to end with nothing but Catarina on screen.
+ * How much the frame must grow to swallow the viewport whole, given that the
+ * zoom pivots on Catarina's eye rather than on the frame's centre.
+ *
+ * Pivoting off-centre costs extra scale, and unevenly: her eye sits near the
+ * top of the photo, so the sliver above it has to stretch much further to
+ * reach the top of the screen than the rest does to reach the bottom. Solving
+ * all four edges and keeping the worst is what makes her face fill a 21:9
+ * monitor and a phone alike — a centre pivot pushed her off the top of wide
+ * screens entirely.
+ *
+ * Height comes from the width and the 4/5 aspect rather than from a
+ * measurement: by the time the zoom runs, the white border has shrunk to
+ * nothing and the frame is exactly the photograph.
  */
-function useCoverScale(ref: RefObject<HTMLElement | null>): number {
-  const [scale, setScale] = useState(6)
+function useCoverScale(
+  ref: RefObject<HTMLElement | null>,
+  focusX: number,
+  focusY: number,
+): number {
+  const [scale, setScale] = useState(8)
 
   useLayoutEffect(() => {
     const measure = () => {
       const el = ref.current
       if (!el || el.offsetWidth === 0) return
-      // offsetWidth/Height ignore the transform, so this stays stable while
-      // the frame is mid-zoom.
+      // offsetWidth ignores the transform, so this stays stable mid-zoom.
+      const w = el.offsetWidth
+      const h = w * 1.25
+      const fx = focusX / 100
+      const fy = focusY / 100
+      // Per edge: the gap the pivot has to close, over the slice of frame
+      // left on that side to close it with.
       const needed = Math.max(
-        window.innerWidth / el.offsetWidth,
-        window.innerHeight / el.offsetHeight,
+        (window.innerWidth / 2 + (fx - 0.5) * w) / (fx * w),
+        (window.innerWidth / 2 - (fx - 0.5) * w) / ((1 - fx) * w),
+        (window.innerHeight / 2 + (fy - 0.5) * h) / (fy * h),
+        (window.innerHeight / 2 - (fy - 0.5) * h) / ((1 - fy) * h),
       )
-      setScale(needed * 1.25)
+      setScale(needed * 1.1)
     }
     measure()
     window.addEventListener('resize', measure)
     return () => window.removeEventListener('resize', measure)
-  }, [ref])
+  }, [ref, focusX, focusY])
 
   return scale
 }
@@ -84,10 +105,10 @@ export function Announcement({ announcement }: AnnouncementProps) {
   const ref = useRef<HTMLElement>(null)
   const frameRef = useRef<HTMLElement>(null)
   const progress = useChapterProgress(ref, !reduced)
-  const coverScale = useCoverScale(frameRef)
 
   const eyeX = announcement.eye_x || DEFAULT_EYE.x
   const eyeY = announcement.eye_y || DEFAULT_EYE.y
+  const coverScale = useCoverScale(frameRef, eyeX, eyeY)
 
   // Three quick beats over a short scroll: arrive, wink, swallow the screen.
   const rise = seg(progress, 0, 0.3)
@@ -120,7 +141,9 @@ export function Announcement({ announcement }: AnnouncementProps) {
                   padding: `${0.75 * border}rem`,
                   paddingBottom: `${4 * border}rem`,
                   transform: `translateY(${lift}vh) rotate(${tilt}deg) scale(${scale})`,
-                  transformOrigin: 'center center',
+                  // Grow out of her eye, not the frame's middle: the eye is
+                  // the one point the scene cannot afford to lose.
+                  transformOrigin: `${eyeX}% ${eyeY}%`,
                 }
           }
         >
@@ -136,7 +159,15 @@ export function Announcement({ announcement }: AnnouncementProps) {
             <span
               aria-hidden="true"
               className="pointer-events-none absolute"
-              style={{ left: `${eyeX}%`, top: `${eyeY}%` }}
+              style={{
+                left: `${eyeX}%`,
+                top: `${eyeY}%`,
+                // Undo the frame's zoom for the burst alone, so a sparkle is
+                // the same size on screen whatever the scale happens to be.
+                // Multiplied by it, a 26px glint became 270px and flew a
+                // screen and a half before anyone could see it.
+                transform: `scale(${1 / scale})`,
+              }}
             >
               {SPARKS.map((spark, index) => {
                 const life = reduced ? 1 : clamp01((burst - spark.from) / 0.42)
