@@ -34,7 +34,7 @@ export const fixtureContent: ContentOutputBody = {
       enabled: true,
       our_story: {
         title: 'Nossa História',
-        body: 'Entre risadas, viagens e muitos cafés, construímos uma história que agora ganha o seu capítulo mais bonito. Em breve contamos tudo por aqui — com fotos e os melhores momentos.',
+        body: 'Estamos muito felizes de te convidar para o nosso casamento!',
         images: [],
         bride: {
           name: 'Jade',

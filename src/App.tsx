@@ -37,14 +37,7 @@ function renderSection(
     case 'hero':
       return <Hero key={section.slug} content={section.payload} />
     case 'our_story':
-      return (
-        <OurStory
-          key={section.slug}
-          content={section.payload}
-          coupleNames={hero?.couple_names}
-          portraits={hero?.images}
-        />
-      )
+      return <OurStory key={section.slug} content={section.payload} />
     case 'big_day':
       return (
         <BigDay

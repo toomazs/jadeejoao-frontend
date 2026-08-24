@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState } from 'react'
-import type { RefObject } from 'react'
+import { useRef } from 'react'
 
 import { $api } from '../../api/client'
 import type { components } from '../../api/schema'
 import { siriguela } from '../../assets'
+import { seg, useChapterProgress, usePrefersReducedMotion } from '../../lib/scrollytelling'
 import { uiStrings } from '../../lib/ui-strings'
 
 type Person = components['schemas']['PersonPayload']
@@ -15,8 +15,10 @@ interface PersonChapterProps {
   roleLabel: string
   /** Which side the portrait takes on large screens. */
   align: 'left' | 'right'
-  /** Chapter ground: near-black for her, deep olive for him. */
-  tone: 'ink' | 'olive'
+  /** Chapter ground — palette darks only: brand gray for her, deep olive for him. */
+  tone: 'gray' | 'olive'
+  /** Anchor id, carried by the first chapter of the story block. */
+  id?: string
 }
 
 /** Instagram outline glyph (lucide dropped brand icons — drawn inline). */
@@ -49,56 +51,13 @@ function InstagramGlyph({
   )
 }
 
-const clamp01 = (value: number) => Math.min(1, Math.max(0, value))
-/** Progress of p through the [from, to] segment, clamped to 0..1. */
-const seg = (p: number, from: number, to: number) => clamp01((p - from) / (to - from))
-
-function usePrefersReducedMotion(): boolean {
-  const [reduced, setReduced] = useState(false)
-  useEffect(() => {
-    const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
-    const update = () => setReduced(mq.matches)
-    update()
-    mq.addEventListener('change', update)
-    return () => mq.removeEventListener('change', update)
-  }, [])
-  return reduced
-}
-
-/**
- * 0..1 scroll progress through the tall chapter container. Measured straight
- * in the scroll handler — browsers already fire scroll at most once per frame,
- * and rAF-deferred measurement stalls in non-composited (hidden) pages.
- */
-function useChapterProgress(ref: RefObject<HTMLElement | null>, enabled: boolean): number {
-  const [progress, setProgress] = useState(0)
-  useEffect(() => {
-    if (!enabled) return
-    const el = ref.current
-    if (!el) return
-    const measure = () => {
-      const rect = el.getBoundingClientRect()
-      const total = rect.height - window.innerHeight
-      setProgress(total > 0 ? clamp01(-rect.top / total) : 0)
-    }
-    measure()
-    window.addEventListener('scroll', measure, { passive: true })
-    window.addEventListener('resize', measure)
-    return () => {
-      window.removeEventListener('scroll', measure)
-      window.removeEventListener('resize', measure)
-    }
-  }, [ref, enabled])
-  return progress
-}
-
 /**
  * One film chapter, pinned for ~3 viewports of scroll: the screen cuts to a
  * dark ground, the portrait and name arrive, hold, then hand the frame to the
  * person's Instagram feed. Without a configured feed the second scene shows
  * the profile link; under reduced motion everything renders statically.
  */
-export function PersonChapter({ person, personKey, roleLabel, align, tone }: PersonChapterProps) {
+export function PersonChapter({ person, personKey, roleLabel, align, tone, id }: PersonChapterProps) {
   const reduced = usePrefersReducedMotion()
   const ref = useRef<HTMLElement>(null)
   const progress = useChapterProgress(ref, !reduced)
@@ -112,7 +71,7 @@ export function PersonChapter({ person, personKey, roleLabel, align, tone }: Per
   const handleUrl = person.instagram ? `https://www.instagram.com/${person.instagram}/` : undefined
   const hasFeedScene = posts.length > 0 || Boolean(person.instagram)
 
-  const ground = tone === 'ink' ? 'bg-ink' : 'bg-deep-olive'
+  const ground = tone === 'gray' ? 'bg-dark-gray' : 'bg-deep-olive'
 
   const introIn = reduced ? 1 : seg(progress, 0.02, 0.16)
   const introOut = reduced ? 1 : 1 - seg(progress, 0.5, 0.6)
@@ -267,6 +226,7 @@ export function PersonChapter({ person, personKey, roleLabel, align, tone }: Per
     return (
       <section
         ref={ref}
+        id={id}
         aria-label={person.name}
         data-nav-hide=""
         className={`${ground} px-5 py-20 sm:px-10`}
@@ -280,6 +240,7 @@ export function PersonChapter({ person, personKey, roleLabel, align, tone }: Per
   return (
     <section
       ref={ref}
+      id={id}
       aria-label={person.name}
       data-nav-hide=""
       className={`relative ${ground}`}
