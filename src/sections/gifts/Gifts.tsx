@@ -5,6 +5,7 @@ import { $api } from '../../api/client'
 import type { components } from '../../api/schema'
 import { Button, ButtonLink } from '../../components/ui/Button'
 import { GuestNameField } from '../../components/ui/GuestNameField'
+import { LeafDivider } from '../../components/ui/LeafDivider'
 import { Markdown } from '../../components/ui/Markdown'
 import { Modal } from '../../components/ui/Modal'
 import { Reveal } from '../../components/ui/Reveal'
@@ -366,7 +367,7 @@ function PixFlow({ gift }: { gift: GiftView }) {
   )
 }
 
-/** One gift card — PIX meta/cota with the flow, or an outbound registry card. */
+/** One PIX gift: a meta or cota the guest funds with the copia-e-cola. */
 function GiftCard({ gift, index }: { gift: GiftView; index: number }) {
   return (
     <Reveal
@@ -390,33 +391,55 @@ function GiftCard({ gift, index }: { gift: GiftView; index: number }) {
       ) : null}
 
       <div className="mt-auto">
-        {gift.kind === 'link' && gift.external_url ? (
-          <div className="mt-5 flex flex-col gap-2">
-            {gift.platform ? (
-              <span className="font-body text-xs tracking-[0.24em] text-dark-gray uppercase">
-                {gift.platform}
-              </span>
-            ) : null}
-            <ButtonLink
-              href={gift.external_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full"
-            >
-              {uiStrings.gifts.linkCta}
-            </ButtonLink>
-          </div>
-        ) : (
-          <>
-            <Progress gift={gift} />
-            {typeof gift.units_left === 'number' ? (
-              <p className="mt-2 font-body text-sm text-dark-gray">
-                {gift.units_left} {uiStrings.gifts.unitsLeftSuffix}
-              </p>
-            ) : null}
-            <PixFlow gift={gift} />
-          </>
-        )}
+        <Progress gift={gift} />
+        {typeof gift.units_left === 'number' ? (
+          <p className="mt-2 font-body text-sm text-dark-gray">
+            {gift.units_left} {uiStrings.gifts.unitsLeftSuffix}
+          </p>
+        ) : null}
+        <PixFlow gift={gift} />
+      </div>
+    </Reveal>
+  )
+}
+
+/**
+ * One store list: the shop's own logo on white — a shelf label — over the
+ * couple's note about what they picked there.
+ */
+function RegistryCard({ gift, index }: { gift: GiftView; index: number }) {
+  if (!gift.external_url) return null
+  return (
+    <Reveal
+      as="li"
+      delay={index * 110}
+      className="lift flex flex-col border border-olive-line bg-cream px-5 py-6"
+    >
+      {gift.image_url ? (
+        <div className="mb-5 flex h-24 items-center justify-center border border-sand-line bg-veil px-6">
+          <img
+            src={gift.image_url}
+            alt={gift.platform ?? gift.title}
+            className="max-h-14 w-auto max-w-full object-contain"
+            loading="lazy"
+          />
+        </div>
+      ) : null}
+      <h3 className="font-display text-2xl text-olive">{gift.title}</h3>
+      {gift.description ? (
+        <p className="mt-2 font-body text-base leading-relaxed text-dark-gray">
+          {gift.description}
+        </p>
+      ) : null}
+      <div className="mt-auto">
+        <ButtonLink
+          href={gift.external_url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-5 w-full"
+        >
+          {uiStrings.gifts.linkCta}
+        </ButtonLink>
       </div>
     </Reveal>
   )
@@ -426,6 +449,10 @@ function GiftCard({ gift, index }: { gift: GiftView; index: number }) {
 export function Gifts({ content, ordinal }: GiftsProps) {
   const giftsQuery = $api.useQuery('get', '/api/v1/gifts', {}, { staleTime: 60_000 })
   const gifts = giftsQuery.data?.gifts ?? []
+  // Two families, two rooms: what the couple funds by PIX, and where they
+  // keep a list at a store.
+  const pixGifts = gifts.filter((gift) => gift.kind !== 'link')
+  const registries = gifts.filter((gift) => gift.kind === 'link')
 
   return (
     <SectionShell slug="gifts_intro" title={content.title} ordinal={ordinal} width="wide">
@@ -444,12 +471,29 @@ export function Gifts({ content, ordinal }: GiftsProps) {
         </div>
       ) : null}
 
-      {gifts.length > 0 ? (
+      {pixGifts.length > 0 ? (
         <ul className="mt-9 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {gifts.map((gift, index) => (
+          {pixGifts.map((gift, index) => (
             <GiftCard key={gift.gift_id} gift={gift} index={index} />
           ))}
         </ul>
+      ) : null}
+
+      {registries.length > 0 ? (
+        <>
+          <Reveal className="mt-16 flex flex-col items-center text-center">
+            <LeafDivider />
+            <h3 className="mt-6 font-display text-3xl text-olive">{uiStrings.gifts.listsTitle}</h3>
+            <p className="mt-3 max-w-prose font-body text-base text-dark-gray">
+              {uiStrings.gifts.listsBody}
+            </p>
+          </Reveal>
+          <ul className="mt-9 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {registries.map((gift, index) => (
+              <RegistryCard key={gift.gift_id} gift={gift} index={index} />
+            ))}
+          </ul>
+        </>
       ) : null}
     </SectionShell>
   )

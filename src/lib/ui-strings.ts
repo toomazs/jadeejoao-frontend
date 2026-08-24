@@ -53,6 +53,8 @@ export const uiStrings = {
     confirmGift: 'Confirmar',
     declareNamePlaceholder: 'Como está no convite…',
     soldOut: 'Todas as cotas reservadas',
+    listsTitle: 'Ou escolha nas nossas listas',
+    listsBody: 'Também montamos listas nas lojas — é só abrir, escolher e enviar para a nossa casa.',
     oneMore: 'Uma cota a mais',
     oneLess: 'Uma cota a menos',
     copied: 'Copiado!',
