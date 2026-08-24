@@ -72,14 +72,16 @@ export const uiStrings = {
 export interface NavItem {
   anchor: SectionSlug
   label: string
+  /** Compact form for the floating pill, where full labels don't fit. */
+  short: string
 }
 
 /** Anchor nav labels (per the approved PPTX), in display order. */
 export const navItems: readonly NavItem[] = [
-  { anchor: 'hero', label: 'Início' },
-  { anchor: 'rsvp', label: 'Confirmação de presença' },
-  { anchor: 'gifts_intro', label: 'Presenteie os noivos' },
-  { anchor: 'stay', label: 'Estadia' },
-  { anchor: 'dress_code', label: 'Vestimenta' },
-  { anchor: 'good_practices', label: 'Boas Práticas' },
+  { anchor: 'hero', label: 'Início', short: 'Início' },
+  { anchor: 'rsvp', label: 'Confirmação de presença', short: 'Presença' },
+  { anchor: 'gifts_intro', label: 'Presenteie os noivos', short: 'Presentes' },
+  { anchor: 'stay', label: 'Estadia', short: 'Estadia' },
+  { anchor: 'dress_code', label: 'Vestimenta', short: 'Vestimenta' },
+  { anchor: 'good_practices', label: 'Boas Práticas', short: 'Boas práticas' },
 ]
