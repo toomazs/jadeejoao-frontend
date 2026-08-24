@@ -60,6 +60,19 @@
   }
 }
 
+/*
+ * Afrah is a hairline display face: at screen resolutions its thinnest joins
+ * drop out entirely, and titles read broken. A fraction of a pixel of stroke
+ * in the text's own colour restores those strokes without touching the letter
+ * shapes — the bold weight would be far too heavy for this face (the couple
+ * ruled it out), so we thicken by a hair instead of changing weight.
+ * paint-order keeps the stroke behind the fill, so counters stay open.
+ */
+.font-display {
+  -webkit-text-stroke: 0.4px currentColor;
+  paint-order: stroke fill;
+}
+
 @utility edge-fade-x {
   /* Soft mask on horizontally scrollable strips (nav): keywords only, no palette values. */
   mask-image: linear-gradient(
