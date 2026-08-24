@@ -4,7 +4,6 @@ import {
   Church,
   Flower2,
   Heart,
-  MapPin,
   Martini,
   Music,
   PartyPopper,
@@ -13,7 +12,6 @@ import {
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
-import { ButtonLink } from '../../components/ui/Button'
 import { Markdown } from '../../components/ui/Markdown'
 import { Reveal } from '../../components/ui/Reveal'
 import type { BigDayContent } from '../../lib/content'
@@ -166,18 +164,13 @@ export function BigDay({ content, eventDatetime }: BigDayProps) {
           </div>
         ) : null}
 
-        <Reveal className="mt-4 flex flex-col items-center">
-          <ButtonLink href="#getting_there" variant="outline">
-            <MapPin aria-hidden="true" size={18} strokeWidth={2} />
-            {uiStrings.openMap}
-          </ButtonLink>
-
-          {content.venue_notes ? (
-            <p className="mt-8 max-w-prose border-t border-sand-line pt-6 text-center font-body text-base text-dark-gray italic">
+        {content.venue_notes ? (
+          <Reveal className="mt-10 flex flex-col items-center">
+            <p className="max-w-prose border-t border-sand-line pt-6 text-center font-body text-base text-dark-gray italic">
               {content.venue_notes}
             </p>
-          ) : null}
-        </Reveal>
+          </Reveal>
+        ) : null}
       </div>
     </section>
   )

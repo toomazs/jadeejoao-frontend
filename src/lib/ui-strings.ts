@@ -82,6 +82,8 @@ export const uiStrings = {
   shuttleServed: 'Atendido pelo traslado',
   airbnbAreas: 'Bairros para buscar no Airbnb',
   openMap: 'Ver no mapa',
+  openInMaps: 'Abrir no Google Maps',
+  openInWaze: 'Abrir no Waze',
   countdownLabel: 'Contagem regressiva para o grande dia',
   countdown: {
     days: 'dias',

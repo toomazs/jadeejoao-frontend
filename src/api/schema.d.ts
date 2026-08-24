@@ -696,11 +696,24 @@ export interface components {
             body?: string;
             /** @description Public CDN image URLs. */
             images?: string[] | null;
-            /** Format: uri */
+            /**
+             * Format: uri
+             * @description Embeddable map for the inline frame.
+             */
             map_embed_url?: string;
+            /**
+             * Format: uri
+             * @description Deep link that opens Google Maps at the venue.
+             */
+            maps_url?: string;
             parking_notes?: string;
             /** @description Section heading shown on the site. */
             title: string;
+            /**
+             * Format: uri
+             * @description Deep link that opens Waze at the venue.
+             */
+            waze_url?: string;
         };
         GiftParamsBody: {
             /**

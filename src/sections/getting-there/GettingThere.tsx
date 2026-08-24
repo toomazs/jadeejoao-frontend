@@ -1,3 +1,5 @@
+import { MapPin, Navigation } from 'lucide-react'
+
 import { ButtonLink } from '../../components/ui/Button'
 import { LeafGlyph } from '../../components/ui/LeafGlyph'
 import { Markdown } from '../../components/ui/Markdown'
@@ -43,12 +45,26 @@ export function GettingThere({ content, stay }: GettingThereProps) {
             </p>
           ) : null}
 
-          {content.map_embed_url ? (
-            <p className="mt-7">
-              <ButtonLink href={content.map_embed_url} target="_blank" rel="noopener noreferrer">
-                {uiStrings.openMap}
-              </ButtonLink>
-            </p>
+          {content.maps_url || content.waze_url ? (
+            <div className="mt-7 flex flex-wrap gap-3">
+              {content.maps_url ? (
+                <ButtonLink href={content.maps_url} target="_blank" rel="noopener noreferrer">
+                  <MapPin aria-hidden="true" size={18} strokeWidth={2} />
+                  {uiStrings.openInMaps}
+                </ButtonLink>
+              ) : null}
+              {content.waze_url ? (
+                <ButtonLink
+                  href={content.waze_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  variant="outline"
+                >
+                  <Navigation aria-hidden="true" size={18} strokeWidth={2} />
+                  {uiStrings.openInWaze}
+                </ButtonLink>
+              ) : null}
+            </div>
           ) : null}
         </div>
 
@@ -66,9 +82,9 @@ export function GettingThere({ content, stay }: GettingThereProps) {
       </div>
 
       {hasLodging ? (
-        <div className="mt-16 border-t border-sand-line pt-14">
+        <div className="mt-12 border-t border-sand-line pt-10">
           <Reveal className="text-center">
-            <h3 className="font-display text-[clamp(1.8rem,4vw,2.6rem)] text-olive">
+            <h3 className="font-display text-[clamp(1.6rem,3.4vw,2.2rem)] text-olive">
               {stay.title}
             </h3>
             {stay.body ? (
