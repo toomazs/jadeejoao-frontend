@@ -44,3 +44,29 @@ export function useChapterProgress(ref: RefObject<HTMLElement | null>, enabled: 
   }, [ref, enabled])
   return progress
 }
+
+/**
+ * 0..1 progress of a normal (non-pinned) section crossing the viewport:
+ * 0 when its top reaches the bottom edge, 1 when its bottom leaves the top.
+ */
+export function useSectionProgress(ref: RefObject<HTMLElement | null>, enabled: boolean): number {
+  const [progress, setProgress] = useState(0)
+  useEffect(() => {
+    if (!enabled) return
+    const el = ref.current
+    if (!el) return
+    const measure = () => {
+      const rect = el.getBoundingClientRect()
+      const span = rect.height + window.innerHeight
+      setProgress(span > 0 ? clamp01((window.innerHeight - rect.top) / span) : 0)
+    }
+    measure()
+    window.addEventListener('scroll', measure, { passive: true })
+    window.addEventListener('resize', measure)
+    return () => {
+      window.removeEventListener('scroll', measure)
+      window.removeEventListener('resize', measure)
+    }
+  }, [ref, enabled])
+  return progress
+}
