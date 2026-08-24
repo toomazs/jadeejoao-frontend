@@ -234,7 +234,7 @@ export function PersonChapter({ person, personKey, roleLabel, align, tone }: Per
                   <img
                     src={post.media_type === 'VIDEO' ? (post.thumbnail_url ?? post.media_url) : post.media_url}
                     alt=""
-                    className="aspect-square w-full border border-cream/20 object-cover"
+                    className="aspect-[4/5] w-full border border-cream/20 object-cover"
                     loading="lazy"
                   />
                 </a>
@@ -263,7 +263,12 @@ export function PersonChapter({ person, personKey, roleLabel, align, tone }: Per
 
   if (reduced) {
     return (
-      <section ref={ref} aria-label={person.name} className={`${ground} px-5 py-20 sm:px-10`}>
+      <section
+        ref={ref}
+        aria-label={person.name}
+        data-nav-hide=""
+        className={`${ground} px-5 py-20 sm:px-10`}
+      >
         {introContent}
         {hasFeedScene ? <div className="mt-16">{postsContent}</div> : null}
       </section>
@@ -274,6 +279,7 @@ export function PersonChapter({ person, personKey, roleLabel, align, tone }: Per
     <section
       ref={ref}
       aria-label={person.name}
+      data-nav-hide=""
       className={`relative ${ground}`}
       style={{ height: hasFeedScene ? '320vh' : '200vh' }}
     >

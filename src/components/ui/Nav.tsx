@@ -29,7 +29,22 @@ export function Nav({ presentSlugs }: NavProps) {
   const kebabRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
-    const onScroll = () => setVisible(window.scrollY > window.innerHeight * 0.55)
+    const onScroll = () => {
+      const pastHero = window.scrollY > window.innerHeight * 0.55
+      // The pill steps aside while a film chapter (data-nav-hide) holds the
+      // screen, and returns as soon as the page moves past it.
+      let overChapter = false
+      if (pastHero) {
+        for (const chapter of Array.from(document.querySelectorAll('[data-nav-hide]'))) {
+          const rect = chapter.getBoundingClientRect()
+          if (rect.top < 96 && rect.bottom > 0) {
+            overChapter = true
+            break
+          }
+        }
+      }
+      setVisible(pastHero && !overChapter)
+    }
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
