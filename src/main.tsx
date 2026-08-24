@@ -16,7 +16,22 @@ if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
   requestAnimationFrame(raf)
 }
 
-const queryClient = new QueryClient()
+/**
+ * A guest may open the invitation on a flaky phone connection, or leave the
+ * tab sleeping for hours. Queries retry with backoff and revalidate when the
+ * page or the network comes back, so a single hiccup never leaves a section
+ * stuck on its empty state.
+ */
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 4,
+      retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 15000),
+      refetchOnWindowFocus: true,
+      refetchOnReconnect: true,
+    },
+  },
+})
 
 const rootElement = document.getElementById('root')
 if (!rootElement) {

@@ -1,6 +1,7 @@
 import { useRef } from 'react'
 
 import { $api } from '../../api/client'
+import { Skeleton } from '../../components/ui/Skeleton'
 import type { components } from '../../api/schema'
 import { siriguela } from '../../assets'
 import { seg, useChapterProgress, usePrefersReducedMotion } from '../../lib/scrollytelling'
@@ -68,6 +69,10 @@ export function PersonChapter({ person, personKey, roleLabel, align, tone, id }:
     { staleTime: 10 * 60 * 1000 },
   )
   const posts = feed.data?.posts ?? []
+  // Only claim there is nothing to show once the request has actually
+  // settled — a pending or failed fetch must never masquerade as an empty
+  // feed, which is what made the grid look like it had vanished.
+  const feedSettled = !feed.isPending && !feed.isFetching
   const handleUrl = person.instagram ? `https://www.instagram.com/${person.instagram}/` : undefined
   const hasFeedScene = posts.length > 0 || Boolean(person.instagram)
 
@@ -237,6 +242,12 @@ export function PersonChapter({ person, personKey, roleLabel, align, tone, id }:
               </li>
             )
           })}
+        </ul>
+      ) : !feedSettled ? (
+        <ul className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4" aria-hidden="true">
+          {Array.from({ length: 6 }, (_, index) => (
+            <Skeleton key={index} className="aspect-[4/5] w-full" />
+          ))}
         </ul>
       ) : (
         <div className="mt-8 flex flex-col items-center gap-5 border border-cream/20 px-6 py-14 text-center">
