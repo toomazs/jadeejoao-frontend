@@ -33,7 +33,7 @@ export function Messages({ content }: MessagesProps) {
       {content.body ? (
         <Markdown
           text={content.body}
-          className="mx-auto max-w-prose text-center font-body text-lg leading-relaxed"
+          className="mx-auto max-w-prose text-center font-body text-lg leading-relaxed text-cream-soft"
         />
       ) : null}
 

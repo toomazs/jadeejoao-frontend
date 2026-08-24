@@ -318,9 +318,12 @@ function PixFlow({ gift }: { gift: GiftView }) {
         {step === 'sign' ? (
           <div className="mt-5">
             {declare.isSuccess ? (
-              <p role="status" className="font-body text-lg text-deep-olive">
-                {uiStrings.gifts.declared}
-              </p>
+              <div role="status" className="border border-olive bg-veil px-4 py-5 text-center">
+                <p className="font-display text-2xl text-deep-olive">{uiStrings.gifts.declared}</p>
+                <p className="mt-2 font-body text-sm leading-relaxed text-dark-gray">
+                  {uiStrings.gifts.declaredHint}
+                </p>
+              </div>
             ) : (
               <>
                 <GuestNameField
@@ -330,6 +333,9 @@ function PixFlow({ gift }: { gift: GiftView }) {
                   placeholder={uiStrings.gifts.declareNamePlaceholder}
                   autoFocus
                 />
+                <p className="mt-3 font-body text-xs leading-relaxed text-dark-gray italic">
+                  {uiStrings.gifts.pendingNote}
+                </p>
                 <Button
                   className="mt-4 w-full"
                   disabled={contributor.trim().length === 0 || declare.isPending}

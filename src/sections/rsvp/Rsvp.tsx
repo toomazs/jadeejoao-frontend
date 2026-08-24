@@ -1,5 +1,7 @@
 import { useEffect, useId, useState } from 'react'
 
+import { Check, X } from 'lucide-react'
+
 import { $api } from '../../api/client'
 import type { components } from '../../api/schema'
 import { Button } from '../../components/ui/Button'
@@ -195,6 +197,62 @@ export function Rsvp({ content }: RsvpProps) {
             </p>
           ) : null}
         </div>
+      ) : submitted ? (
+        /*
+         * Once it is sent, the card becomes a receipt: what was answered for
+         * whom, and nothing to fiddle with. Changing an answer is still
+         * possible until the deadline, but it has to be asked for.
+         */
+        <div className="mx-auto mt-10 max-w-2xl">
+          <div className="card-in border border-olive bg-veil px-5 py-8 sm:px-8">
+            <p role="status" className="text-center font-display text-2xl text-deep-olive sm:text-3xl">
+              {uiStrings.rsvp.success}
+            </p>
+            <p className="mt-2 text-center font-body text-base text-dark-gray">
+              {group.label}
+            </p>
+
+            <ul className="mt-7 divide-y divide-sand-line border-y border-sand-line">
+              {members.map((member, index) => {
+                const going = answers[member.guest_id] === 'yes'
+                return (
+                  <li
+                    key={member.guest_id}
+                    className="name-in flex flex-wrap items-center justify-between gap-3 py-3.5"
+                    style={{ animationDelay: `${120 + index * 70}ms` }}
+                  >
+                    <span className="font-body text-lg text-ink">{member.full_name}</span>
+                    <span
+                      className={`flex items-center gap-2 font-body text-base tracking-[0.06em] uppercase ${
+                        going ? 'text-deep-olive' : 'text-dark-gray'
+                      }`}
+                    >
+                      {going ? (
+                        <Check aria-hidden="true" size={17} strokeWidth={2.4} />
+                      ) : (
+                        <X aria-hidden="true" size={17} strokeWidth={2.4} />
+                      )}
+                      {going ? uiStrings.rsvp.attendingYes : uiStrings.rsvp.attendingNo}
+                    </span>
+                  </li>
+                )
+              })}
+            </ul>
+
+            <p className="mt-6 text-center font-body text-sm text-dark-gray italic">
+              {uiStrings.rsvp.changeHint}
+            </p>
+
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
+              <Button variant="outline" onClick={() => setSubmitted(false)}>
+                {uiStrings.rsvp.changeAnswer}
+              </Button>
+              <Button variant="outline" onClick={reset}>
+                {uiStrings.rsvp.searchAgain}
+              </Button>
+            </div>
+          </div>
+        </div>
       ) : (
         <div className="mx-auto mt-10 max-w-2xl">
           <div key={group.group_id} className="card-in border border-olive-line bg-cream px-5 py-8 sm:px-8">
@@ -245,22 +303,13 @@ export function Rsvp({ content }: RsvpProps) {
               ))}
             </ul>
 
-            {submitted ? (
-              <p
-                role="status"
-                className="mt-6 border border-olive bg-veil px-4 py-3 text-center font-body text-lg text-deep-olive"
-              >
-                {uiStrings.rsvp.success}
-              </p>
-            ) : null}
-
             {submit.isError ? (
               <p role="alert" className="mt-6 text-center font-body text-base text-terracotta">
                 {problemDetail(submit.error)}
               </p>
             ) : null}
 
-            {!allAnswered && !submitted ? (
+            {!allAnswered ? (
               <p className="mt-6 text-center font-body text-sm text-dark-gray italic">
                 {uiStrings.rsvp.answerAll}
               </p>
