@@ -29,7 +29,7 @@ export function Messages({ content }: MessagesProps) {
   const canSend = author.trim().length > 0 && body.trim().length > 0 && !send.isPending
 
   return (
-    <SectionShell slug="messages_intro" title={content.title}>
+    <SectionShell slug="messages_intro" title={content.title} tone="olive">
       {content.body ? (
         <Markdown
           text={content.body}
@@ -40,13 +40,13 @@ export function Messages({ content }: MessagesProps) {
       {send.isSuccess ? (
         <p
           role="status"
-          className="mx-auto mt-8 max-w-md border border-olive bg-veil px-4 py-3 text-center font-body text-lg text-deep-olive"
+          className="mx-auto mt-8 max-w-md border border-gold-sand bg-cream/10 px-4 py-3 text-center font-body text-lg text-cream"
         >
           {uiStrings.messagesForm.sent}
         </p>
       ) : (
         <form
-          className="mx-auto mt-8 flex max-w-xl flex-col gap-4"
+          className="mx-auto mt-8 flex max-w-xl flex-col gap-5"
           onSubmit={(event) => {
             event.preventDefault()
             if (!canSend) return
@@ -54,6 +54,7 @@ export function Messages({ content }: MessagesProps) {
           }}
         >
           <GuestNameField
+            tone="dark"
             label={uiStrings.messagesForm.nameLabel}
             value={author}
             onChange={setAuthor}
@@ -62,7 +63,7 @@ export function Messages({ content }: MessagesProps) {
           <div>
             <label
               htmlFor={bodyId}
-              className="font-body text-sm text-dark-gray"
+              className="font-body text-sm text-gold-sand"
             >
               {uiStrings.messagesForm.bodyLabel}
             </label>
@@ -73,7 +74,7 @@ export function Messages({ content }: MessagesProps) {
               placeholder={uiStrings.messagesForm.bodyPlaceholder}
               rows={5}
               maxLength={2000}
-              className="mt-1.5 w-full resize-y border border-olive-line bg-cream px-4 py-3 font-body text-lg"
+              className="mt-1.5 w-full resize-y border border-gold-sand/45 bg-cream/10 px-4 py-3 font-body text-lg text-cream placeholder:text-cream/45 focus:border-gold-sand"
             />
           </div>
           {send.isError ? (

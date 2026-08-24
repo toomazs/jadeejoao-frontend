@@ -5,6 +5,8 @@ import { uiStrings } from '../../lib/ui-strings'
 
 interface GuestNameFieldProps {
   label: string
+  /** `dark` dresses the field for the olive and terracotta rooms. */
+  tone?: 'light' | 'dark'
   value: string
   onChange: (value: string) => void
   /** Called when a name is picked from the list (defaults to onChange). */
@@ -27,6 +29,7 @@ const MIN_QUERY = 3
  */
 export function GuestNameField({
   label,
+  tone = 'light',
   value,
   onChange,
   onPick,
@@ -74,7 +77,10 @@ export function GuestNameField({
 
   return (
     <div ref={wrapperRef} className={`relative ${className}`}>
-      <label htmlFor={inputId} className="font-body text-sm text-dark-gray">
+      <label
+        htmlFor={inputId}
+        className={`font-body text-sm ${tone === 'dark' ? 'text-gold-sand' : 'text-dark-gray'}`}
+      >
         {label}
       </label>
       <input
@@ -95,7 +101,11 @@ export function GuestNameField({
         onKeyDown={(event) => {
           if (event.key === 'Escape') setOpen(false)
         }}
-        className="mt-1.5 w-full border border-olive-line bg-cream px-3 py-2.5 font-body text-lg"
+        className={`mt-1.5 w-full border px-3 py-2.5 font-body text-lg ${
+          tone === 'dark'
+            ? 'border-gold-sand/45 bg-cream/10 text-cream placeholder:text-cream/45 focus:border-gold-sand'
+            : 'border-olive-line bg-cream'
+        }`}
       />
 
       {showList ? (

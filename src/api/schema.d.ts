@@ -618,6 +618,17 @@ export interface components {
              */
             outcome: "deleted" | "deactivated";
         };
+        DressCodeLook: {
+            /** @description Guidance for this look, as Markdown. */
+            body?: string;
+            /**
+             * Format: uri
+             * @description Reference photograph.
+             */
+            image_url?: string;
+            /** @example Para elas */
+            title: string;
+        };
         DressCodePayload: {
             /**
              * @description Short dress-code formula.
@@ -628,6 +639,8 @@ export interface components {
             body?: string;
             /** @description Public CDN image URLs. */
             images?: string[] | null;
+            /** @description Reference looks, rendered alternating sides. */
+            looks?: components["schemas"]["DressCodeLook"][] | null;
             /** @description Section heading shown on the site. */
             title: string;
         };

@@ -3,6 +3,7 @@ import { useEffect, useId, useState } from 'react'
 import { $api } from '../../api/client'
 import type { components } from '../../api/schema'
 import { Button } from '../../components/ui/Button'
+import { Skeleton } from '../../components/ui/Skeleton'
 import { Markdown } from '../../components/ui/Markdown'
 import { SectionShell } from '../../components/ui/SectionShell'
 import type { RsvpContent } from '../../lib/content'
@@ -123,7 +124,25 @@ export function Rsvp({ content }: RsvpProps) {
         </p>
       ) : null}
 
-      {group === null ? (
+      {lookup.isPending ? (
+        <div aria-hidden="true" className="mx-auto mt-10 max-w-2xl">
+          <div className="border border-olive-line bg-cream px-5 py-8 sm:px-8">
+            <Skeleton className="mx-auto h-8 w-56" />
+            <Skeleton className="mx-auto mt-3 h-4 w-72" />
+            <div className="mt-7 divide-y divide-sand-line border-y border-sand-line">
+              {[0, 1, 2].map((row) => (
+                <div key={row} className="flex items-center justify-between gap-3 py-4">
+                  <Skeleton className="h-5 w-40" />
+                  <div className="flex gap-2">
+                    <Skeleton className="h-11 w-20" />
+                    <Skeleton className="h-11 w-24" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      ) : group === null ? (
         <div className="mx-auto mt-10 max-w-xl">
           <label
             htmlFor={inputId}
@@ -141,10 +160,17 @@ export function Rsvp({ content }: RsvpProps) {
             className="mt-2 w-full border border-olive-line bg-cream px-4 py-3.5 font-body text-lg text-ink placeholder:text-dark-gray/60 focus:border-olive"
           />
 
-          {suggestQuery.isFetching ? (
-            <p className="mt-3 font-body text-base text-dark-gray italic">
-              {uiStrings.rsvp.searching}
-            </p>
+          {suggestQuery.isFetching && suggestions.length === 0 ? (
+            <ul
+              aria-hidden="true"
+              className="mt-3 divide-y divide-sand-line border border-olive-line bg-cream"
+            >
+              {[0, 1, 2].map((row) => (
+                <li key={row} className="px-4 py-3">
+                  <Skeleton className="h-5" style={{ width: `${68 - row * 12}%` }} />
+                </li>
+              ))}
+            </ul>
           ) : null}
 
           {suggestions.length > 0 ? (

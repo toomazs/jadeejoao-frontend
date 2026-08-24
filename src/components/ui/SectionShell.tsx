@@ -22,6 +22,13 @@ const TONES = {
     title: 'text-deep-olive',
     foliage: 'text-deep-olive/25',
   },
+  olive: {
+    section: 'bg-deep-olive',
+    kicker: 'text-gold-sand',
+    rule: 'bg-gold-sand',
+    title: 'text-cream',
+    foliage: 'text-gold-sand/30',
+  },
   terracotta: {
     section: 'bg-terracotta',
     kicker: 'text-gold-sand',
