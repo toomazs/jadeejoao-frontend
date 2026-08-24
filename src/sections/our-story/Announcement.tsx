@@ -13,6 +13,12 @@ interface AnnouncementProps {
 /** Where the wink sits on the photo, as a fallback if the payload omits it. */
 const DEFAULT_EYE = { x: 60.6, y: 16.9 }
 
+/** Where the caption sits in the frame — the camera's first stop. */
+const CAPTION_FOCUS = { x: 50, y: 92 }
+
+/** Smoothstep: the climb from the words to her eye starts and ends gently. */
+const ease = (t: number) => t * t * (3 - 2 * t)
+
 /**
  * The sparkles that leave the closed eye. Each one is deterministic — a fixed
  * angle, distance and delay — so the burst looks authored rather than random,
@@ -46,10 +52,10 @@ function Glint({ className = '', style }: { className?: string; style?: CSSPrope
 }
 
 /**
- * How much the frame must grow to swallow the viewport whole, given that the
- * zoom pivots on Catarina's eye rather than on the frame's centre.
+ * The two scales the scene stops at: `read`, the largest the words can be
+ * without running off the sides, and `cover`, where Catarina owns the screen.
  *
- * Pivoting off-centre costs extra scale, and unevenly: her eye sits near the
+ * `cover` accounts for the zoom pivoting on her eye. Pivoting off-centre costs extra scale, and unevenly: her eye sits near the
  * top of the photo, so the sliver above it has to stretch much further to
  * reach the top of the screen than the rest does to reach the bottom. Solving
  * all four edges and keeping the worst is what makes her face fill a 21:9
@@ -60,12 +66,12 @@ function Glint({ className = '', style }: { className?: string; style?: CSSPrope
  * measurement: by the time the zoom runs, the white border has shrunk to
  * nothing and the frame is exactly the photograph.
  */
-function useCoverScale(
+function useZoomStops(
   ref: RefObject<HTMLElement | null>,
   focusX: number,
   focusY: number,
-): number {
-  const [scale, setScale] = useState(8)
+): { read: number; cover: number } {
+  const [stops, setStops] = useState({ read: 2, cover: 8 })
 
   useLayoutEffect(() => {
     const measure = () => {
@@ -78,27 +84,32 @@ function useCoverScale(
       const fy = focusY / 100
       // Per edge: the gap the pivot has to close, over the slice of frame
       // left on that side to close it with.
-      const needed = Math.max(
-        (window.innerWidth / 2 + (fx - 0.5) * w) / (fx * w),
-        (window.innerWidth / 2 - (fx - 0.5) * w) / ((1 - fx) * w),
-        (window.innerHeight / 2 + (fy - 0.5) * h) / (fy * h),
-        (window.innerHeight / 2 - (fy - 0.5) * h) / ((1 - fy) * h),
-      )
-      setScale(needed * 1.1)
+      const cover =
+        Math.max(
+          (window.innerWidth / 2 + (fx - 0.5) * w) / (fx * w),
+          (window.innerWidth / 2 - (fx - 0.5) * w) / ((1 - fx) * w),
+          (window.innerHeight / 2 + (fy - 0.5) * h) / (fy * h),
+          (window.innerHeight / 2 - (fy - 0.5) * h) / ((1 - fy) * h),
+        ) * 1.1
+      // The sentence spans the frame minus the caption's inset. Past this it
+      // stops being large and starts being cropped at both ends.
+      const read = (window.innerWidth * 0.92) / (w - 24)
+      setStops({ read: Math.max(1.2, Math.min(read, 2.4, cover)), cover })
     }
     measure()
     window.addEventListener('resize', measure)
     return () => window.removeEventListener('resize', measure)
   }, [ref, focusX, focusY])
 
-  return scale
+  return stops
 }
 
 /**
  * Catarina's announcement, the last scene of the film: the instax rises from
- * the foot of the screen, sparkles escape the eye she keeps closed, and the
- * frame zooms until she owns the whole viewport — then the light washes over
- * her and the page is already on the big day.
+ * the foot of the screen, the lens pushes into her caption until it can be
+ * read, then climbs from the words to the eye she keeps closed — where the
+ * sparkles escape — until she owns the whole viewport. Then the light washes
+ * over her and the page is already on the big day.
  */
 export function Announcement({ announcement }: AnnouncementProps) {
   const reduced = usePrefersReducedMotion()
@@ -108,19 +119,28 @@ export function Announcement({ announcement }: AnnouncementProps) {
 
   const eyeX = announcement.eye_x || DEFAULT_EYE.x
   const eyeY = announcement.eye_y || DEFAULT_EYE.y
-  const coverScale = useCoverScale(frameRef, eyeX, eyeY)
+  const { read: readScale, cover: coverScale } = useZoomStops(frameRef, eyeX, eyeY)
 
-  // Three quick beats over a short scroll: arrive, wink, swallow the screen.
-  const rise = seg(progress, 0, 0.3)
-  const zoom = seg(progress, 0.34, 0.86)
-  const burst = seg(progress, 0.55, 0.9)
-  const wash = seg(progress, 0.72, 0.97)
+  // One continuous camera move: the instax arrives, the lens pushes into the
+  // words until they can be read, then climbs from the words to her eye while
+  // it keeps growing — and she winks only once she owns the screen.
+  const rise = seg(progress, 0, 0.22)
+  const read = seg(progress, 0.26, 0.48)
+  const pan = ease(seg(progress, 0.52, 0.74))
+  const zoom = seg(progress, 0.52, 0.86)
+  const burst = seg(progress, 0.74, 0.93)
+  const wash = seg(progress, 0.88, 1)
 
-  const scale = reduced ? 1 : 0.5 + rise * 0.5 + zoom * (coverScale - 1)
+  const scale = reduced
+    ? 1
+    : 0.5 + rise * 0.5 + read * (readScale - 1) + zoom * (coverScale - readScale)
+  // The pivot travels with the camera — the words first, her eye by the end.
+  const originX = CAPTION_FOCUS.x + (eyeX - CAPTION_FOCUS.x) * pan
+  const originY = CAPTION_FOCUS.y + (eyeY - CAPTION_FOCUS.y) * pan
   const lift = reduced ? 0 : (1 - rise) * 40
   const tilt = reduced ? 0 : (1 - rise) * -4
   // The white border would read as a seam once she fills the screen.
-  const border = reduced ? 1 : 1 - seg(progress, 0.5, 0.72)
+  const border = reduced ? 1 : 1 - seg(progress, 0.56, 0.76)
 
   return (
     <section
@@ -128,7 +148,7 @@ export function Announcement({ announcement }: AnnouncementProps) {
       aria-label={announcement.label}
       data-nav-hide=""
       className="relative bg-terracotta"
-      style={reduced ? undefined : { height: '190vh' }}
+      style={reduced ? undefined : { height: '210vh' }}
     >
       <div className="sticky top-0 flex h-svh items-center justify-center overflow-hidden">
         <figure
@@ -141,9 +161,7 @@ export function Announcement({ announcement }: AnnouncementProps) {
                   padding: `${0.75 * border}rem`,
                   paddingBottom: `${4 * border}rem`,
                   transform: `translateY(${lift}vh) rotate(${tilt}deg) scale(${scale})`,
-                  // Grow out of her eye, not the frame's middle: the eye is
-                  // the one point the scene cannot afford to lose.
-                  transformOrigin: `${eyeX}% ${eyeY}%`,
+                  transformOrigin: `${originX}% ${originY}%`,
                 }
           }
         >
@@ -196,7 +214,7 @@ export function Announcement({ announcement }: AnnouncementProps) {
 
           <figcaption
             className="absolute inset-x-3 bottom-0 flex h-16 items-center justify-center overflow-hidden text-center"
-            style={reduced ? undefined : { opacity: 1 - seg(progress, 0.42, 0.6) }}
+            style={reduced ? undefined : { opacity: 1 - seg(progress, 0.56, 0.72) }}
           >
             <span className="font-accent text-[clamp(1.1rem,1.6vw,1.6rem)] leading-tight text-ink">
               {announcement.label.split(/\*\*/).map((piece, index) =>
