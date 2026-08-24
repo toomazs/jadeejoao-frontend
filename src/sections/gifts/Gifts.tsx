@@ -17,7 +17,6 @@ import { uiStrings } from '../../lib/ui-strings'
 
 interface GiftsProps {
   content: GiftsIntroContent
-  ordinal?: string
 }
 
 type GiftView = components['schemas']['GiftView']
@@ -467,7 +466,7 @@ function RegistryCard({ gift, index }: { gift: GiftView; index: number }) {
 }
 
 /** The registry room: intro from content, live gift cards from the API. */
-export function Gifts({ content, ordinal }: GiftsProps) {
+export function Gifts({ content }: GiftsProps) {
   const giftsQuery = $api.useQuery('get', '/api/v1/gifts', {}, { staleTime: 60_000 })
   const gifts = giftsQuery.data?.gifts ?? []
   // Two families, two rooms: what the couple funds by PIX, and where they
@@ -476,7 +475,7 @@ export function Gifts({ content, ordinal }: GiftsProps) {
   const registries = gifts.filter((gift) => gift.kind === 'link')
 
   return (
-    <SectionShell slug="gifts_intro" title={content.title} ordinal={ordinal} width="wide">
+    <SectionShell slug="gifts_intro" title={content.title} width="wide">
       {content.body ? (
         <Markdown
           text={content.body}

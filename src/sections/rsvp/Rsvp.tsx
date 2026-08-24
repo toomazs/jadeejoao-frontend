@@ -11,7 +11,6 @@ import { uiStrings } from '../../lib/ui-strings'
 
 interface RsvpProps {
   content: RsvpContent
-  ordinal?: string
 }
 
 type GroupView = components['schemas']['GroupView']
@@ -31,7 +30,7 @@ function problemDetail(error: unknown): string {
  * for every person in it — the primary confirms for the whole family — and
  * send. The API enforces the deadline; we only display it.
  */
-export function Rsvp({ content, ordinal }: RsvpProps) {
+export function Rsvp({ content }: RsvpProps) {
   const inputId = useId()
   const [query, setQuery] = useState('')
   const [debounced, setDebounced] = useState('')
@@ -111,7 +110,7 @@ export function Rsvp({ content, ordinal }: RsvpProps) {
   const suggestions = suggestQuery.data?.suggestions ?? []
 
   return (
-    <SectionShell slug="rsvp" title={content.title} ordinal={ordinal} width="wide">
+    <SectionShell slug="rsvp" title={content.title} width="wide">
       {content.body ? (
         <Markdown
           text={content.body}

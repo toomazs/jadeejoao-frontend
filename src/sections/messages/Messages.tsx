@@ -10,7 +10,6 @@ import { uiStrings } from '../../lib/ui-strings'
 
 interface MessagesProps {
   content: MessagesIntroContent
-  ordinal?: string
 }
 
 function problemDetail(error: unknown): string {
@@ -21,7 +20,7 @@ function problemDetail(error: unknown): string {
 }
 
 /** The guestbook: write-only — the couple reads every recado in their panel (AD-14). */
-export function Messages({ content, ordinal }: MessagesProps) {
+export function Messages({ content }: MessagesProps) {
   const bodyId = useId()
   const [author, setAuthor] = useState('')
   const [body, setBody] = useState('')
@@ -30,7 +29,7 @@ export function Messages({ content, ordinal }: MessagesProps) {
   const canSend = author.trim().length > 0 && body.trim().length > 0 && !send.isPending
 
   return (
-    <SectionShell slug="messages_intro" title={content.title} ordinal={ordinal}>
+    <SectionShell slug="messages_intro" title={content.title}>
       {content.body ? (
         <Markdown
           text={content.body}

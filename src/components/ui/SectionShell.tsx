@@ -34,8 +34,6 @@ const TONES = {
 interface SectionShellProps {
   slug: SectionSlug
   title: string
-  /** Position on the walk ("02"…"10"), spoken in the kicker line. */
-  ordinal?: string
   /** The section's emblem, drawn above the title (lucide icon). */
   icon?: LucideIcon
   /** Room color from the brand palette — neighbors should differ. */
@@ -54,7 +52,6 @@ interface SectionShellProps {
 export function SectionShell({
   slug,
   title,
-  ordinal,
   icon: Icon,
   tone = 'cream',
   width = 'regular',
@@ -89,14 +86,6 @@ export function SectionShell({
           {Icon ? (
             <span aria-hidden="true" className={palette.kicker}>
               <Icon size={30} strokeWidth={1.6} />
-            </span>
-          ) : null}
-          {ordinal ? (
-            <span
-              aria-hidden="true"
-              className={`mt-3 font-display text-base tracking-[0.35em] ${palette.kicker}`}
-            >
-              — {ordinal} —
             </span>
           ) : null}
           <Heading

@@ -10,7 +10,6 @@ import { useCountdown } from '../../lib/useCountdown'
 
 interface BigDayProps {
   content: BigDayContent
-  ordinal?: string
   /** Composition from the hero payload: the countdown target. */
   eventDatetime?: string
 }
@@ -90,7 +89,7 @@ function ProgrammeRow({ item, index }: { item: ProgrammeItem; index: number }) {
  * moments that anchor the day carrying an emblem, the steps between them
  * kept quiet.
  */
-export function BigDay({ content, ordinal, eventDatetime }: BigDayProps) {
+export function BigDay({ content, eventDatetime }: BigDayProps) {
   const countdown = useCountdown(eventDatetime ?? '')
   const programme = content.programme
 
@@ -102,17 +101,9 @@ export function BigDay({ content, ordinal, eventDatetime }: BigDayProps) {
     >
       <div className="relative mx-auto w-full max-w-3xl">
         <Reveal className="flex flex-col items-center text-center">
-          {ordinal ? (
-            <span
-              aria-hidden="true"
-              className="font-display text-base tracking-[0.35em] text-gold-sand"
-            >
-              — {ordinal} —
-            </span>
-          ) : null}
           <h2
             id="big_day-heading"
-            className="mt-3 font-display text-[clamp(2.4rem,6vw,3.8rem)] leading-[1.05] text-balance text-cream"
+            className="font-display text-[clamp(2.4rem,6vw,3.8rem)] leading-[1.05] text-balance text-cream"
           >
             {content.title}
           </h2>

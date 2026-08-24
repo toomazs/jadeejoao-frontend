@@ -13,12 +13,10 @@ import { BigDay } from './sections/big-day/BigDay'
 import { DressCode } from './sections/dress-code/DressCode'
 import { GettingThere } from './sections/getting-there/GettingThere'
 import { Gifts } from './sections/gifts/Gifts'
-import { GoodPractices } from './sections/good-practices/GoodPractices'
 import { Hero } from './sections/hero/Hero'
 import { Messages } from './sections/messages/Messages'
 import { OurStory } from './sections/our-story/OurStory'
 import { Rsvp } from './sections/rsvp/Rsvp'
-import { Stay } from './sections/stay/Stay'
 
 /** Editorial content barely changes mid-visit — keep it fresh for the whole session. */
 const CONTENT_STALE_TIME_MS = 10 * 60 * 1000
@@ -28,16 +26,12 @@ const SPLASH_HOLD_MS = 2000
 /** How long the curtain takes to fade once it starts lifting. */
 const SPLASH_FADE_MS = 700
 
-/**
- * Position on the walk, engraved as the room's plaque ("02"…"10").
- * Derived from render order — the hero is the unnumbered gate.
- */
+/** Each section renders its own room; the hero opens the walk. */
 function renderSection(
   section: NormalizedSection,
-  index: number,
   hero: Extract<NormalizedSection, { slug: 'hero' }>['payload'] | undefined,
+  stay: Extract<NormalizedSection, { slug: 'stay' }>['payload'] | undefined,
 ) {
-  const ordinal = String(index + 1).padStart(2, '0')
   switch (section.slug) {
     case 'hero':
       return <Hero key={section.slug} content={section.payload} />
@@ -48,24 +42,19 @@ function renderSection(
         <BigDay
           key={section.slug}
           content={section.payload}
-          ordinal={ordinal}
           eventDatetime={hero?.event_datetime}
         />
       )
     case 'rsvp':
-      return <Rsvp key={section.slug} content={section.payload} ordinal={ordinal} />
+      return <Rsvp key={section.slug} content={section.payload} />
     case 'getting_there':
-      return <GettingThere key={section.slug} content={section.payload} ordinal={ordinal} />
-    case 'stay':
-      return <Stay key={section.slug} content={section.payload} ordinal={ordinal} />
+      return <GettingThere key={section.slug} content={section.payload} stay={stay} />
     case 'gifts_intro':
-      return <Gifts key={section.slug} content={section.payload} ordinal={ordinal} />
+      return <Gifts key={section.slug} content={section.payload} />
     case 'dress_code':
       return <DressCode key={section.slug} content={section.payload} />
-    case 'good_practices':
-      return <GoodPractices key={section.slug} content={section.payload} ordinal={ordinal} />
     case 'messages_intro':
-      return <Messages key={section.slug} content={section.payload} ordinal={ordinal} />
+      return <Messages key={section.slug} content={section.payload} />
   }
 }
 
@@ -125,6 +114,9 @@ export function App() {
   const sections = normalizeContent(contentQuery.data)
   const presentSlugs: ReadonlySet<SectionSlug> = new Set(sections.map((section) => section.slug))
   const hero = sections.find((section) => section.slug === 'hero')
+  // Lodging is composed into "Como chegar": one room answers the whole
+  // logistics question, even though the contract keeps two sections.
+  const stay = sections.find((section) => section.slug === 'stay')
 
   return (
     <>
@@ -132,8 +124,8 @@ export function App() {
       <Nav presentSlugs={presentSlugs} />
       <main className="site-enter">
         {/* Color rooms stack edge to edge — the palette separates them. */}
-        {sections.map((section, index) => (
-          <Fragment key={section.slug}>{renderSection(section, index, hero?.payload)}</Fragment>
+        {sections.map((section) => (
+          <Fragment key={section.slug}>{renderSection(section, hero?.payload, stay?.payload)}</Fragment>
         ))}
       </main>
       <Footer
