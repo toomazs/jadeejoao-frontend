@@ -1,31 +1,10 @@
-import { siriguela } from '../../assets'
+import { logoVertical, siriguela } from '../../assets'
 import { Reveal } from '../../components/ui/Reveal'
 import type { HeroContent } from '../../lib/content'
 import { formatEventDate } from '../../lib/format'
 
 interface HeroProps {
   content: HeroContent
-}
-
-/** The couple's names huge at the photo's foot, the script "e" joining them. */
-function StackedNames({ names }: { names: string }) {
-  const parts = names.split(/\s*&\s*/)
-  const sizing = 'mt-4 font-display text-[clamp(3.8rem,11vw,8.5rem)] leading-[0.95] text-cream'
-  if (parts.length !== 2) {
-    return (
-      <h1 id="hero-heading" className={sizing}>
-        {names}
-      </h1>
-    )
-  }
-  return (
-    <h1 id="hero-heading" aria-label={names} className={sizing}>
-      <span aria-hidden="true">{parts[0]}</span>
-      <span aria-hidden="true" className="block">
-        <span className="font-accent text-[0.55em] text-gold-sand">e</span> {parts[1]}
-      </span>
-    </h1>
-  )
 }
 
 /**
@@ -65,7 +44,16 @@ export function Hero({ content }: HeroProps) {
 
         <div className="relative mx-auto flex w-full max-w-7xl flex-col gap-9 px-5 pt-28 pb-12 sm:px-10 lg:flex-row lg:items-end lg:justify-between lg:gap-12 lg:pb-16">
           <div className="hero-enter">
-            <StackedNames names={content.couple_names} />
+            <h1 id="hero-heading" className="sr-only">
+              {content.couple_names}
+            </h1>
+            {/* The real wordmark, inverted to read cream over the photograph. */}
+            <img
+              src={logoVertical}
+              alt=""
+              aria-hidden="true"
+              className="w-[min(78vw,34rem)] brightness-0 invert select-none lg:w-[38rem]"
+            />
           </div>
 
           <div className="hero-enter shrink-0 lg:pb-4 lg:text-right">

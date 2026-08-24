@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 
+import { logo } from '../../assets'
 import type { SectionSlug } from '../../lib/content'
 import { navItems, uiStrings } from '../../lib/ui-strings'
 import { ButtonLink } from './Button'
@@ -7,23 +8,6 @@ import { ButtonLink } from './Button'
 interface NavProps {
   /** Slugs actually present in the content response — items without a target are hidden. */
   presentSlugs: ReadonlySet<SectionSlug>
-}
-
-/** The monogram: the couple's initials joined by the script "e". */
-function Monogram({ tone }: { tone: 'cream' | 'olive' }) {
-  return (
-    <>
-      J
-      <span
-        aria-hidden="true"
-        className={`font-accent text-[0.75em] ${tone === 'cream' ? 'text-gold-sand' : 'text-terracotta'}`}
-      >
-        {' '}
-        e{' '}
-      </span>
-      J
-    </>
-  )
 }
 
 /**
@@ -85,12 +69,9 @@ export function Nav({ presentSlugs }: NavProps) {
           aria-label={uiStrings.navLabel}
           className="mx-auto flex max-w-7xl items-center gap-4 px-4 sm:px-8"
         >
-          <a
-            href="#hero"
-            aria-label={uiStrings.backToTop}
-            className="shrink-0 py-3 font-display text-2xl leading-none text-cream"
-          >
-            <Monogram tone="cream" />
+          <a href="#hero" aria-label={uiStrings.backToTop} className="shrink-0 py-2.5">
+            {/* The monogram asset, inverted to cream over the photograph. */}
+            <img src={logo} alt="" className="h-10 w-auto brightness-0 invert select-none" />
           </a>
           <ul className="edge-fade-x no-scrollbar flex flex-1 items-center gap-6 overflow-x-auto pr-6 pl-4 whitespace-nowrap">
             {items.map((item) => (
@@ -129,12 +110,8 @@ export function Nav({ presentSlugs }: NavProps) {
             pill ? 'pointer-events-auto' : 'pointer-events-none'
           }`}
         >
-          <a
-            href="#hero"
-            aria-label={uiStrings.backToTop}
-            className="shrink-0 font-display text-xl leading-none text-olive"
-          >
-            <Monogram tone="olive" />
+          <a href="#hero" aria-label={uiStrings.backToTop} className="shrink-0">
+            <img src={logo} alt="" className="h-7 w-auto select-none" />
           </a>
           <span aria-hidden="true" className="hidden h-4 w-px shrink-0 bg-olive-line lg:block" />
           <ul className="hidden items-center gap-5 lg:flex">
