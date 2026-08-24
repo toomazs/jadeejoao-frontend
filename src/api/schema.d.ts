@@ -395,7 +395,7 @@ export interface paths {
         put?: never;
         /**
          * Add a companion
-         * @description Adds one more person to an existing invitation and records their answer in the same move. Capped at 5 per invitation. Rejected after the RSVP deadline. Returns the whole group, so the caller can render the new list without refetching.
+         * @description Adds one more person to an existing invitation and records their answer in the same move. Capped at 10 per invitation. Rejected after the RSVP deadline. Returns the whole group, so the caller can render the new list without refetching.
          */
         post: operations["add-companion"];
         delete?: never;

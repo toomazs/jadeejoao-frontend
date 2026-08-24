@@ -17,7 +17,7 @@ type Gender = 'female' | 'male'
  * the one that actually refuses. If the two ever drift, the guest sees the
  * server's PT-BR message instead of a silent failure.
  */
-const MAX_COMPANIONS = 5
+const MAX_COMPANIONS = 10
 
 const CATEGORIES: Category[] = ['adult', 'teen', 'child', 'baby', 'elderly']
 const GENDERS: Gender[] = ['female', 'male']
