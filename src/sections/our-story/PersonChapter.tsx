@@ -73,10 +73,19 @@ export function PersonChapter({ person, personKey, roleLabel, align, tone, id }:
 
   const ground = tone === 'gray' ? 'bg-dark-gray' : 'bg-deep-olive'
 
-  const introIn = reduced ? 1 : seg(progress, 0.02, 0.16)
-  const introOut = reduced ? 1 : 1 - seg(progress, 0.5, 0.6)
+  const hasBioScene = Boolean(person.bio)
+
+  // Three beats, in order: the portrait, her own words, then her feed. Each
+  // fades out as the next arrives, so only one holds the screen at a time.
+  const introIn = reduced ? 1 : seg(progress, 0.02, 0.13)
+  const introOut = reduced ? 1 : 1 - seg(progress, hasBioScene ? 0.26 : 0.5, hasBioScene ? 0.34 : 0.6)
   const introOpacity = Math.min(introIn, introOut)
-  const postsIn = reduced ? 1 : seg(progress, 0.58, 0.7)
+
+  const bioIn = reduced ? 1 : seg(progress, 0.36, 0.45)
+  const bioOut = reduced ? 1 : 1 - seg(progress, 0.62, 0.7)
+  const bioOpacity = hasBioScene ? Math.min(bioIn, bioOut) : 0
+
+  const postsIn = reduced ? 1 : seg(progress, hasBioScene ? 0.72 : 0.58, hasBioScene ? 0.82 : 0.7)
 
   const introContent = (
     <div
@@ -131,11 +140,6 @@ export function PersonChapter({ person, personKey, roleLabel, align, tone, id }:
         <h3 className="mt-4 font-display text-[clamp(3.4rem,9vw,7rem)] leading-none text-cream">
           {person.name}
         </h3>
-        {person.bio ? (
-          <p className="mx-auto mt-6 max-w-md font-body text-lg leading-relaxed text-cream/85 lg:mx-0">
-            {person.bio}
-          </p>
-        ) : null}
         {handleUrl ? (
           <a
             href={handleUrl}
@@ -147,6 +151,37 @@ export function PersonChapter({ person, personKey, roleLabel, align, tone, id }:
             @{person.instagram}
           </a>
         ) : null}
+      </div>
+    </div>
+  )
+
+  const bioContent = (
+    <div
+      className="mx-auto w-full max-w-2xl"
+      style={
+        reduced
+          ? undefined
+          : {
+              opacity: bioOpacity,
+              transform: `translateY(${(1 - bioIn) * 40}px)`,
+              pointerEvents: bioOpacity > 0.5 ? 'auto' : 'none',
+            }
+      }
+    >
+      <p className="font-body text-xs tracking-[0.45em] text-gold-sand uppercase">{person.name}</p>
+      <div className="mt-6 space-y-5">
+        {(person.bio ?? '').split(/\n+/).map((paragraph, index) => {
+          const arrive = reduced ? 1 : seg(progress, 0.4 + index * 0.04, 0.5 + index * 0.04)
+          return (
+            <p
+              key={paragraph.slice(0, 24)}
+              className="font-body text-[0.98rem] leading-relaxed text-cream/85 sm:text-lg"
+              style={reduced ? undefined : { opacity: arrive }}
+            >
+              {paragraph}
+            </p>
+          )
+        })}
       </div>
     </div>
   )
@@ -232,6 +267,7 @@ export function PersonChapter({ person, personKey, roleLabel, align, tone, id }:
         className={`${ground} px-5 py-20 sm:px-10`}
       >
         {introContent}
+        {hasBioScene ? <div className="mt-14">{bioContent}</div> : null}
         {hasFeedScene ? <div className="mt-16">{postsContent}</div> : null}
       </section>
     )
@@ -244,7 +280,7 @@ export function PersonChapter({ person, personKey, roleLabel, align, tone, id }:
       aria-label={person.name}
       data-nav-hide=""
       className={`relative ${ground}`}
-      style={{ height: hasFeedScene ? '320vh' : '200vh' }}
+      style={{ height: `${100 + (hasBioScene ? 160 : 0) + (hasFeedScene ? 220 : 100)}vh` }}
     >
       <div className="sticky top-0 h-svh overflow-hidden">
         <div
@@ -253,6 +289,11 @@ export function PersonChapter({ person, personKey, roleLabel, align, tone, id }:
         >
           {introContent}
         </div>
+        {hasBioScene ? (
+          <div className="absolute inset-0 flex items-center px-5 sm:px-10" style={{ pointerEvents: 'none' }}>
+            {bioContent}
+          </div>
+        ) : null}
         {hasFeedScene ? (
           <div className="absolute inset-0 flex items-center px-5 sm:px-10" style={{ pointerEvents: 'none' }}>
             {postsContent}
