@@ -1,15 +1,13 @@
-import { useId, useState } from 'react'
+import { useState } from 'react'
 
 import { Plus } from 'lucide-react'
 
 import { $api } from '../../api/client'
 import type { components } from '../../api/schema'
+import { MIN_QUERY, NameCombobox } from '../../components/ui/NameCombobox'
 import { uiStrings } from '../../lib/ui-strings'
 
 type GroupView = components['schemas']['GroupView']
-type Answer = 'yes' | 'no'
-type Category = 'adult' | 'teen' | 'child' | 'baby' | 'elderly'
-type Gender = 'female' | 'male'
 
 /**
  * Mirrors MaxCompanionsPerGroup in the API. Duplicated on purpose: the number
@@ -19,35 +17,6 @@ type Gender = 'female' | 'male'
  */
 const MAX_COMPANIONS = 10
 
-const CATEGORIES: Category[] = ['adult', 'teen', 'child', 'baby', 'elderly']
-const GENDERS: Gender[] = ['female', 'male']
-
-/** Small pill used for every choice in the form, so they read as one family. */
-function Chip({
-  active,
-  onClick,
-  children,
-}: {
-  active: boolean
-  onClick: () => void
-  children: React.ReactNode
-}) {
-  return (
-    <button
-      type="button"
-      aria-pressed={active}
-      onClick={onClick}
-      className={`min-h-9 cursor-pointer border px-3.5 font-body text-sm transition-colors ${
-        active
-          ? 'border-olive bg-olive text-cream'
-          : 'border-olive-line text-dark-gray hover:border-olive hover:text-olive'
-      }`}
-    >
-      {children}
-    </button>
-  )
-}
-
 interface AddCompanionProps {
   group: GroupView
   /** Called with the whole group the API returns, so the list re-renders. */
@@ -55,43 +24,44 @@ interface AddCompanionProps {
 }
 
 /**
- * The guest putting someone else on their own invitation — a partner, a child,
- * whoever the couple left them room for.
+ * Gathering someone else into your own invitation.
  *
- * The answer is asked together with the name because whoever is bringing
- * someone already knows whether that person is coming; making them add first
- * and answer after would be two steps for one decision. The age bracket is
- * asked because the couple counts meals by it — every companion silently
- * filed as an adult would overstate the children at the party.
+ * The field searches the couple's guest list rather than accepting a typed
+ * name: the list is their budget — a plate, a chair, a place at a table — and
+ * a free text box would let any guest spend it without being asked. Whoever
+ * is missing from it has to be added by the couple.
+ *
+ * Nothing else is asked here. The person already exists with the category and
+ * side the couple recorded, and their yes/no is answered in the list above
+ * with the same buttons as everyone else on the invitation.
  */
 export function AddCompanion({ group, onAdded }: AddCompanionProps) {
-  const nameId = useId()
   const [open, setOpen] = useState(false)
-  const [name, setName] = useState('')
-  const [attending, setAttending] = useState<Answer | null>(null)
-  const [category, setCategory] = useState<Category>('adult')
-  const [gender, setGender] = useState<Gender | null>(null)
+  const [typed, setTyped] = useState('')
+  const [query, setQuery] = useState('')
   const add = $api.useMutation('post', '/api/v1/guests/{group_id}/companions')
 
+  const search = $api.useQuery(
+    'get',
+    '/api/v1/guests/{group_id}/companions/available',
+    { params: { path: { group_id: group.group_id }, query: { q: query } } },
+    { enabled: open && query.length >= MIN_QUERY, staleTime: 15_000 },
+  )
+
   const used = (group.members ?? []).filter((m) => m.added_by_guest).length
-  const left = MAX_COMPANIONS - used
-  const canAdd = name.trim().length > 1 && attending !== null && !add.isPending
-
-  const close = () => {
-    setOpen(false)
-    setName('')
-    setAttending(null)
-    setCategory('adult')
-    setGender(null)
-    add.reset()
-  }
-
-  if (left <= 0) {
+  if (MAX_COMPANIONS - used <= 0) {
     return (
       <p className="mt-6 text-center font-body text-sm text-dark-gray italic">
         {uiStrings.rsvp.companions.full}
       </p>
     )
+  }
+
+  const close = () => {
+    setOpen(false)
+    setTyped('')
+    setQuery('')
+    add.reset()
   }
 
   if (!open) {
@@ -109,89 +79,41 @@ export function AddCompanion({ group, onAdded }: AddCompanionProps) {
 
   return (
     <div className="card-in mt-5 border border-olive-line bg-veil px-4 py-5 sm:px-5">
-      <label htmlFor={nameId} className="font-body text-sm text-dark-gray">
-        {uiStrings.rsvp.companions.nameLabel}
-      </label>
-      <input
-        id={nameId}
-        value={name}
-        onChange={(event) => setName(event.target.value)}
-        placeholder={uiStrings.rsvp.companions.namePlaceholder}
-        maxLength={120}
-        autoComplete="off"
-        className="mt-1.5 min-h-11 w-full border border-olive-line bg-cream px-4 py-2.5 font-body text-lg text-ink placeholder:text-dark-gray/50 focus:border-olive"
+      <NameCombobox
+        label={uiStrings.rsvp.companions.searchLabel}
+        value={typed}
+        onChange={setTyped}
+        onQueryChange={setQuery}
+        options={(search.data?.options ?? []).map((o) => ({
+          key: o.guest_id,
+          label: o.full_name,
+        }))}
+        onPick={(option) => {
+          setTyped(option.label)
+          add.mutate(
+            {
+              params: { path: { group_id: group.group_id } },
+              body: { guest_id: option.key },
+            },
+            {
+              onSuccess: (data) => {
+                onAdded(data)
+                close()
+              },
+            },
+          )
+        }}
+        placeholder={uiStrings.rsvp.companions.searchPlaceholder}
+        autoFocus
+        emptyHint={uiStrings.rsvp.companions.notFound}
       />
 
-      <p className="mt-4 font-body text-sm text-dark-gray">
-        {uiStrings.rsvp.companions.goingLabel}
+      <p className="mt-3 font-body text-sm text-dark-gray">
+        {uiStrings.rsvp.companions.hint}
       </p>
-      <div
-        className="mt-2 flex gap-2"
-        role="group"
-        aria-label={uiStrings.rsvp.companions.goingLabel}
-      >
-        {(['yes', 'no'] as const).map((option) => {
-          const active = attending === option
-          return (
-            <button
-              key={`${option}-${active}`}
-              type="button"
-              aria-pressed={active}
-              onClick={() => setAttending(option)}
-              className={`min-h-11 flex-1 cursor-pointer border px-4 font-body text-base tracking-[0.06em] uppercase transition-colors ${
-                active ? 'answer-kick ' : ''
-              }${
-                active
-                  ? option === 'yes'
-                    ? 'border-olive bg-olive text-cream'
-                    : 'border-terracotta bg-terracotta text-cream'
-                  : 'border-olive-line text-dark-gray hover:border-olive hover:text-olive'
-              }`}
-            >
-              {option === 'yes' ? uiStrings.rsvp.attendingYes : uiStrings.rsvp.attendingNo}
-            </button>
-          )
-        })}
-      </div>
-
-      <p className="mt-4 font-body text-sm text-dark-gray">
-        {uiStrings.rsvp.companions.categoryLabel}
-      </p>
-      <div
-        className="mt-2 flex flex-wrap gap-2"
-        role="group"
-        aria-label={uiStrings.rsvp.companions.categoryLabel}
-      >
-        {CATEGORIES.map((option) => (
-          <Chip key={option} active={category === option} onClick={() => setCategory(option)}>
-            {uiStrings.rsvp.companions.categories[option]}
-          </Chip>
-        ))}
-      </div>
-
-      <p className="mt-4 font-body text-sm text-dark-gray">
-        {uiStrings.rsvp.companions.genderLabel}
-      </p>
-      <div
-        className="mt-2 flex flex-wrap gap-2"
-        role="group"
-        aria-label={uiStrings.rsvp.companions.genderLabel}
-      >
-        {GENDERS.map((option) => (
-          <Chip
-            key={option}
-            active={gender === option}
-            // Tapping the chosen one again clears it: the field is optional,
-            // and a guest who picked by accident needs a way back out.
-            onClick={() => setGender((prev) => (prev === option ? null : option))}
-          >
-            {uiStrings.rsvp.companions.genders[option]}
-          </Chip>
-        ))}
-      </div>
 
       {add.isError ? (
-        <p role="alert" className="mt-4 font-body text-base text-terracotta">
+        <p role="alert" className="mt-3 font-body text-base text-terracotta">
           {add.error &&
           typeof add.error === 'object' &&
           'detail' in add.error &&
@@ -201,40 +123,14 @@ export function AddCompanion({ group, onAdded }: AddCompanionProps) {
         </p>
       ) : null}
 
-      <div className="mt-5 flex flex-wrap items-center justify-end gap-3">
+      <div className="mt-4 flex items-center justify-end">
         <button
           type="button"
           onClick={close}
-          className="min-h-11 cursor-pointer px-2 font-body text-base text-dark-gray underline decoration-1 underline-offset-4 transition-colors hover:text-olive"
+          disabled={add.isPending}
+          className="min-h-11 cursor-pointer px-2 font-body text-base text-dark-gray underline decoration-1 underline-offset-4 transition-colors hover:text-olive disabled:opacity-45"
         >
-          {uiStrings.rsvp.companions.cancel}
-        </button>
-        <button
-          type="button"
-          disabled={!canAdd}
-          onClick={() => {
-            if (!canAdd || attending === null) return
-            add.mutate(
-              {
-                params: { path: { group_id: group.group_id } },
-                body: {
-                  full_name: name.trim(),
-                  attending,
-                  category,
-                  ...(gender ? { gender } : {}),
-                },
-              },
-              {
-                onSuccess: (data) => {
-                  onAdded(data)
-                  close()
-                },
-              },
-            )
-          }}
-          className="lift min-h-11 cursor-pointer border border-olive bg-olive px-6 font-body text-base tracking-[0.06em] text-cream uppercase transition-colors disabled:cursor-not-allowed disabled:opacity-45"
-        >
-          {add.isPending ? uiStrings.rsvp.companions.adding : uiStrings.rsvp.companions.add}
+          {add.isPending ? uiStrings.rsvp.companions.adding : uiStrings.rsvp.companions.cancel}
         </button>
       </div>
     </div>

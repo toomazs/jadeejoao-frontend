@@ -1,7 +1,7 @@
-import { useEffect, useId, useRef, useState } from 'react'
+import { useState } from 'react'
 
 import { $api } from '../../api/client'
-import { uiStrings } from '../../lib/ui-strings'
+import { MIN_QUERY, NameCombobox } from './NameCombobox'
 
 interface GuestNameFieldProps {
   label: string
@@ -17,9 +17,6 @@ interface GuestNameFieldProps {
   enabled?: boolean
   className?: string
 }
-
-/** The API only answers from three letters on — asking earlier is noise. */
-const MIN_QUERY = 3
 
 /**
  * A name field that knows the guest list: as the visitor types, it offers the
@@ -38,96 +35,32 @@ export function GuestNameField({
   enabled = true,
   className = '',
 }: GuestNameFieldProps) {
-  const inputId = useId()
-  const listId = useId()
-  const [debounced, setDebounced] = useState('')
-  const [open, setOpen] = useState(false)
-  const wrapperRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    const handle = setTimeout(() => setDebounced(value.trim()), 250)
-    return () => clearTimeout(handle)
-  }, [value])
+  const [query, setQuery] = useState('')
 
   const suggestions = $api.useQuery(
     'get',
     '/api/v1/guests/suggest',
-    { params: { query: { q: debounced } } },
-    { enabled: enabled && debounced.length >= MIN_QUERY, staleTime: 30_000 },
+    { params: { query: { q: query } } },
+    { enabled: enabled && query.length >= MIN_QUERY, staleTime: 30_000 },
   )
   const names = suggestions.data?.suggestions ?? []
 
-  // A click anywhere else puts the list away.
-  useEffect(() => {
-    if (!open) return
-    const onDocClick = (event: MouseEvent) => {
-      if (!wrapperRef.current?.contains(event.target as Node)) setOpen(false)
-    }
-    document.addEventListener('mousedown', onDocClick)
-    return () => document.removeEventListener('mousedown', onDocClick)
-  }, [open])
-
-  const pick = (name: string) => {
-    onChange(name)
-    onPick?.(name)
-    setOpen(false)
-  }
-
-  const showList = open && enabled && names.length > 0 && value.trim() !== names[0]
-
   return (
-    <div ref={wrapperRef} className={`relative ${className}`}>
-      <label
-        htmlFor={inputId}
-        className={`font-body text-sm ${tone === 'dark' ? 'text-gold-sand' : 'text-dark-gray'}`}
-      >
-        {label}
-      </label>
-      <input
-        id={inputId}
-        type="text"
-        value={value}
-        autoFocus={autoFocus}
-        autoComplete="off"
-        role="combobox"
-        aria-expanded={showList}
-        aria-controls={listId}
-        placeholder={placeholder}
-        onChange={(event) => {
-          onChange(event.target.value)
-          setOpen(true)
-        }}
-        onFocus={() => setOpen(true)}
-        onKeyDown={(event) => {
-          if (event.key === 'Escape') setOpen(false)
-        }}
-        className={`mt-1.5 w-full border px-3 py-2.5 font-body text-lg ${
-          tone === 'dark'
-            ? 'border-gold-sand/45 bg-cream/10 text-cream placeholder:text-cream/45 focus:border-gold-sand'
-            : 'border-olive-line bg-cream'
-        }`}
-      />
-
-      {showList ? (
-        <ul
-          id={listId}
-          role="listbox"
-          aria-label={uiStrings.guestField.suggestions}
-          className="absolute inset-x-0 z-10 mt-1 max-h-56 overflow-y-auto border border-olive-line bg-cream shadow-[0_18px_40px_-24px_rgba(26,24,24,0.6)]"
-        >
-          {names.map((name) => (
-            <li key={name}>
-              <button
-                type="button"
-                onClick={() => pick(name)}
-                className="w-full cursor-pointer px-3 py-2.5 text-left font-body text-base text-ink transition-colors hover:bg-veil"
-              >
-                {name}
-              </button>
-            </li>
-          ))}
-        </ul>
-      ) : null}
-    </div>
+    <NameCombobox
+      label={label}
+      tone={tone}
+      value={value}
+      onChange={onChange}
+      onQueryChange={setQuery}
+      options={names.map((name) => ({ key: name, label: name }))}
+      onPick={(option) => {
+        onChange(option.label)
+        onPick?.(option.label)
+      }}
+      placeholder={placeholder}
+      autoFocus={autoFocus}
+      enabled={enabled}
+      className={className}
+    />
   )
 }

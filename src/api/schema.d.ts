@@ -395,9 +395,29 @@ export interface paths {
         put?: never;
         /**
          * Add a companion
-         * @description Adds one more person to an existing invitation and records their answer in the same move. Capped at 10 per invitation. Rejected after the RSVP deadline. Returns the whole group, so the caller can render the new list without refetching.
+         * @description Gathers one more ALREADY-INVITED person into this invitation, by id. The guest never types a name — the list is the couple's budget. Only people still alone in their own invitation can be gathered; capped at 10 per invitation, rejected after the RSVP deadline. Returns the whole group.
          */
         post: operations["add-companion"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/guests/{group_id}/companions/available": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Search people to bring along
+         * @description Names this invitation may gather in: guests the couple already invited who are still alone in their own invitation. Someone heading an invitation that holds other people is excluded — moving them would orphan the rest.
+         */
+        get: operations["search-companions"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -415,8 +435,8 @@ export interface paths {
         put?: never;
         post?: never;
         /**
-         * Remove a companion
-         * @description Takes back someone the guest added to their own invitation. Refuses for anyone the couple invited: a guest can undo their own additions, never edit the couple's list. Rejected after the RSVP deadline. Returns the remaining group.
+         * Send a companion back
+         * @description Sends someone back to their own invitation — they stay invited, they just leave this group. Refuses for anyone the couple placed here: a guest can undo their own gathering, never edit the couple's list. Rejected after the RSVP deadline. Returns the remaining group.
          */
         delete: operations["remove-companion"];
         options?: never;
@@ -558,25 +578,26 @@ export interface components {
              */
             readonly $schema?: string;
             /**
-             * @description Se essa pessoa vai ao casamento.
-             * @enum {string}
+             * Format: uuid
+             * @description Quem vem junto, escolhido na busca — precisa já estar na lista dos noivos.
              */
-            attending: "yes" | "no";
-            /**
-             * @description Faixa da pessoa, para a conta dos noivos. Omitido vira adulto.
-             * @enum {string}
-             */
-            category?: "adult" | "teen" | "child" | "baby" | "elderly";
-            /**
-             * @description Nome e sobrenome de quem vem junto.
-             * @example Maria Silva
-             */
+            guest_id: string;
+        };
+        CompanionOptionView: {
+            /** @example Maria Silva */
             full_name: string;
+            /** Format: uuid */
+            guest_id: string;
+        };
+        CompanionOptionsOutputBody: {
             /**
-             * @description Opcional; serve só à organização do casal.
-             * @enum {string}
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/CompanionOptionsOutputBody.json
              */
-            gender?: "female" | "male";
+            readonly $schema?: string;
+            /** @description No máximo 8, em ordem alfabética. */
+            options: components["schemas"]["CompanionOptionView"][] | null;
         };
         Conflict: {
             db_group?: string;
@@ -2136,6 +2157,40 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["GroupView"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "search-companions": {
+        parameters: {
+            query: {
+                /** @description Começo do nome de quem vem junto; a busca ignora acentos e maiúsculas. */
+                q: string;
+            };
+            header?: never;
+            path: {
+                group_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CompanionOptionsOutputBody"];
                 };
             };
             /** @description Error */
