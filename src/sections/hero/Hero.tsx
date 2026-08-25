@@ -12,7 +12,7 @@ interface HeroProps {
  * and the date standing at their side.
  */
 export function Hero({ content }: HeroProps) {
-  const photo = content.hero_image_url || content.milestones.find((m) => m.image_url)?.image_url
+  const photo = content.hero_image_url
 
   return (
     <section

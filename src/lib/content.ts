@@ -22,7 +22,7 @@ export type SectionSlug = (typeof SECTION_ORDER)[number]
 /** Marks the given keys required and strips `null`, so array fields are always arrays. */
 type WithArrays<T, K extends keyof T> = Omit<T, K> & { [P in K]-?: NonNullable<T[P]> }
 
-export type HeroContent = WithArrays<components['schemas']['HeroPayload'], 'images' | 'milestones'>
+export type HeroContent = components['schemas']['HeroPayload']
 export type OurStoryContent = WithArrays<
   components['schemas']['OurStoryPayload'],
   'images' | 'moments'
@@ -76,7 +76,7 @@ export function normalizeContent(body: ContentOutputBody): NormalizedSection[] {
   if (hero) {
     view.push({
       slug: 'hero',
-      payload: { ...hero, images: arr(hero.images), milestones: arr(hero.milestones) },
+      payload: hero,
     })
   }
 
