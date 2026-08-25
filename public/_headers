@@ -11,3 +11,8 @@
   Cache-Control: public, max-age=0, must-revalidate
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
+  # The admin panel embeds this site to preview unsaved edits. Naming it here
+  # allows exactly that and closes what was open to everyone: with no
+  # frame-ancestors at all, any site on the internet could frame the
+  # invitation inside its own chrome.
+  Content-Security-Policy: frame-ancestors 'self' https://admin.jadeejoao.com.br

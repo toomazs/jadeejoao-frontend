@@ -1,6 +1,7 @@
 import { Fragment, useEffect, useState } from 'react'
 
 import { $api } from './api/client'
+import { isPreview } from './api/preview'
 import { Button } from './components/ui/Button'
 import { Footer } from './components/ui/Footer'
 import { LeafDivider } from './components/ui/LeafDivider'
@@ -69,17 +70,21 @@ export function App() {
   // The opening: the monogram alone, then the curtain lifts and the hero
   // plays its entrance. The site only mounts once the curtain starts moving,
   // so its animations are seen from the first frame.
-  const [curtainLifting, setCurtainLifting] = useState(false)
-  const [curtainGone, setCurtainGone] = useState(false)
+  // The curtain is a welcome, and a welcome repeated on every keystroke is an
+  // obstacle — so the panel's live preview opens straight onto the page.
+  const preview = isPreview()
+  const [curtainLifting, setCurtainLifting] = useState(preview)
+  const [curtainGone, setCurtainGone] = useState(preview)
 
   useEffect(() => {
+    if (preview) return
     const lift = setTimeout(() => setCurtainLifting(true), SPLASH_HOLD_MS)
     const gone = setTimeout(() => setCurtainGone(true), SPLASH_HOLD_MS + SPLASH_FADE_MS)
     return () => {
       clearTimeout(lift)
       clearTimeout(gone)
     }
-  }, [])
+  }, [preview])
 
   const ready = curtainLifting && !contentQuery.isPending
 

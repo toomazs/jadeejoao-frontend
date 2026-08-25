@@ -3,6 +3,7 @@ import Lenis from 'lenis'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 
+import { isPreview, installPreviewBridge } from './api/preview'
 import { App } from './App'
 import './styles/global.css'
 
@@ -32,6 +33,15 @@ const queryClient = new QueryClient({
     },
   },
 })
+
+// In preview, every draft the panel posts must reach the screen. Invalidating
+// is enough: the transport already holds the newest draft, so the refetch it
+// triggers resolves against that rather than the network.
+if (isPreview()) {
+  installPreviewBridge(() => {
+    void queryClient.invalidateQueries()
+  })
+}
 
 const rootElement = document.getElementById('root')
 if (!rootElement) {
