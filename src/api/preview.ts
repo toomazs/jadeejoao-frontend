@@ -76,6 +76,11 @@ function allowedOrigin(origin: string): boolean {
  * uses it to invalidate the queries so React re-renders with the new content.
  */
 export function installPreviewBridge(onDraft: () => void): void {
+  // Belt as well as braces: with the stylesheet's smooth scrolling still in
+  // force, any jump the page makes for its own reasons becomes another glide
+  // the panel has to wait out. A working surface arrives; it does not travel.
+  document.documentElement.style.scrollBehavior = 'auto'
+
   const onMessage = (event: MessageEvent) => {
     if (!allowedOrigin(event.origin)) return
     const message = event.data as PreviewMessage | undefined
@@ -118,9 +123,14 @@ function scrollPreviewTo(id: string): void {
   const target = document.getElementById(id)
   if (!target) return
   const top = target.getBoundingClientRect().top + window.scrollY
-  // Instant, not smooth: opening an accordion should show that part now, and
-  // a glide across a few thousand pixels is time spent watching the page go by.
-  window.scrollTo({ top, behavior: 'auto' })
+  // `instant`, never `auto`. They are not synonyms: `auto` means "obey the
+  // element's computed scroll-behavior", and this page sets `scroll-behavior:
+  // smooth` on <html>. So asking for `auto` asked for a smooth glide across
+  // twenty-five thousand pixels — a journey long enough that anything landing
+  // in the middle of it cancels the scroll and leaves the panel parked inside
+  // whichever chapter it happened to be crossing. `instant` overrides the
+  // stylesheet outright.
+  window.scrollTo({ top, behavior: 'instant' })
 }
 
 /* ------------------------------------------------------------- picking */

@@ -117,7 +117,11 @@ export function GettingThere({ content, stay }: GettingThereProps) {
       </div>
 
       {hasLodging ? (
-        <div className="mt-12 border-t border-sand-line pt-10">
+        // "Onde ficar" is its own payload but not its own section — the hotels
+        // read as part of getting there, so they live here. The panel still
+        // lists it separately, and pointed at a `#stay` that this page has
+        // never had: opening it simply did nothing.
+        <div id="stay" className="mt-12 border-t border-sand-line pt-10">
           <Reveal className="text-center">
             <h3 className="font-display text-[clamp(1.6rem,3.4vw,2.2rem)] text-olive">
               {stay.title}
