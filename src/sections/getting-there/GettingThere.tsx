@@ -1,7 +1,7 @@
 import { Navigation } from 'lucide-react'
 
 import { LeafGlyph } from '../../components/ui/LeafGlyph'
-import { Markdown } from '../../components/ui/Markdown'
+import { Inline, Markdown } from '../../components/ui/Markdown'
 import { Reveal } from '../../components/ui/Reveal'
 import { SectionShell } from '../../components/ui/SectionShell'
 import type { GettingThereContent, StayContent } from '../../lib/content'
@@ -56,8 +56,12 @@ interface GettingThereProps {
 export function GettingThere({ content, stay }: GettingThereProps) {
   // Two kinds of answer: places the couple vouches for, and the platforms
   // where a guest can look for themselves.
-  const hotels = stay?.lodgings.filter((lodging) => !lodging.platform) ?? []
-  const platforms = stay?.lodgings.filter((lodging) => lodging.platform) ?? []
+  // Carrying the payload position through the split. The page shows these as
+  // two separate rows, so a card's place here is not its place in the list the
+  // panel edits — and the panel addresses them by that.
+  const numbered = stay?.lodgings.map((lodging, at) => ({ ...lodging, at })) ?? []
+  const hotels = numbered.filter((lodging) => !lodging.platform)
+  const platforms = numbered.filter((lodging) => lodging.platform)
   const hasLodging = stay && (hotels.length > 0 || platforms.length > 0 || Boolean(stay.body))
 
   return (
@@ -140,6 +144,7 @@ export function GettingThere({ content, stay }: GettingThereProps) {
                 <Reveal
                   as="li"
                   key={lodging.name}
+                  id={`lodging-${lodging.at}`}
                   delay={index * 110}
                   className="lift flex flex-col border border-olive-line bg-cream px-5 py-6"
                 >
@@ -161,7 +166,9 @@ export function GettingThere({ content, stay }: GettingThereProps) {
                     </span>
                   ) : null}
                   {lodging.notes ? (
-                    <p className="mt-2.5 font-body text-base leading-relaxed">{lodging.notes}</p>
+                    <p className="mt-2.5 font-body text-base leading-relaxed">
+                      <Inline text={lodging.notes} />
+                    </p>
                   ) : null}
                   {/* Both answers are spoken. Drawing only the positive one
                       left a card with no line at all, which reads as missing
@@ -198,6 +205,7 @@ export function GettingThere({ content, stay }: GettingThereProps) {
                 <Reveal
                   as="li"
                   key={platform.name}
+                  id={`lodging-${platform.at}`}
                   delay={index * 110}
                   className="lift border border-olive-line bg-cream"
                 >

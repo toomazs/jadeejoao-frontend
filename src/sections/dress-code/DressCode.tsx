@@ -89,7 +89,11 @@ export function DressCode({ content }: DressCodeProps) {
         {looks.length > 0 ? (
           <div className="mt-16 flex flex-col gap-16 sm:gap-20">
             {looks.map((look, index) => (
-              <Look key={look.title} look={look} index={index} />
+              // Addressable, like the album frames: opening "Para eles" in the
+              // panel should show his, not the top of the section.
+              <div key={look.title} id={`look-${index}`}>
+                <Look look={look} index={index} />
+              </div>
             ))}
           </div>
         ) : null}

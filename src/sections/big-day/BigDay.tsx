@@ -62,10 +62,24 @@ function CountdownUnit({ value, unit }: { value: number; unit: string }) {
 }
 
 /** One line of the programme, hung on the rail. */
-function ProgrammeRow({ item, index }: { item: ProgrammeItem; index: number }) {
+function ProgrammeRow({
+  id,
+  item,
+  index,
+}: {
+  /** Addressable, so the panel can show the hour being edited. */
+  id?: string
+  item: ProgrammeItem
+  index: number
+}) {
   const Icon = item.icon ? (PROGRAMME_ICONS[item.icon] ?? null) : null
   return (
-    <Reveal as="li" delay={Math.min(index, 6) * 60} className="relative grid grid-cols-[4.5rem_2.5rem_1fr] items-baseline">
+    <Reveal
+      as="li"
+      id={id}
+      delay={Math.min(index, 6) * 60}
+      className="relative grid grid-cols-[4.5rem_2.5rem_1fr] items-baseline"
+    >
       <time
         className={`pb-8 text-right font-display tabular-nums ${
           Icon ? 'text-2xl text-olive' : 'text-lg text-dark-gray'
@@ -160,7 +174,12 @@ export function BigDay({ content, eventDate }: BigDayProps) {
             />
             <ol className="relative">
               {programme.map((item, index) => (
-                <ProgrammeRow key={`${item.time}-${item.label}`} item={item} index={index} />
+                <ProgrammeRow
+                  key={`${item.time}-${item.label}`}
+                  id={`programme-${index}`}
+                  item={item}
+                  index={index}
+                />
               ))}
             </ol>
           </div>
