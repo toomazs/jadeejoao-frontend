@@ -1,14 +1,40 @@
 import {
+  Baby,
+  Bus,
   Cake,
   Camera,
+  Car,
   Church,
+  ClipboardCheck,
+  Clock,
+  Coffee,
+  Disc3,
+  Dog,
+  DoorOpen,
+  Flame,
+  Flower,
   Flower2,
+  Gem,
+  Gift,
+  GlassWater,
+  Guitar,
+  HandHeart,
   Heart,
+  HeartHandshake,
+  IceCreamCone,
+  Images,
   Martini,
+  Mic,
+  Moon,
   Music,
   PartyPopper,
   Sparkles,
+  Sunset,
   Users,
+  Utensils,
+  UtensilsCrossed,
+  Waves,
+  Wine,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
@@ -31,17 +57,51 @@ type ProgrammeItem = BigDayContent['programme'][number]
  * The emblems the couple can choose from in the admin. The payload carries a
  * name, this file draws it — so the schedule is editable without a deploy.
  */
+/**
+ * The little glyph beside an hour on the programme.
+ *
+ * Keyed by an English word rather than an icon name, so the panel can offer a
+ * fixed set and the drawing can change without rewriting anybody's payload.
+ * The first ten are the ones the couple already used; the rest are there so
+ * choosing one is picking from a list instead of guessing a word.
+ */
 const PROGRAMME_ICONS: Record<string, LucideIcon> = {
   guests: Users,
   ceremony: Church,
   vows: Heart,
-  rings: Sparkles,
+  rings: Gem,
   party: PartyPopper,
   music: Music,
   toast: Martini,
   cake: Cake,
   photo: Camera,
   flowers: Flower2,
+  arrival: DoorOpen,
+  welcome: HandHeart,
+  blessing: HeartHandshake,
+  speech: Mic,
+  dinner: UtensilsCrossed,
+  lunch: Utensils,
+  drinks: Wine,
+  bar: GlassWater,
+  coffee: Coffee,
+  dessert: IceCreamCone,
+  dance: Disc3,
+  band: Guitar,
+  candles: Flame,
+  sparklers: Sparkles,
+  sunset: Sunset,
+  night: Moon,
+  bouquet: Flower,
+  car: Car,
+  shuttle: Bus,
+  gifts: Gift,
+  children: Baby,
+  pets: Dog,
+  photos: Images,
+  checkin: ClipboardCheck,
+  clock: Clock,
+  farewell: Waves,
 }
 
 /** One unit of the countdown: the numeral leads, its name whispers beneath. */

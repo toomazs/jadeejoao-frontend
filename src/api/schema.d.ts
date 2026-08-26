@@ -159,7 +159,11 @@ export interface paths {
          */
         get: operations["admin-guest-dashboard"];
         put?: never;
-        post?: never;
+        /**
+         * Add a guest
+         * @description Adds one person by hand. Without a group_id they get an invitation of their own, labelled with their name and theirs to answer — the shape every imported guest starts in. Attendance is not settable here: it belongs to the RSVP flow.
+         */
+        post: operations["admin-create-guest"];
         delete?: never;
         options?: never;
         head?: never;
@@ -658,7 +662,7 @@ export interface components {
             confirmed_centavos: number;
             /**
              * Format: int64
-             * @description Sum of declared (not yet confirmed) contributions. Always 0 for link gifts.
+             * @description Sum of declared contributions still waiting for the couple to confirm them. Not shown as received.
              */
             declared_centavos: number;
             description?: string;
@@ -702,7 +706,7 @@ export interface components {
             title: string;
             /**
              * Format: int64
-             * @description Remaining quota units (only for unit-limited PIX gifts). Optimistic: declared + confirmed consume units.
+             * @description Remaining quota units (only for unit-limited PIX gifts). Counts confirmed contributions only — a declared PIX is a claim, not money.
              */
             units_left?: number;
         };
@@ -1083,7 +1087,7 @@ export interface components {
             confirmed_centavos: number;
             /**
              * Format: int64
-             * @description Sum of declared (not yet confirmed) contributions. Always 0 for link gifts.
+             * @description Sum of declared contributions still waiting for the couple to confirm them. Not shown as received.
              */
             declared_centavos: number;
             description?: string;
@@ -1127,7 +1131,7 @@ export interface components {
             title: string;
             /**
              * Format: int64
-             * @description Remaining quota units (only for unit-limited PIX gifts). Optimistic: declared + confirmed consume units.
+             * @description Remaining quota units (only for unit-limited PIX gifts). Counts confirmed contributions only — a declared PIX is a claim, not money.
              */
             units_left?: number;
         };
@@ -1186,6 +1190,44 @@ export interface components {
             /** @example Eduardo e família */
             label: string;
             members: components["schemas"]["MemberView"][] | null;
+        };
+        GuestCreateInputBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/GuestCreateInputBody.json
+             */
+            readonly $schema?: string;
+            /** @enum {string} */
+            category?: "adult" | "teen" | "child" | "baby" | "elderly";
+            /** @example Madrinha */
+            ceremony_role?: string;
+            /** @example Amigos */
+            circle?: string;
+            full_name: string;
+            /** @enum {string} */
+            gender?: "female" | "male";
+            /**
+             * Format: uuid
+             * @description Add to this invitation. Omit to give the person one of their own.
+             */
+            group_id?: string;
+            notes?: string;
+            /**
+             * @description De quem é o convidado.
+             * @enum {string}
+             */
+            side?: "bride" | "groom" | "both";
+        };
+        GuestCreatedOutputBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/GuestCreatedOutputBody.json
+             */
+            readonly $schema?: string;
+            /** Format: uuid */
+            guest_id: string;
         };
         GuestEditInputBody: {
             /**
@@ -1975,6 +2017,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["DashboardOutputBody"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "admin-create-guest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GuestCreateInputBody"];
+            };
+        };
+        responses: {
+            /** @description Created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GuestCreatedOutputBody"];
                 };
             };
             /** @description Error */

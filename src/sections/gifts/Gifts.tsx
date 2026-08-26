@@ -28,10 +28,17 @@ function problemDetail(error: unknown): string {
   return uiStrings.genericActionError
 }
 
-/** Computed progress bar: declared + confirmed over the goal (optimistic, AD-6). */
+/**
+ * How much has arrived, over the goal.
+ *
+ * Confirmed only. A declared PIX is a guest saying they sent one; the couple
+ * then checks the bank and says whether it came. Counting the claim had the
+ * page telling everybody that a hundred and fifty reais had been given to a
+ * dinner nobody had paid for yet.
+ */
 function Progress({ gift }: { gift: GiftView }) {
   if (!gift.goal_centavos) return null
-  const raised = gift.declared_centavos + gift.confirmed_centavos
+  const raised = gift.confirmed_centavos
   const percent = Math.min(100, Math.round((raised / gift.goal_centavos) * 100))
   return (
     <div className="mt-4">
