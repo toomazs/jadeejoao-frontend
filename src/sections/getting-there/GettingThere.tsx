@@ -81,7 +81,7 @@ export function GettingThere({ content, stay }: GettingThereProps) {
 
           {content.parking_notes ? (
             <p className="mt-6 max-w-prose border-t border-sand-line pt-5 font-body text-base text-dark-gray italic">
-              {content.parking_notes}
+              <Inline text={content.parking_notes} />
             </p>
           ) : null}
 

@@ -385,12 +385,15 @@ function PixFlow({ gift }: { gift: GiftView }) {
  * list read as two entries of one list, not two designs.
  */
 function GiftShell({
+  id,
   index,
   media,
   title,
   description,
   children,
 }: {
+  /** Addressable, so the panel can show the gift being edited. */
+  id?: string
   index: number
   media?: ReactNode
   title: string
@@ -400,6 +403,7 @@ function GiftShell({
   return (
     <Reveal
       as="li"
+      id={id}
       delay={index * 110}
       className="lift flex flex-col border border-olive-line bg-cream px-5 py-6"
     >
@@ -419,6 +423,7 @@ function GiftShell({
 function GiftCard({ gift, index }: { gift: GiftView; index: number }) {
   return (
     <GiftShell
+      id={`gift-${gift.gift_id}`}
       index={index}
       title={gift.title}
       description={gift.description}
@@ -452,6 +457,7 @@ function RegistryCard({ gift, index }: { gift: GiftView; index: number }) {
   if (!gift.external_url) return null
   return (
     <GiftShell
+      id={`gift-${gift.gift_id}`}
       index={index}
       title={gift.title}
       description={gift.description}

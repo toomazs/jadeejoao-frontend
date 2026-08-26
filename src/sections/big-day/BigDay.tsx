@@ -38,7 +38,7 @@ import {
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
-import { Markdown } from '../../components/ui/Markdown'
+import { Inline, Markdown } from '../../components/ui/Markdown'
 import { Reveal } from '../../components/ui/Reveal'
 import type { BigDayContent } from '../../lib/content'
 import { formatEventDate, ceremonyMoment } from '../../lib/format'
@@ -162,7 +162,7 @@ function ProgrammeRow({
       <span
         className={`pb-8 font-body ${Icon ? 'text-lg text-ink' : 'text-base text-dark-gray'}`}
       >
-        {item.label}
+        <Inline text={item.label} />
       </span>
     </Reveal>
   )
@@ -248,7 +248,7 @@ export function BigDay({ content, eventDate }: BigDayProps) {
         {content.venue_notes ? (
           <Reveal className="mt-10 flex flex-col items-center">
             <p className="max-w-prose border-t border-sand-line pt-6 text-center font-body text-base text-dark-gray italic">
-              {content.venue_notes}
+              <Inline text={content.venue_notes} />
             </p>
           </Reveal>
         ) : null}
