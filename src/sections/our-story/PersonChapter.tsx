@@ -250,7 +250,16 @@ export function PersonChapter({
                     : { opacity: arrive, transform: `translateY(${(1 - arrive) * 26}px)` }
                 }
               >
-                <a href={post.permalink} target="_blank" rel="noopener noreferrer" className="block">
+                {/* The caption names the link. An empty alt inside an
+                    anchor with nothing else in it leaves a link a screen
+                    reader can only announce as a URL. */}
+                <a
+                  href={post.permalink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block"
+                  aria-label={post.caption || uiStrings.instagramPostLabel}
+                >
                   <img
                     src={post.media_type === 'VIDEO' ? (post.thumbnail_url ?? post.media_url) : post.media_url}
                     alt=""

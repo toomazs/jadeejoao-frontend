@@ -26,6 +26,7 @@ export const uiStrings = {
     groom: 'O noivo',
   },
   instagramCta: 'Ver no Instagram',
+  instagramPostLabel: 'Abrir a publicação no Instagram',
   madeBy: 'feito por',
   guestField: {
     suggestions: 'Nomes encontrados na lista de convidados',
