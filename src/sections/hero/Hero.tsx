@@ -1,4 +1,5 @@
 import { logoVertical, siriguela } from '../../assets'
+import { Inline } from '../../components/ui/Markdown'
 import type { HeroContent } from '../../lib/content'
 import { formatEventDate } from '../../lib/format'
 import { COUPLE_NAMES } from '../../lib/ui-strings'
@@ -60,7 +61,7 @@ export function Hero({ content }: HeroProps) {
             {formatEventDate(content.event_date)}
           </p>
           <p className="mt-3 font-body text-xs tracking-[0.35em] text-cream/75 uppercase sm:text-sm">
-            {content.city_label}
+            <Inline text={content.city_label} />
           </p>
         </div>
       </div>

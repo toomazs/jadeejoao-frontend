@@ -234,16 +234,25 @@ const replies = new Map<string, Promise<Response>>()
 function passthrough(request: Request): Promise<Response> {
   if (request.method !== 'GET') return fetch(request)
   if (!CACHEABLE.test(new URL(request.url).pathname)) return fetch(request)
+
   const held = replies.get(request.url)
-  if (held) {
-    // A Response body reads once, so each caller gets its own copy.
-    return held.then((response) => response.clone())
-  }
-  const asked = fetch(request).then((response) => {
-    // A failure is not worth remembering: the next render should try again.
+  // A Response body reads once, so each caller gets its own copy.
+  if (held) return held.then((response) => response.clone())
+
+  // Deliberately NOT `fetch(request)`. The request carries the abort signal of
+  // whoever asked first, and this answer is shared: React unmounting that one
+  // component — which it does to every component once, in development — would
+  // abort the fetch everybody else is waiting on. That is what left the grid
+  // loading forever.
+  const asked = fetch(request.url, { method: 'GET', headers: request.headers })
+  const kept = asked.then((response) => {
+    // Nor is a failure worth remembering. Forgetting it here and in the catch
+    // is what lets the next render try again instead of inheriting the same
+    // rejection for as long as the page is open.
     if (!response.ok) replies.delete(request.url)
     return response
   })
-  replies.set(request.url, asked)
-  return asked.then((response) => response.clone())
+  kept.catch(() => replies.delete(request.url))
+  replies.set(request.url, kept)
+  return kept.then((response) => response.clone())
 }

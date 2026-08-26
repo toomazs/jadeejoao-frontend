@@ -1,6 +1,6 @@
 import type { components } from '../../api/schema'
 import { BroadLeaf } from '../../components/ui/Botanicals'
-import { Markdown } from '../../components/ui/Markdown'
+import { Inline, Markdown } from '../../components/ui/Markdown'
 import { Reveal } from '../../components/ui/Reveal'
 import type { DressCodeContent } from '../../lib/content'
 
@@ -81,7 +81,7 @@ export function DressCode({ content }: DressCodeProps) {
           </h2>
           {content.attire ? (
             <p className="mx-auto mt-7 max-w-4xl font-display text-[clamp(1.9rem,4.5vw,3.4rem)] leading-snug text-balance text-cream">
-              {content.attire}
+              <Inline text={content.attire} />
             </p>
           ) : null}
         </Reveal>
