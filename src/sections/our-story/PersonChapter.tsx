@@ -1,6 +1,7 @@
 import { useRef } from 'react'
 
 import { $api } from '../../api/client'
+import { Inline } from '../../components/ui/Markdown'
 import { Skeleton } from '../../components/ui/Skeleton'
 import type { components } from '../../api/schema'
 import { siriguela } from '../../assets'
@@ -89,6 +90,14 @@ export function PersonChapter({
   const ground = tone === 'gray' ? 'bg-dark-gray' : 'bg-deep-olive'
 
   const hasBioScene = Boolean(person.bio)
+  const bioParagraphs = (person.bio ?? '').split(/\n+/)
+  // The paragraphs arrive one after another, and the scene starts leaving at
+  // 0.62 — so a fixed step per paragraph means a long enough bio has its last
+  // ones still fading in as the whole thing fades out. Hers has four, and the
+  // fourth landed exactly on 0.62: written, published, never once readable.
+  // Spreading them across a fixed window instead keeps the stagger and lets
+  // any length finish by 0.58. At three paragraphs this is the old 0.04.
+  const bioStep = bioParagraphs.length > 1 ? 0.08 / (bioParagraphs.length - 1) : 0
 
   // Three beats, in order: the portrait, her own words, then her feed. Each
   // fades out as the next arrives, so only one holds the screen at a time.
@@ -185,15 +194,15 @@ export function PersonChapter({
     >
       <p className="font-body text-xs tracking-[0.45em] text-gold-sand uppercase">{person.name}</p>
       <div className="mt-6 space-y-5">
-        {(person.bio ?? '').split(/\n+/).map((paragraph, index) => {
-          const arrive = reduced ? 1 : seg(progress, 0.4 + index * 0.04, 0.5 + index * 0.04)
+        {bioParagraphs.map((paragraph, index) => {
+          const arrive = reduced ? 1 : seg(progress, 0.4 + index * bioStep, 0.5 + index * bioStep)
           return (
             <p
               key={paragraph.slice(0, 24)}
               className="font-body text-[0.98rem] leading-relaxed text-cream/85 sm:text-lg"
               style={reduced ? undefined : { opacity: arrive }}
             >
-              {paragraph}
+              <Inline text={paragraph} />
             </p>
           )
         })}
@@ -295,6 +304,11 @@ export function PersonChapter({
     )
   }
 
+  const totalVh = 100 + (hasBioScene ? 160 : 0) + (hasFeedScene ? 220 : 100)
+  // Progress runs across the section minus one viewport, so an anchor placed
+  // this far down lands the scroll on that progress value.
+  const sceneTop = (at: number) => `${at * (totalVh - 100)}vh`
+
   return (
     <section
       ref={ref}
@@ -302,11 +316,27 @@ export function PersonChapter({
       aria-label={person.name}
       data-nav-hide=""
       className={`relative ${ground}`}
-      style={{ height: `${100 + (hasBioScene ? 160 : 0) + (hasFeedScene ? 220 : 100)}vh` }}
+      style={{ height: `${totalVh}vh` }}
     >
-      {/* A separate anchor from `id`: the section id is the nav's, while this
-          is what the admin preview jumps to when this chapter is opened. */}
-      {anchorId ? <span id={anchorId} aria-hidden="true" /> : null}
+      {/* Anchors for the panel's preview, separate from `id`, which is the
+          nav's. They cannot sit at the top of the section: the chapter is
+          pinned for several viewports and each scene fades in on scroll, so
+          the top is the one place where the ground is still empty. Each of
+          these sits where its scene has fully arrived and has not begun to
+          leave. */}
+      {anchorId ? (
+        <>
+          <span id={anchorId} aria-hidden="true" className="absolute" style={{ top: sceneTop(0.2) }} />
+          {hasBioScene ? (
+            <span
+              id={`${anchorId}-bio`}
+              aria-hidden="true"
+              className="absolute"
+              style={{ top: sceneTop(0.58) }}
+            />
+          ) : null}
+        </>
+      ) : null}
       <div className="sticky top-0 h-svh overflow-hidden">
         <div
           className="absolute inset-0 flex items-center px-5 sm:px-10"

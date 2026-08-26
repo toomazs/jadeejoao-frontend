@@ -52,6 +52,20 @@ function renderInline(text: string): ReactNode[] {
 }
 
 /**
+ * The inline subset on its own, for text whose paragraphs are already laid out
+ * by the caller.
+ *
+ * The chapters and the letters animate one paragraph at a time, so they build
+ * their own `<p>` elements and cannot hand the whole string to `Markdown` —
+ * but the couple writes the same asterisks there as everywhere else, and the
+ * panel shows them the result. Without this they were the two places on the
+ * site where a bold word came out as literal `**`.
+ */
+export function Inline({ text }: { text: string }) {
+  return <>{renderInline(text)}</>
+}
+
+/**
  * Tiny local renderer for payload `body` markdown (paragraphs, bold, italic,
  * links, soft line breaks). Deliberately no runtime dependency and no raw HTML
  * pass-through — the couple's admin writes this narrow subset.

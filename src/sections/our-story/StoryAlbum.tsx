@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 
 import type { components } from '../../api/schema'
+import { Inline } from '../../components/ui/Markdown'
 import { Reveal } from '../../components/ui/Reveal'
 import { clamp01, usePrefersReducedMotion } from '../../lib/scrollytelling'
 import { uiStrings } from '../../lib/ui-strings'
@@ -58,7 +59,9 @@ function InstaxFrame({
           />
         </div>
         <figcaption className="absolute inset-x-4 bottom-0 flex h-24 flex-col items-center justify-center text-center">
-          <span className="block font-accent text-2xl leading-tight text-ink">{moment.label}</span>
+          <span className="block font-accent text-2xl leading-tight text-ink">
+            <Inline text={moment.label} />
+          </span>
           {moment.date ? (
             <span className="mt-1 block font-body text-[0.7rem] tracking-[0.2em] text-dark-gray uppercase">
               {moment.date}
@@ -191,7 +194,7 @@ function Letter({ from, text, align }: { from: string; text: string; align: 'lef
       <div className="mt-4 space-y-4">
         {text.split(/\n+/).map((paragraph) => (
           <p key={paragraph.slice(0, 24)} className="font-body text-lg leading-relaxed text-ink italic">
-            {paragraph}
+            <Inline text={paragraph} />
           </p>
         ))}
       </div>
