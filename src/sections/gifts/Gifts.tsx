@@ -6,7 +6,7 @@ import type { components } from '../../api/schema'
 import { Button, ButtonLink } from '../../components/ui/Button'
 import { GuestNameField } from '../../components/ui/GuestNameField'
 import { LeafDivider } from '../../components/ui/LeafDivider'
-import { Markdown } from '../../components/ui/Markdown'
+import { Inline, Markdown } from '../../components/ui/Markdown'
 import { Modal } from '../../components/ui/Modal'
 import { Reveal } from '../../components/ui/Reveal'
 import { SectionShell } from '../../components/ui/SectionShell'
@@ -399,7 +399,9 @@ function GiftShell({
       {media}
       <h3 className="font-display text-2xl text-olive">{title}</h3>
       {description ? (
-        <p className="mt-2 font-body text-base leading-relaxed text-dark-gray">{description}</p>
+        <p className="mt-2 font-body text-base leading-relaxed text-dark-gray">
+          <Inline text={description} />
+        </p>
       ) : null}
       <div className="mt-auto">{children}</div>
     </Reveal>
