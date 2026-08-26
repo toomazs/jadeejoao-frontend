@@ -35,6 +35,13 @@ type Draft = {
   content?: unknown
   /** The public `/gifts` shape. */
   gifts?: unknown
+  /**
+   * The chapter galleries, keyed by person, in the public `/instagram/{person}`
+   * shape. They are files in the bucket rather than part of the content
+   * payload, so without this a photo swapped in the panel showed nothing until
+   * it was saved — the preview went on asking the API for the old one.
+   */
+  instagram?: Record<string, unknown>
 }
 
 type PreviewMessage =
@@ -195,9 +202,12 @@ function json(body: unknown): Response {
  * endpoints it owns, so the site never flashes the saved content the couple
  * is in the middle of changing.
  */
+const FEED = /^\/api\/v1\/instagram\/(bride|groom)$/
+
 export async function previewFetch(request: Request): Promise<Response> {
   const { pathname } = new URL(request.url)
-  const mine = pathname === '/api/v1/content' || pathname === '/api/v1/gifts'
+  const feed = FEED.exec(pathname)
+  const mine = pathname === '/api/v1/content' || pathname === '/api/v1/gifts' || feed !== null
   if (request.method !== 'GET' || !mine) {
     return passthrough(request)
   }
@@ -208,6 +218,9 @@ export async function previewFetch(request: Request): Promise<Response> {
   }
   if (pathname === '/api/v1/gifts' && draft.gifts !== undefined) {
     return json(draft.gifts)
+  }
+  if (feed && draft.instagram?.[feed[1]] !== undefined) {
+    return json(draft.instagram[feed[1]])
   }
   // The panel is not editing this one — show what guests would see.
   return passthrough(request)

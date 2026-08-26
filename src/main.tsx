@@ -52,7 +52,11 @@ if (isPreview()) {
     void queryClient.invalidateQueries({
       predicate: (query) => {
         const path = query.queryKey[1]
-        return path === '/api/v1/content' || path === '/api/v1/gifts'
+        return (
+          path === '/api/v1/content' ||
+          path === '/api/v1/gifts' ||
+          path === '/api/v1/instagram/{person}'
+        )
       },
     })
   })
