@@ -14,19 +14,10 @@ export const fixtureContent: ContentOutputBody = {
       slug: 'hero',
       enabled: true,
       hero: {
-        title: 'Jade & João',
-        body: 'Estamos muito felizes em compartilhar mais este momento de nossas vidas com vocês!',
-        images: [],
-        couple_names: 'Jade & João',
-        event_datetime: '2027-08-07T15:00:00-03:00',
+        event_date: '2027-08-07',
         city_label: 'Atibaia – SP',
         hero_image_url:
           'https://ykvsimxpchaqbsqsqsfs.supabase.co/storage/v1/object/public/jadeejoao-bucket/hero/jade-e-joao.jpg',
-        milestones: [
-          { label: 'Nossa família' },
-          { label: 'Nossa casa em Atibaia' },
-          { label: 'O grande dia', date: '2027-08-07' },
-        ],
       },
     },
     {

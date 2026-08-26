@@ -15,14 +15,14 @@ import type { LucideIcon } from 'lucide-react'
 import { Markdown } from '../../components/ui/Markdown'
 import { Reveal } from '../../components/ui/Reveal'
 import type { BigDayContent } from '../../lib/content'
-import { formatEventDate } from '../../lib/format'
+import { formatEventDate, ceremonyMoment } from '../../lib/format'
 import { uiStrings } from '../../lib/ui-strings'
 import { useCountdown } from '../../lib/useCountdown'
 
 interface BigDayProps {
   content: BigDayContent
   /** Composition from the hero payload: the countdown target. */
-  eventDatetime?: string
+  eventDate?: string
 }
 
 type ProgrammeItem = BigDayContent['programme'][number]
@@ -100,8 +100,10 @@ function ProgrammeRow({ item, index }: { item: ProgrammeItem; index: number }) {
  * moments that anchor the day carrying an emblem, the steps between them
  * kept quiet.
  */
-export function BigDay({ content, eventDatetime }: BigDayProps) {
-  const countdown = useCountdown(eventDatetime ?? '')
+export function BigDay({ content, eventDate }: BigDayProps) {
+  // The countdown lands on the ceremony hour, which the payload no longer
+  // carries — it is a constant of the day, not something to edit.
+  const countdown = useCountdown(ceremonyMoment(eventDate ?? ''))
   const programme = content.programme
 
   return (
@@ -132,9 +134,9 @@ export function BigDay({ content, eventDatetime }: BigDayProps) {
               <CountdownUnit value={countdown.minutes} unit={uiStrings.countdown.minutes} />
               <CountdownUnit value={countdown.seconds} unit={uiStrings.countdown.seconds} />
             </div>
-            {eventDatetime ? (
+            {eventDate ? (
               <p className="mt-4 text-center font-body text-xs tracking-[0.28em] text-dark-gray uppercase">
-                {formatEventDate(eventDatetime)}
+                {formatEventDate(eventDate)}
               </p>
             ) : null}
           </Reveal>

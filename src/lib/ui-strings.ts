@@ -4,6 +4,15 @@ import type { SectionSlug } from './content'
  * The ONLY home for local guest-visible strings (PT-BR functional microcopy).
  * Editorial content always comes from the API — never add copy here.
  */
+/**
+ * The couple, as the site says their names.
+ *
+ * Not a content field: at the top of the page the names ARE the wordmark
+ * image, so a text field for them only ever reached the footer — and looked
+ * broken to anyone who edited it expecting the hero to change.
+ */
+export const COUPLE_NAMES = 'Jade & João'
+
 export const uiStrings = {
   loading: 'Carregando o convite…',
   errorTitle: 'Não conseguimos carregar o convite.',

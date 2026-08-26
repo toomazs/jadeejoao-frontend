@@ -1,11 +1,10 @@
 import { logo } from '../../assets'
 import { formatEventDate } from '../../lib/format'
-import { uiStrings } from '../../lib/ui-strings'
+import { uiStrings, COUPLE_NAMES } from '../../lib/ui-strings'
 
 interface FooterProps {
   /** From the hero payload — the footer restates the invitation's signature. */
-  coupleNames?: string
-  eventDatetime?: string
+  eventDate?: string
 }
 
 /** The couple's names with the logo's script "e" in place of the ampersand. */
@@ -30,8 +29,8 @@ function Signature({ names }: { names: string }) {
  * The farewell: the couple's monogram and signature on the left, the date
  * beneath — and the maker's line kept small on the right, as a colophon.
  */
-export function Footer({ coupleNames, eventDatetime }: FooterProps) {
-  if (!coupleNames && !eventDatetime) {
+export function Footer({ eventDate }: FooterProps) {
+  if (!eventDate) {
     return null
   }
 
@@ -46,14 +45,14 @@ export function Footer({ coupleNames, eventDatetime }: FooterProps) {
             className="h-14 w-auto shrink-0 brightness-0 invert opacity-90 select-none sm:h-16"
           />
           <div>
-            {coupleNames ? (
+            {COUPLE_NAMES ? (
               <p className="font-display text-3xl leading-none text-cream sm:text-4xl">
-                <Signature names={coupleNames} />
+                <Signature names={COUPLE_NAMES} />
               </p>
             ) : null}
-            {eventDatetime ? (
+            {eventDate ? (
               <p className="mt-2.5 font-body text-sm tracking-[0.22em] text-gold-sand uppercase">
-                {formatEventDate(eventDatetime)}
+                {formatEventDate(eventDate)}
               </p>
             ) : null}
           </div>

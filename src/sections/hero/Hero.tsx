@@ -1,6 +1,7 @@
 import { logoVertical, siriguela } from '../../assets'
 import type { HeroContent } from '../../lib/content'
 import { formatEventDate } from '../../lib/format'
+import { COUPLE_NAMES } from '../../lib/ui-strings'
 
 interface HeroProps {
   content: HeroContent
@@ -43,7 +44,7 @@ export function Hero({ content }: HeroProps) {
       <div className="relative mx-auto flex w-full max-w-7xl flex-col gap-9 px-5 pt-28 pb-12 sm:px-10 lg:flex-row lg:items-end lg:justify-between lg:gap-12 lg:pb-16">
         <div className="hero-enter">
           <h1 id="hero-heading" className="sr-only">
-            {content.couple_names}
+            {COUPLE_NAMES}
           </h1>
           {/* The real wordmark, inverted to read cream over the photograph. */}
           <img
@@ -56,7 +57,7 @@ export function Hero({ content }: HeroProps) {
 
         <div className="hero-enter shrink-0 lg:pb-4 lg:text-right">
           <p className="font-accent text-4xl text-cream sm:text-5xl">
-            {formatEventDate(content.event_datetime)}
+            {formatEventDate(content.event_date)}
           </p>
           <p className="mt-3 font-body text-xs tracking-[0.35em] text-cream/75 uppercase sm:text-sm">
             {content.city_label}

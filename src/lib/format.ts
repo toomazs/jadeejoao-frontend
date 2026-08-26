@@ -1,6 +1,20 @@
 const SAO_PAULO_TZ = 'America/Sao_Paulo'
 
 /** Long PT-BR date ("7 de agosto de 2027") from an ISO datetime, pinned to the event timezone (AD-11). */
+/**
+ * The ceremony hour, in the venue's timezone.
+ *
+ * Fixed here rather than kept in the payload: it is printed nowhere, it is not
+ * changing, and as an editable field its only possible effect was to move the
+ * countdown by fifteen hours by accident.
+ */
+export const CEREMONY_HOUR = 'T15:00:00-03:00'
+
+/** The wedding day plus the ceremony hour — the moment the countdown lands on. */
+export function ceremonyMoment(eventDate: string): string {
+  return eventDate ? `${eventDate}${CEREMONY_HOUR}` : ''
+}
+
 export function formatEventDate(iso: string): string {
   return new Intl.DateTimeFormat('pt-BR', { dateStyle: 'long', timeZone: SAO_PAULO_TZ }).format(
     new Date(iso),

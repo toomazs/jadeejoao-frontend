@@ -86,6 +86,66 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/admin/groups/{group_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Rename an invitation
+         * @description Relabels the invitation — what the guest sees at the top of their card.
+         */
+        patch: operations["admin-rename-invitation"];
+        trace?: never;
+    };
+    "/api/v1/admin/groups/{group_id}/members": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Move a guest into an invitation
+         * @description Merges someone into this invitation, tidying away the one they leave behind if it empties. Unlike the guest-facing path, the couple may move anyone.
+         */
+        post: operations["admin-merge-into-invitation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/groups/{group_id}/primary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Hand an invitation to someone
+         * @description Makes this guest the one who answers for the invitation. Applied in a single statement, so the invitation never has two primaries or none.
+         */
+        post: operations["admin-set-primary"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/admin/guests": {
         parameters: {
             query?: never;
@@ -124,6 +184,30 @@ export interface paths {
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/api/v1/admin/guests/{guest_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete a guest
+         * @description Removes one person for good, and their invitation with them if it is left empty. Never happens automatically on import (AD-10).
+         */
+        delete: operations["admin-delete-guest"];
+        options?: never;
+        head?: never;
+        /**
+         * Edit a guest
+         * @description Corrects identity fields. Attendance is not editable here — it belongs to the RSVP flow.
+         */
+        patch: operations["admin-edit-guest"];
         trace?: never;
     };
     "/api/v1/admin/import": {
@@ -222,6 +306,26 @@ export interface paths {
          * @description Moderation exists so a future public guestbook wall is purely additive (AD-14).
          */
         patch: operations["admin-moderate-message"];
+        trace?: never;
+    };
+    "/api/v1/admin/password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Change the admin password
+         * @description Replaces the signed-in admin's password and clears the first-login obligation. The only admin operation reachable while that obligation stands; everything else answers 403 until it is done.
+         */
+        post: operations["change-admin-password"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/v1/admin/sections": {
@@ -528,6 +632,64 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        AdminGiftView: {
+            /** @description False quando o presente está escondido do site. */
+            active: boolean;
+            /**
+             * Format: int64
+             * @description Sum of admin-confirmed contributions. Always 0 for link gifts.
+             */
+            confirmed_centavos: number;
+            /**
+             * Format: int64
+             * @description Sum of declared (not yet confirmed) contributions. Always 0 for link gifts.
+             */
+            declared_centavos: number;
+            description?: string;
+            /**
+             * Format: uri
+             * @description The couple's registry URL (link gifts only).
+             */
+            external_url?: string;
+            /** Format: uuid */
+            gift_id: string;
+            /**
+             * Format: int64
+             * @description Goal amount in centavos (BRL). PIX gifts only.
+             */
+            goal_centavos?: number;
+            /** Format: uri */
+            image_url?: string;
+            /**
+             * @description pix: metas/cotas paid by PIX through the site. link: external store registry — the card redirects and no money flows through the API.
+             * @enum {string}
+             */
+            kind: "pix" | "link";
+            /**
+             * Format: int32
+             * @description Maximum sellable quota units; null means unlimited. PIX gifts only.
+             */
+            max_units?: number;
+            /**
+             * @description Store slug for link gifts; the SPAs map it to a local logo asset.
+             * @example mercadolivre
+             */
+            platform?: string;
+            /**
+             * Format: int64
+             * @description Fixed quota unit in centavos; contributions must be multiples. Null means free amount. PIX gifts only.
+             */
+            quota_centavos?: number;
+            /** Format: int32 */
+            sort: number;
+            /** @example Para o João fazer a barba */
+            title: string;
+            /**
+             * Format: int64
+             * @description Remaining quota units (only for unit-limited PIX gifts). Optimistic: declared + confirmed consume units.
+             */
+            units_left?: number;
+        };
         AdminGiftsOutputBody: {
             /**
              * Format: uri
@@ -535,7 +697,32 @@ export interface components {
              * @example https://example.com/schemas/AdminGiftsOutputBody.json
              */
             readonly $schema?: string;
-            gifts: components["schemas"]["GiftView"][] | null;
+            gifts: components["schemas"]["AdminGiftView"][] | null;
+        };
+        AdminMemberView: {
+            /** @description True quando o próprio convidado trouxe essa pessoa. */
+            added_by_guest: boolean;
+            /** @enum {string} */
+            attending: "pending" | "yes" | "no";
+            /** @enum {string} */
+            category?: "adult" | "teen" | "child" | "baby" | "elderly";
+            /** @description Padrinho, madrinha, celebrante… */
+            ceremony_role?: string;
+            /** @description Círculo social: amigos, família, trabalho. */
+            circle?: string;
+            full_name: string;
+            /** @enum {string} */
+            gender?: "female" | "male";
+            /** Format: uuid */
+            guest_id: string;
+            is_primary: boolean;
+            /** @description Anotação livre, normalmente parentesco. */
+            notes?: string;
+            /**
+             * @description De quem é o convidado.
+             * @enum {string}
+             */
+            side?: "bride" | "groom" | "both";
         };
         AnnouncementPayload: {
             /**
@@ -958,7 +1145,27 @@ export interface components {
             /** Format: uuid */
             group_id: string;
             label: string;
-            members: components["schemas"]["MemberView"][] | null;
+            members: components["schemas"]["AdminMemberView"][] | null;
+        };
+        GroupMemberInputBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/GroupMemberInputBody.json
+             */
+            readonly $schema?: string;
+            /** Format: uuid */
+            guest_id: string;
+        };
+        GroupRenameInputBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/GroupRenameInputBody.json
+             */
+            readonly $schema?: string;
+            /** @example Família Nascimento */
+            label: string;
         };
         GroupView: {
             /**
@@ -972,6 +1179,33 @@ export interface components {
             /** @example Eduardo e família */
             label: string;
             members: components["schemas"]["MemberView"][] | null;
+        };
+        GuestEditInputBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/GuestEditInputBody.json
+             */
+            readonly $schema?: string;
+            /** @enum {string} */
+            category?: "adult" | "teen" | "child" | "baby" | "elderly";
+            /** @example Madrinha */
+            ceremony_role?: string;
+            /**
+             * @description Círculo social: amigos, família, trabalho.
+             * @example Amigos
+             */
+            circle?: string;
+            full_name: string;
+            /** @enum {string} */
+            gender?: "female" | "male";
+            /** @description Anotação livre, normalmente parentesco. */
+            notes?: string;
+            /**
+             * @description De quem é o convidado.
+             * @enum {string}
+             */
+            side?: "bride" | "groom" | "both";
         };
         HeadcountsView: {
             /** Format: int64 */
@@ -1000,44 +1234,20 @@ export interface components {
              */
             status: string;
         };
-        HeroMilestone: {
-            /**
-             * Format: date
-             * @description Optional date shown above the label.
-             */
-            date?: string;
-            /**
-             * Format: uri
-             * @description Public CDN photo; the site shows brand art while empty.
-             */
-            image_url?: string;
-            /**
-             * @description Short caption under the arch.
-             * @example O pedido
-             */
-            label: string;
-        };
         HeroPayload: {
-            /** @description Rich text as Markdown. */
-            body?: string;
             /** @example Atibaia – SP */
             city_label: string;
-            /** @example Jade & João */
-            couple_names: string;
             /**
-             * Format: date-time
-             * @description Ceremony start, ISO 8601 with America/Sao_Paulo offset.
-             * @example 2027-08-07T15:00:00-03:00
+             * Format: date
+             * @description Dia do casamento.
+             * @example 2027-08-07
              */
-            event_datetime: string;
-            /** Format: uri */
+            event_date: string;
+            /**
+             * Format: uri
+             * @description The full-bleed photograph behind the wordmark.
+             */
             hero_image_url?: string;
-            /** @description Public CDN image URLs. */
-            images?: string[] | null;
-            /** @description Up to three story arches rendered beside the names. */
-            milestones?: components["schemas"]["HeroMilestone"][] | null;
-            /** @description Section heading shown on the site. */
-            title: string;
         };
         ImportOutputBody: {
             /**
@@ -1220,6 +1430,15 @@ export interface components {
             /** @enum {string} */
             status: "approved" | "rejected";
         };
+        OkOutputBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/OkOutputBody.json
+             */
+            readonly $schema?: string;
+            ok: boolean;
+        };
         OurStoryPayload: {
             announcement?: components["schemas"]["AnnouncementPayload"];
             /** @description Rich text as Markdown. */
@@ -1236,6 +1455,28 @@ export interface components {
             moments?: components["schemas"]["StoryMoment"][] | null;
             /** @description Section heading shown on the site. */
             title: string;
+        };
+        PasswordChangeInputBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/PasswordChangeInputBody.json
+             */
+            readonly $schema?: string;
+            /** @description A senha que você usou para entrar. */
+            current_password: string;
+            /** @description A nova senha, com pelo menos 10 caracteres. */
+            new_password: string;
+        };
+        PasswordChangeOutputBody: {
+            /**
+             * Format: uri
+             * @description A URL to the JSON Schema for this object.
+             * @example https://example.com/schemas/PasswordChangeOutputBody.json
+             */
+            readonly $schema?: string;
+            /** @description Sempre true; entre novamente com a senha nova. */
+            changed: boolean;
         };
         PersonPayload: {
             /** @description Short bio, written by the couple. */
@@ -1620,6 +1861,111 @@ export interface operations {
             };
         };
     };
+    "admin-rename-invitation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                group_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GroupRenameInputBody"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OkOutputBody"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "admin-merge-into-invitation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                group_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GroupMemberInputBody"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OkOutputBody"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "admin-set-primary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                group_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GroupMemberInputBody"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OkOutputBody"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
     "admin-guest-dashboard": {
         parameters: {
             query?: never;
@@ -1667,6 +2013,72 @@ export interface operations {
                 };
                 content: {
                     "application/json": string;
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "admin-delete-guest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                guest_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OkOutputBody"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "admin-edit-guest": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                guest_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["GuestEditInputBody"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OkOutputBody"];
                 };
             };
             /** @description Error */
@@ -1755,8 +2167,8 @@ export interface operations {
         requestBody?: {
             content: {
                 "multipart/form-data": {
-                    /** @description Optional accessibility text. */
-                    alt: string;
+                    /** @description Accessibility text. Optional, but worth filling: it is what a screen reader says in place of the photo. */
+                    alt?: string;
                     /** Format: binary */
                     file: string;
                 };
@@ -1866,6 +2278,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MessageView"];
+                };
+            };
+            /** @description Error */
+            default: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["ErrorModel"];
+                };
+            };
+        };
+    };
+    "change-admin-password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PasswordChangeInputBody"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PasswordChangeOutputBody"];
                 };
             };
             /** @description Error */

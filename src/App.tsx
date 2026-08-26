@@ -43,7 +43,7 @@ function renderSection(
         <BigDay
           key={section.slug}
           content={section.payload}
-          eventDatetime={hero?.event_datetime}
+          eventDate={hero?.event_date}
         />
       )
     case 'rsvp':
@@ -134,8 +134,7 @@ export function App() {
         ))}
       </main>
       <Footer
-        coupleNames={hero?.payload.couple_names}
-        eventDatetime={hero?.payload.event_datetime}
+        eventDate={hero?.payload.event_date}
       />
     </>
   )
