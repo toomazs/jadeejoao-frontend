@@ -31,7 +31,12 @@ const queryClient = new QueryClient({
     queries: {
       retry: 4,
       retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 15000),
-      refetchOnWindowFocus: true,
+      // A guest may leave the tab sleeping for hours, so coming back is a
+      // good moment to check. In the preview it is the opposite: the couple
+      // clicks between the panel and the site constantly, and every one of
+      // those clicks would be a round of refetches for a page whose data the
+      // panel is already handing over.
+      refetchOnWindowFocus: !isPreview(),
       refetchOnReconnect: true,
     },
   },

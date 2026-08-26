@@ -214,18 +214,26 @@ export async function previewFetch(request: Request): Promise<Response> {
 }
 
 /**
- * Everything the draft does not carry, fetched once and then replayed.
+ * The reads that cannot change while the panel is open, fetched once and then
+ * replayed.
  *
- * The preview is a rehearsal, not a visit: the Instagram feeds and the gift
- * list cannot change while somebody is typing a bio, so asking for them again
- * can only return what is already on screen. Without this the panel was
- * hammering the API — one request per feed per keystroke — and Instagram's
- * own rate limit is not a thing to spend on a preview.
+ * The Instagram feeds and the gift list are settled before the preview opens
+ * and nothing in the panel touches them, so asking again can only return what
+ * is already on screen — and Instagram's rate limit is not a thing to spend on
+ * a rehearsal.
+ *
+ * Deliberately not everything else. The guest lookups are typed into the
+ * preview by whoever is trying the form out, and they are the site's own
+ * behaviour: answering those from memory would be the preview lying about how
+ * the page works, which is the one thing it must not do.
  */
+const CACHEABLE = /^\/api\/v1\/(instagram\/|gifts$)/
+
 const replies = new Map<string, Promise<Response>>()
 
 function passthrough(request: Request): Promise<Response> {
   if (request.method !== 'GET') return fetch(request)
+  if (!CACHEABLE.test(new URL(request.url).pathname)) return fetch(request)
   const held = replies.get(request.url)
   if (held) {
     // A Response body reads once, so each caller gets its own copy.
