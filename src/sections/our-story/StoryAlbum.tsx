@@ -193,7 +193,11 @@ function Letter({ from, text, align }: { from: string; text: string; align: 'lef
       <p className="font-body text-xs tracking-[0.32em] text-terracotta uppercase">{from}</p>
       <div className="mt-4 space-y-4">
         {text.split(/\n+/).map((paragraph) => (
-          <p key={paragraph.slice(0, 24)} className="font-body text-lg leading-relaxed text-ink italic">
+          // No italic here. The whole letter was slanted by the stylesheet, so
+          // the panel could offer italic and change nothing — and the couple
+          // could never write a plain sentence inside a leaning one. The lean
+          // moved into the text itself, where they can take it back.
+          <p key={paragraph.slice(0, 24)} className="font-body text-lg leading-relaxed text-ink">
             <Inline text={paragraph} />
           </p>
         ))}
