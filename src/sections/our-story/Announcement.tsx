@@ -169,6 +169,9 @@ export function Announcement({ announcement }: AnnouncementProps) {
             <img
               src={announcement.image_url}
               alt={announcement.label}
+              // The panel points at this photo to place the wink, instead of
+              // asking the couple to guess two percentages.
+              data-pick="announcement-eye"
               className="h-full w-full object-cover"
               loading="eager"
             />

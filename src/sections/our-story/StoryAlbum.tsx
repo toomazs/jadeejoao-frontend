@@ -21,12 +21,21 @@ const TILTS = [-2.2, 1.9, -1.4, 2.4, -2.6, 1.3]
  * One instax frame, big enough to hold the room: wide white border, deep
  * bottom lip for the caption, the photo inset with a soft film sheen.
  */
-function InstaxFrame({ moment, index }: { moment: StoryMoment; index: number }) {
+function InstaxFrame({
+  moment,
+  index,
+  anchorId,
+}: {
+  moment: StoryMoment
+  index: number
+  anchorId?: string
+}) {
   const tilt = TILTS[index % TILTS.length]
   const onLeft = index % 2 === 0
   return (
     <Reveal
       as="li"
+      id={anchorId}
       className={`relative z-10 flex justify-center py-10 sm:py-14 ${
         onLeft ? 'lg:justify-start lg:pl-6' : 'lg:justify-end lg:pr-6'
       }`}
@@ -223,7 +232,14 @@ export function StoryAlbum({ title, moments, letterFromGroom, letterFromBride }:
           <StoryThread geometry={geometry} draw={reduced ? 1 : progress} />
           <ol className="relative">
             {moments.map((moment, index) => (
-              <InstaxFrame key={moment.image_url} moment={moment} index={index} />
+              <InstaxFrame
+                key={moment.image_url}
+                moment={moment}
+                index={index}
+                // Addressable so the panel can scroll the preview to the exact
+                // frame being edited, instead of to the top of the album.
+                anchorId={`moment-${index}`}
+              />
             ))}
           </ol>
         </div>

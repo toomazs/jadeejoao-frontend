@@ -7,6 +7,8 @@ interface RevealProps {
   /** Stagger offset in milliseconds. */
   delay?: number
   className?: string
+  /** Anchor, so the admin preview can scroll to this exact element. */
+  id?: string
   children?: ReactNode
 }
 
@@ -14,7 +16,7 @@ interface RevealProps {
  * Enters once when ~18% visible: opacity/translate handled by the `.reveal`
  * classes in global.css. Under reduced motion the element is simply visible.
  */
-export function Reveal({ as = 'div', delay = 0, className = '', children }: RevealProps) {
+export function Reveal({ as = 'div', delay = 0, className = '', id, children }: RevealProps) {
   const ref = useRef<HTMLElement | null>(null)
   const [shown, setShown] = useState(false)
 
@@ -44,7 +46,7 @@ export function Reveal({ as = 'div', delay = 0, className = '', children }: Reve
 
   return createElement(
     as,
-    { ref, style, className: `reveal ${shown ? 'is-revealed' : ''} ${className}` },
+    { ref, id, style, className: `reveal ${shown ? 'is-revealed' : ''} ${className}` },
     children,
   )
 }
