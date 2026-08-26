@@ -37,12 +37,19 @@ const queryClient = new QueryClient({
   },
 })
 
-// In preview, every draft the panel posts must reach the screen. Invalidating
-// is enough: the transport already holds the newest draft, so the refetch it
-// triggers resolves against that rather than the network.
+// In preview, every draft the panel posts must reach the screen. Only the two
+// endpoints the draft actually carries are invalidated: a bare
+// invalidateQueries() also refetched the Instagram feeds and the gift list,
+// which the transport hands to the network — so a single typed letter fired
+// four requests at the real API, and a sentence fired a hundred.
 if (isPreview()) {
   installPreviewBridge(() => {
-    void queryClient.invalidateQueries()
+    void queryClient.invalidateQueries({
+      predicate: (query) => {
+        const path = query.queryKey[1]
+        return path === '/api/v1/content' || path === '/api/v1/gifts'
+      },
+    })
   })
 }
 

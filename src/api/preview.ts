@@ -199,7 +199,7 @@ export async function previewFetch(request: Request): Promise<Response> {
   const { pathname } = new URL(request.url)
   const mine = pathname === '/api/v1/content' || pathname === '/api/v1/gifts'
   if (request.method !== 'GET' || !mine) {
-    return fetch(request)
+    return passthrough(request)
   }
 
   await firstDraft
@@ -210,5 +210,32 @@ export async function previewFetch(request: Request): Promise<Response> {
     return json(draft.gifts)
   }
   // The panel is not editing this one — show what guests would see.
-  return fetch(request)
+  return passthrough(request)
+}
+
+/**
+ * Everything the draft does not carry, fetched once and then replayed.
+ *
+ * The preview is a rehearsal, not a visit: the Instagram feeds and the gift
+ * list cannot change while somebody is typing a bio, so asking for them again
+ * can only return what is already on screen. Without this the panel was
+ * hammering the API — one request per feed per keystroke — and Instagram's
+ * own rate limit is not a thing to spend on a preview.
+ */
+const replies = new Map<string, Promise<Response>>()
+
+function passthrough(request: Request): Promise<Response> {
+  if (request.method !== 'GET') return fetch(request)
+  const held = replies.get(request.url)
+  if (held) {
+    // A Response body reads once, so each caller gets its own copy.
+    return held.then((response) => response.clone())
+  }
+  const asked = fetch(request).then((response) => {
+    // A failure is not worth remembering: the next render should try again.
+    if (!response.ok) replies.delete(request.url)
+    return response
+  })
+  replies.set(request.url, asked)
+  return asked.then((response) => response.clone())
 }
