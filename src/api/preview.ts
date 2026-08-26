@@ -118,7 +118,9 @@ function scrollPreviewTo(id: string): void {
   const target = document.getElementById(id)
   if (!target) return
   const top = target.getBoundingClientRect().top + window.scrollY
-  window.scrollTo({ top, behavior: 'smooth' })
+  // Instant, not smooth: opening an accordion should show that part now, and
+  // a glide across a few thousand pixels is time spent watching the page go by.
+  window.scrollTo({ top, behavior: 'auto' })
 }
 
 /* ------------------------------------------------------------- picking */

@@ -4,6 +4,8 @@ import type { CSSProperties } from 'react'
 import { seg, useChapterProgress, usePrefersReducedMotion } from '../../lib/scrollytelling'
 
 interface InvitationInterludeProps {
+  /** Anchor, so the panel can jump straight to this interlude. */
+  id?: string
   /** The invitation sentence (our_story.body), revealed word by word. */
   text: string
 }
@@ -119,7 +121,7 @@ function SeriguelaFrond({ className = '', style }: { className?: string; style?:
  * couple's sentence arrives — word by word, out of nothing, while the page
  * scrolls. No navbar here either (data-nav-hide).
  */
-export function InvitationInterlude({ text }: InvitationInterludeProps) {
+export function InvitationInterlude({ id, text }: InvitationInterludeProps) {
   const reduced = usePrefersReducedMotion()
   const ref = useRef<HTMLElement>(null)
   const progress = useChapterProgress(ref, !reduced)
@@ -151,7 +153,7 @@ export function InvitationInterlude({ text }: InvitationInterludeProps) {
 
   if (reduced) {
     return (
-      <section ref={ref} data-nav-hide="" className="bg-terracotta px-5 py-24">
+      <section ref={ref} id={id} data-nav-hide="" className="bg-terracotta px-5 py-24">
         <div className="mx-auto flex max-w-4xl flex-col items-center text-center">
           <SeriguelaDrawing draw={1} className="h-52 w-auto sm:h-72" />
           {sentence}
@@ -161,7 +163,7 @@ export function InvitationInterlude({ text }: InvitationInterludeProps) {
   }
 
   return (
-    <section ref={ref} data-nav-hide="" className="relative bg-terracotta" style={{ height: '260vh' }}>
+    <section ref={ref} id={id} data-nav-hide="" className="relative bg-terracotta" style={{ height: '260vh' }}>
       <div className="sticky top-0 flex h-svh items-center justify-center overflow-hidden px-5">
         {/* Berry fronds turning with the scroll, one each way — kin, not clones. */}
         <SeriguelaFrond

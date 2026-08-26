@@ -245,7 +245,7 @@ export function StoryAlbum({ title, moments, letterFromGroom, letterFromBride }:
         </div>
 
         {letterFromGroom || letterFromBride ? (
-          <div className="mt-20 flex flex-col gap-14 border-t border-olive-line pt-16">
+          <div id="letters" className="mt-20 flex flex-col gap-14 border-t border-olive-line pt-16">
             {letterFromGroom ? (
               <Letter from={uiStrings.letters.fromGroom} text={letterFromGroom} align="left" />
             ) : null}

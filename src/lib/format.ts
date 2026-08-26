@@ -12,13 +12,23 @@ export const CEREMONY_HOUR = 'T15:00:00-03:00'
 
 /** The wedding day plus the ceremony hour — the moment the countdown lands on. */
 export function ceremonyMoment(eventDate: string): string {
-  return eventDate ? `${eventDate}${CEREMONY_HOUR}` : ''
+  return eventDate ? withOffset(eventDate) : ''
 }
 
 export function formatEventDate(iso: string): string {
   return new Intl.DateTimeFormat('pt-BR', { dateStyle: 'long', timeZone: SAO_PAULO_TZ }).format(
-    new Date(iso),
+    new Date(withOffset(iso)),
   )
+}
+
+/**
+ * A bare `2027-08-07` is parsed as midnight UTC, which in São Paulo is the
+ * evening of the 6th — so the wedding date printed a day early. Anchoring it
+ * to the ceremony hour in the venue's own timezone puts it back where the
+ * couple wrote it.
+ */
+function withOffset(value: string): string {
+  return /^\d{4}-\d{2}-\d{2}$/.test(value.trim()) ? `${value.trim()}${CEREMONY_HOUR}` : value
 }
 
 /** Wall-clock time ("15:00") from an ISO datetime, pinned to the event timezone (AD-11). */

@@ -19,7 +19,11 @@ export function OurStory({ content }: OurStoryProps) {
     <>
       {content.bride ? (
         <PersonChapter
+          // Two ids on purpose: `our_story` is the section anchor the nav and
+          // the panel's section list use; `chapter-bride` is the finer target
+          // the panel jumps to when her accordion opens.
           id="our_story"
+          anchorId="chapter-bride"
           person={content.bride}
           personKey="bride"
           roleLabel={uiStrings.couple.bride}
@@ -29,6 +33,7 @@ export function OurStory({ content }: OurStoryProps) {
       ) : null}
       {content.groom ? (
         <PersonChapter
+          anchorId="chapter-groom"
           person={content.groom}
           personKey="groom"
           roleLabel={uiStrings.couple.groom}
@@ -42,7 +47,7 @@ export function OurStory({ content }: OurStoryProps) {
         letterFromGroom={content.letter_from_groom}
         letterFromBride={content.letter_from_bride}
       />
-      {content.body ? <InvitationInterlude text={content.body} /> : null}
+      {content.body ? <InvitationInterlude id="invitation" text={content.body} /> : null}
       {content.announcement ? <Announcement announcement={content.announcement} /> : null}
     </>
   )

@@ -145,6 +145,7 @@ export function Announcement({ announcement }: AnnouncementProps) {
   return (
     <section
       ref={ref}
+      id="announcement"
       aria-label={announcement.label}
       data-nav-hide=""
       className="relative bg-terracotta"

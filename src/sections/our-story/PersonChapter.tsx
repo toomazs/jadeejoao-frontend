@@ -20,6 +20,8 @@ interface PersonChapterProps {
   tone: 'gray' | 'olive'
   /** Anchor id, carried by the first chapter of the story block. */
   id?: string
+  /** A second anchor, so the panel can jump to this chapter specifically. */
+  anchorId?: string
 }
 
 /** Instagram outline glyph (lucide dropped brand icons — drawn inline). */
@@ -58,7 +60,15 @@ function InstagramGlyph({
  * person's Instagram feed. Without a configured feed the second scene shows
  * the profile link; under reduced motion everything renders statically.
  */
-export function PersonChapter({ person, personKey, roleLabel, align, tone, id }: PersonChapterProps) {
+export function PersonChapter({
+  person,
+  personKey,
+  roleLabel,
+  align,
+  tone,
+  id,
+  anchorId,
+}: PersonChapterProps) {
   const reduced = usePrefersReducedMotion()
   const ref = useRef<HTMLElement>(null)
   const progress = useChapterProgress(ref, !reduced)
@@ -277,6 +287,7 @@ export function PersonChapter({ person, personKey, roleLabel, align, tone, id }:
         data-nav-hide=""
         className={`${ground} px-5 py-20 sm:px-10`}
       >
+        {anchorId ? <span id={anchorId} aria-hidden="true" /> : null}
         {introContent}
         {hasBioScene ? <div className="mt-14">{bioContent}</div> : null}
         {hasFeedScene ? <div className="mt-16">{postsContent}</div> : null}
@@ -293,6 +304,9 @@ export function PersonChapter({ person, personKey, roleLabel, align, tone, id }:
       className={`relative ${ground}`}
       style={{ height: `${100 + (hasBioScene ? 160 : 0) + (hasFeedScene ? 220 : 100)}vh` }}
     >
+      {/* A separate anchor from `id`: the section id is the nav's, while this
+          is what the admin preview jumps to when this chapter is opened. */}
+      {anchorId ? <span id={anchorId} aria-hidden="true" /> : null}
       <div className="sticky top-0 h-svh overflow-hidden">
         <div
           className="absolute inset-0 flex items-center px-5 sm:px-10"

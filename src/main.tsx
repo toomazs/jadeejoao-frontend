@@ -7,8 +7,11 @@ import { isPreview, installPreviewBridge } from './api/preview'
 import { App } from './App'
 import './styles/global.css'
 
-// Lenis smooth scrolling — skipped entirely under reduced motion.
-if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+// Lenis smooth scrolling — skipped under reduced motion, and skipped in the
+// admin preview: it owns the scroll position, so the panel asking the page to
+// jump to a chapter was quietly overruled and nothing moved. A working surface
+// wants to arrive, not to glide four thousand pixels.
+if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches && !isPreview()) {
   const lenis = new Lenis({ lerp: 0.12, anchors: true })
   const raf = (time: number) => {
     lenis.raf(time)
