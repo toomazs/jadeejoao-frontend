@@ -13,7 +13,6 @@ export const SECTION_ORDER = [
   'stay',
   'gifts_intro',
   'dress_code',
-  'good_practices',
   'messages_intro',
 ] as const satisfies readonly NonNullable<Section['slug']>[]
 
@@ -36,10 +35,6 @@ export type StayContent = WithArrays<
 >
 export type GiftsIntroContent = WithArrays<components['schemas']['GiftsIntroPayload'], 'images'>
 export type DressCodeContent = WithArrays<components['schemas']['DressCodePayload'], 'images'>
-export type GoodPracticesContent = WithArrays<
-  components['schemas']['GoodPracticesPayload'],
-  'images' | 'rules'
->
 export type MessagesIntroContent = WithArrays<components['schemas']['MessagesIntroPayload'], 'images'>
 
 /** One entry per enabled section, discriminated by slug, in fixed render order. */
@@ -52,7 +47,6 @@ export type NormalizedSection =
   | { slug: 'stay'; payload: StayContent }
   | { slug: 'gifts_intro'; payload: GiftsIntroContent }
   | { slug: 'dress_code'; payload: DressCodeContent }
-  | { slug: 'good_practices'; payload: GoodPracticesContent }
   | { slug: 'messages_intro'; payload: MessagesIntroContent }
 
 const arr = <T,>(value: readonly T[] | null | undefined): T[] => (value ? [...value] : [])
@@ -130,18 +124,6 @@ export function normalizeContent(body: ContentOutputBody): NormalizedSection[] {
   const dressCode = bySlug('dress_code')
   if (dressCode) {
     view.push({ slug: 'dress_code', payload: { ...dressCode, images: arr(dressCode.images) } })
-  }
-
-  const goodPractices = bySlug('good_practices')
-  if (goodPractices) {
-    view.push({
-      slug: 'good_practices',
-      payload: {
-        ...goodPractices,
-        images: arr(goodPractices.images),
-        rules: arr(goodPractices.rules),
-      },
-    })
   }
 
   const messagesIntro = bySlug('messages_intro')

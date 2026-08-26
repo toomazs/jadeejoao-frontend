@@ -133,21 +133,6 @@ export const fixtureContent: ContentOutputBody = {
       },
     },
     {
-      slug: 'good_practices',
-      enabled: true,
-      good_practices: {
-        title: 'Para Aproveitar Nosso Dia',
-        body: 'Algumas combinações carinhosas para o nosso dia sair perfeito:',
-        images: [],
-        rules: [
-          'Deixe as opiniões polêmicas em casa — dia de casamento não é dia de discutir',
-          'O open bar é generoso, mas não vire decoração no chão',
-          'Se beber, não dirija: haverá translado para os hotéis sugeridos',
-          'Aproveite muito, dance e celebre com a gente!',
-        ],
-      },
-    },
-    {
       slug: 'messages_intro',
       enabled: true,
       messages_intro: {

@@ -131,5 +131,4 @@ export const navItems: readonly NavItem[] = [
   { anchor: 'gifts_intro', label: 'Presenteie os noivos', short: 'Presentes' },
   { anchor: 'stay', label: 'Estadia', short: 'Estadia' },
   { anchor: 'dress_code', label: 'Vestimenta', short: 'Vestimenta' },
-  { anchor: 'good_practices', label: 'Boas Práticas', short: 'Boas práticas' },
 ]

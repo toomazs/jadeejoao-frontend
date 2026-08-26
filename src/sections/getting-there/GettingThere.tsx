@@ -68,16 +68,19 @@ export function GettingThere({ content, stay }: GettingThereProps) {
     <SectionShell slug="getting_there" title={content.title} tone="veil" width="wide">
       <div className="grid gap-10 lg:grid-cols-2 lg:items-start">
         <div className="flex flex-col">
-          <p className="font-body text-xl leading-relaxed text-olive sm:text-2xl">
+          {content.body ? (
+            <Markdown text={content.body} className="max-w-prose font-body text-lg leading-relaxed" />
+          ) : null}
+
+          {/* Below the text, matching the order the panel edits them in — the
+              couple writes the sentence first and the address after it. */}
+          <p
+            className={`font-body text-xl leading-relaxed text-olive sm:text-2xl ${
+              content.body ? 'mt-6' : ''
+            }`}
+          >
             {content.address}
           </p>
-
-          {content.body ? (
-            <Markdown
-              text={content.body}
-              className="mt-6 max-w-prose font-body text-lg leading-relaxed"
-            />
-          ) : null}
 
           {content.parking_notes ? (
             <p className="mt-6 max-w-prose border-t border-sand-line pt-5 font-body text-base text-dark-gray italic">
