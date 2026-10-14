@@ -46,12 +46,18 @@ function InstaxFrame({
         style={{ rotate: `${tilt}deg` }}
       >
         <div className="relative aspect-square overflow-hidden bg-dark-gray">
-          <img
-            src={moment.image_url}
-            alt={moment.label}
-            loading="lazy"
-            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
-          />
+          {/* An empty src is not an empty image: the browser resolves it
+              against the page and fetches the document itself, then draws the
+              broken-image mark. A moment is born without a photo in the panel,
+              so the preview met that state every time one was added. */}
+          {moment.image_url ? (
+            <img
+              src={moment.image_url}
+              alt={moment.label}
+              loading="lazy"
+              className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.04]"
+            />
+          ) : null}
           {/* Film sheen, the diagonal gleam of a real instax print. */}
           <span
             aria-hidden="true"
@@ -240,7 +246,14 @@ export function StoryAlbum({ title, moments, letterFromGroom, letterFromBride }:
           <ol className="relative">
             {moments.map((moment, index) => (
               <InstaxFrame
-                key={moment.image_url}
+                // The position, not the photo. A moment the couple has just
+                // added has no photo yet, so two fresh ones were both keyed on
+                // the empty string — duplicate keys, and React dropped a frame
+                // while the thread below still measured the list it expected.
+                // Changing a photo also swapped the key and remounted the frame
+                // mid-measure. Position is what this list is: the anchor, the
+                // tilt and the side all read from it already.
+                key={index}
                 moment={moment}
                 index={index}
                 // Addressable so the panel can scroll the preview to the exact
