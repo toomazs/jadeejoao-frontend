@@ -439,9 +439,27 @@ function GiftCard({ gift, index }: { gift: GiftView; index: number }) {
       }
     >
       <Progress gift={gift} />
-      {typeof gift.units_left === 'number' ? (
+      {/* What a quota costs, on the card.
+          It was only legible once the PIX sheet was open, which made "12 cotas
+          restantes" a count of an unknown thing — and deciding whether to give
+          is deciding about a price. Hung on the price rather than on the count,
+          because a gift can have quotas without limiting how many. */}
+      {gift.quota_centavos || typeof gift.units_left === 'number' ? (
         <p className="mt-2 font-body text-sm text-dark-gray">
-          {gift.units_left} {uiStrings.gifts.unitsLeftSuffix}
+          {gift.quota_centavos ? (
+            <>
+              {uiStrings.gifts.quotaEach}{' '}
+              <span className="text-ink">{formatCentavos(gift.quota_centavos)}</span>
+            </>
+          ) : null}
+          {gift.quota_centavos && typeof gift.units_left === 'number' ? ' · ' : null}
+          {typeof gift.units_left === 'number'
+            ? `${gift.units_left} ${
+                gift.units_left === 1
+                  ? uiStrings.gifts.oneUnitLeft
+                  : uiStrings.gifts.unitsLeftSuffix
+              }`
+            : null}
         </p>
       ) : null}
       <PixFlow gift={gift} />

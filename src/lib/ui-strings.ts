@@ -90,6 +90,10 @@ export const uiStrings = {
     pendingNote: 'Você avisa que fez o PIX e os noivos confirmam quando o dinheiro chega.',
     quotaSingular: 'cota de',
     unitsLeftSuffix: 'cotas restantes',
+    /** When the gift is down to its last quota. */
+    oneUnitLeft: 'cota restante',
+    /** Reads as "Cota de R$ 60,00" — what one share costs. */
+    quotaEach: 'Cota de',
     amountLabel: 'Valor (R$)',
     quotasLabel: 'Quantidade de cotas',
     close: 'Fechar',
