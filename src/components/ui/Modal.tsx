@@ -19,6 +19,8 @@ interface ModalProps {
  */
 export function Modal({ open, onClose, title, children }: ModalProps) {
   const ref = useRef<HTMLDialogElement>(null)
+  /** Whether the press that is ending began on the backdrop. */
+  const startedOutside = useRef(false)
   const [closing, setClosing] = useState(false)
 
   useEffect(() => {
@@ -62,8 +64,16 @@ export function Modal({ open, onClose, title, children }: ModalProps) {
       aria-label={title}
       onClose={onClose}
       // Clicking the backdrop (the dialog itself, outside its content) closes.
+      // Only when the press *began* on the backdrop too. A click fires on the
+      // nearest ancestor of where the button went down and where it came up —
+      // so selecting the copia-e-cola and releasing past the edge of the sheet
+      // fires one on the dialog itself, which reads exactly like a click on the
+      // backdrop. Dragging to copy a PIX code closed the sheet mid-copy.
+      onPointerDown={(event) => {
+        startedOutside.current = event.target === ref.current
+      }}
       onClick={(event) => {
-        if (event.target === ref.current) onClose()
+        if (event.target === ref.current && startedOutside.current) onClose()
       }}
       className={`m-auto w-[min(30rem,calc(100vw-2rem))] border border-olive-line bg-cream p-0 text-ink backdrop:bg-ink/60 backdrop:backdrop-blur-sm ${
         closing ? 'modal-out' : 'modal-in'
