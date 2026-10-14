@@ -61,7 +61,7 @@ export function Footer({ eventDate }: FooterProps) {
         <p className="font-body text-xs tracking-[0.12em] text-cream/50 sm:text-right">
           {uiStrings.madeBy}{' '}
           <a
-            href="https://instagram.com/tomazdudux"
+            href="https://www.linkedin.com/in/eduardotoomazs/"
             target="_blank"
             rel="noopener noreferrer"
             className="underline decoration-cream/30 underline-offset-4 transition-colors hover:text-gold-sand"

@@ -153,7 +153,8 @@ export function InvitationInterlude({ id, text }: InvitationInterludeProps) {
 
   if (reduced) {
     return (
-      <section ref={ref} id={id} data-nav-hide="" className="bg-terracotta px-5 py-24">
+      <section ref={ref} id={id} data-nav-hide=""
+      data-tone="dark" className="bg-terracotta px-5 py-24">
         <div className="mx-auto flex max-w-4xl flex-col items-center text-center">
           <SeriguelaDrawing draw={1} className="h-52 w-auto sm:h-72" />
           {sentence}
@@ -163,7 +164,8 @@ export function InvitationInterlude({ id, text }: InvitationInterludeProps) {
   }
 
   return (
-    <section ref={ref} id={id} data-nav-hide="" className="relative bg-terracotta" style={{ height: '260vh' }}>
+    <section ref={ref} id={id} data-nav-hide=""
+      data-tone="dark" className="relative bg-terracotta" style={{ height: '260vh' }}>
       <div className="sticky top-0 flex h-svh items-center justify-center overflow-hidden px-5">
         {/* Berry fronds turning with the scroll, one each way — kin, not clones. */}
         <SeriguelaFrond

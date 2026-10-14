@@ -324,9 +324,55 @@
     animation: marquee 48s linear infinite;
   }
 
+  /* The second row of the guestbook wall, travelling the other way. Two rows
+     going the same direction read as one wide thing sliding; opposed, they read
+     as a wall of separate voices. */
+  .marquee-track-back {
+    animation: marquee 48s linear infinite reverse;
+  }
+
+  /* It holds still while somebody is reading it — both rows, because stopping
+     only the one under the cursor leaves the other pulling the eye away. */
+  .marquee-hold:hover .marquee-track,
+  .marquee-hold:hover .marquee-track-back,
+  .marquee-hold:focus-within .marquee-track,
+  .marquee-hold:focus-within .marquee-track-back {
+    animation-play-state: paused;
+  }
+
   @keyframes marquee {
     to {
       transform: translateX(-50%);
+    }
+  }
+
+  /*
+   * The big branches that frame a room, as against the faint ones tucked in its
+   * corners.
+   *
+   * Those turn over 140 seconds, which is the right setting for something you
+   * should notice only if you stop and look. At this size that reading is
+   * simply "not moving" — nobody watches one plant for two minutes. Half a
+   * minute is still calm and is actually seen.
+   *
+   * Two durations, so the pair never swings in step. Branches that move
+   * together read as one object; apart, as two plants in the same breeze.
+   */
+  .sprig-sway {
+    animation: sprig-sway 26s ease-in-out infinite alternate;
+  }
+  .sprig-sway-late {
+    animation: sprig-sway 34s ease-in-out infinite alternate-reverse;
+  }
+
+  @keyframes sprig-sway {
+    from {
+      rotate: -3.5deg;
+      translate: 0 0;
+    }
+    to {
+      rotate: 3.5deg;
+      translate: 0 -2rem;
     }
   }
 

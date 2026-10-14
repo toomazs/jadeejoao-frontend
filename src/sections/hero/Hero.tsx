@@ -19,6 +19,7 @@ export function Hero({ content }: HeroProps) {
   return (
     <section
       id="hero"
+      data-tone="dark"
       aria-labelledby="hero-heading"
       className="relative flex min-h-svh flex-col justify-end overflow-hidden bg-deep-olive"
     >
@@ -28,6 +29,16 @@ export function Hero({ content }: HeroProps) {
             src={photo}
             alt=""
             className="kenburns h-full w-full object-cover"
+            // Which point of the photograph has to stay in frame. The crop is
+            // the window's shape, and on a phone that window keeps about a
+            // quarter of the picture's width — by default the middle quarter,
+            // which in a photograph of two people is often neither of them.
+            //
+            // Zero is unset, not the left edge: a payload written before this
+            // field existed must keep framing exactly as it did.
+            style={{
+              objectPosition: `${content.focus_x || 50}% ${content.focus_y || 50}%`,
+            }}
             loading="eager"
             fetchPriority="high"
           />

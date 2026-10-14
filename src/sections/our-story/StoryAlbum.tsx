@@ -228,6 +228,7 @@ export function StoryAlbum({ title, moments, letterFromGroom, letterFromBride }:
   return (
     <section
       id="story_album"
+      data-tone="light"
       aria-labelledby="story-album-title"
       className="bg-veil px-4 py-24 sm:px-8 sm:py-32"
     >

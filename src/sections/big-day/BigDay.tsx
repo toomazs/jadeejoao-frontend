@@ -183,6 +183,7 @@ export function BigDay({ content, eventDate }: BigDayProps) {
   return (
     <section
       id="big_day"
+      data-tone="light"
       aria-labelledby="big_day-heading"
       className="relative overflow-hidden bg-cream px-4 py-20 sm:px-8 sm:py-28"
     >

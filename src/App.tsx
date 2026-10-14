@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from 'react'
+import { Fragment, useEffect, useRef, useState } from 'react'
 
 import { $api } from './api/client'
 import { isPreview } from './api/preview'
@@ -85,6 +85,34 @@ export function App() {
       clearTimeout(gone)
     }
   }, [preview])
+
+  /**
+   * Landing on the section a link named.
+   *
+   * The browser scrolls to the hash as soon as the document is parsed, and at
+   * that moment this page is a curtain: the sections do not exist yet, so there
+   * is nothing to scroll to and the attempt is quietly dropped. Opening
+   * /#gifts_intro, or pressing F5 on it, left you at the top.
+   *
+   * So it is done again once the section is actually on the page. Only once —
+   * after that the hash belongs to whoever is clicking the nav, and re-running
+   * this would drag them back.
+   */
+  const landed = useRef(false)
+  useEffect(() => {
+    if (landed.current || contentQuery.isPending || !curtainLifting) return
+    const id = decodeURIComponent(window.location.hash.slice(1))
+    if (!id) {
+      landed.current = true
+      return
+    }
+    const target = document.getElementById(id)
+    // Not there yet is not the same as not coming: a section still rendering
+    // gets another pass rather than a cancelled jump.
+    if (!target) return
+    landed.current = true
+    target.scrollIntoView()
+  })
 
   const ready = curtainLifting && !contentQuery.isPending
 

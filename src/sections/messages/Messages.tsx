@@ -5,7 +5,11 @@ import { Button } from '../../components/ui/Button'
 import { GuestNameField } from '../../components/ui/GuestNameField'
 import { LeafGlyph } from '../../components/ui/LeafGlyph'
 import { Markdown } from '../../components/ui/Markdown'
+import { RichTextField } from '../../components/ui/RichTextField'
+import { SeriguelaSprig } from '../../components/ui/Botanicals'
 import { SectionShell } from '../../components/ui/SectionShell'
+import { MessageWall } from './MessageWall'
+import type { WallMessage } from './MessageWall'
 import type { MessagesIntroContent } from '../../lib/content'
 import { usePrefersReducedMotion } from '../../lib/scrollytelling'
 import { uiStrings } from '../../lib/ui-strings'
@@ -17,6 +21,58 @@ interface MessagesProps {
 /** How long the invitation takes to bow out, matched to the .card-out keyframe. */
 const LEAVE_MS = 320
 
+/** What the API accepts in `body`, so the field says so before the server does. */
+const BODY_MAX = 2000
+
+/**
+ * The seriguela of the invitation, blown up and running off both edges of the
+ * window.
+ *
+ * The default pair of plants is set small and faint in two corners, which is
+ * right for a room of text. This is the room where people leave their names,
+ * and the branch the whole invitation is built around earns being what frames
+ * it — big enough that it leaves the screen rather than sitting inside it, so
+ * the page feels like a crop of something larger.
+ *
+ * The right one is the left one mirrored, not the left one rotated. Turned
+ * instead of flipped it reads as the same drawing knocked over — the leaves end
+ * up climbing the wrong way against the stem, which the eye catches even when
+ * it cannot say why.
+ *
+ * They arrive whole. Drawing themselves in was tried and was worse: a branch
+ * assembling itself behind a form pulls the eye to the background, which is the
+ * one thing a background must not do.
+ *
+ * Diagonal by `transform`, swaying by the `rotate` and `translate` the keyframe
+ * animates — separate properties in CSS, so they compose instead of
+ * overwriting, and the branch keeps its lean while it breathes.
+ */
+function SeriguelaBorder() {
+  /**
+   * Smaller and fainter on a phone.
+   *
+   * A branch that frames a desk-width room fills a phone instead: at 44rem on a
+   * screen 420px across, the two of them met in the middle and the form was
+   * being read through foliage. Here they keep to the edges — about a fifth of
+   * the width each — and leave the middle alone.
+   */
+  const sprig =
+    'absolute -top-24 h-[24rem] w-auto text-gold-sand opacity-20 sm:-top-40 sm:h-[64rem] sm:opacity-30'
+
+  return (
+    <>
+      <SeriguelaSprig
+        className={`${sprig} sprig-sway -left-36 sm:-left-52`}
+        style={{ transform: 'rotate(-24deg)' }}
+      />
+      <SeriguelaSprig
+        className={`${sprig} sprig-sway-late -right-36 sm:-right-52`}
+        style={{ transform: 'scaleX(-1) rotate(-24deg)' }}
+      />
+    </>
+  )
+}
+
 function problemDetail(error: unknown): string {
   if (error && typeof error === 'object' && 'detail' in error && typeof error.detail === 'string') {
     return error.detail
@@ -24,16 +80,53 @@ function problemDetail(error: unknown): string {
   return uiStrings.genericActionError
 }
 
-/** The guestbook: write-only — the couple reads every recado in their panel (AD-14). */
+/**
+ * The guestbook: you write, and what you write goes up on the wall below for
+ * everyone who comes after you (AD-14).
+ *
+ * The wall is most of the reason anybody writes in one. Seeing other people's
+ * words is what turns "leave a message" from a form into something you want to
+ * add your name to.
+ */
 export function Messages({ content }: MessagesProps) {
   const bodyId = useId()
   const reduced = usePrefersReducedMotion()
   const [author, setAuthor] = useState('')
   const [body, setBody] = useState('')
   const [invitationGone, setInvitationGone] = useState(false)
-  const send = $api.useMutation('post', '/api/v1/messages')
+  const wall = $api.useQuery('get', '/api/v1/messages', {}, { staleTime: 30_000 })
 
-  const canSend = author.trim().length > 0 && body.trim().length > 0 && !send.isPending
+  /**
+   * Their own recado, held here until the server's copy comes back.
+   *
+   * Sending and then waiting for a refetch means a second or two where the wall
+   * does not have what they just wrote — long enough to wonder whether it
+   * worked, on the one screen where that doubt matters. So it goes up at once,
+   * and the refetch quietly replaces it with the real row.
+   */
+  const [justSent, setJustSent] = useState<WallMessage | null>(null)
+  const send = $api.useMutation('post', '/api/v1/messages', {
+    onSuccess: (created) => {
+      setJustSent({
+        message_id: created.message_id,
+        author_name: author.trim(),
+        body: body.trim(),
+      })
+      void wall.refetch()
+    },
+  })
+
+  const fromServer = wall.data?.messages ?? []
+  const shown =
+    justSent && !fromServer.some((m) => m.message_id === justSent.message_id)
+      ? [justSent, ...fromServer]
+      : fromServer
+
+  const canSend =
+    author.trim().length > 0 &&
+    body.trim().length > 0 &&
+    body.length <= BODY_MAX &&
+    !send.isPending
 
   /**
    * The invitation to write leaves before the thank-you arrives. Keeping the
@@ -51,7 +144,12 @@ export function Messages({ content }: MessagesProps) {
   }, [send.isSuccess, reduced])
 
   return (
-    <SectionShell slug="messages_intro" title={content.title} tone="olive">
+    <SectionShell
+      slug="messages_intro"
+      title={content.title}
+      tone="olive"
+      decor={<SeriguelaBorder />}
+    >
       {invitationGone ? (
         <div
           role="status"
@@ -90,15 +188,15 @@ export function Messages({ content }: MessagesProps) {
               <label htmlFor={bodyId} className="font-body text-sm text-gold-sand">
                 {uiStrings.messagesForm.bodyLabel}
               </label>
-              <textarea
-                id={bodyId}
-                value={body}
-                onChange={(event) => setBody(event.target.value)}
-                placeholder={uiStrings.messagesForm.bodyPlaceholder}
-                rows={5}
-                maxLength={2000}
-                className="mt-1.5 w-full resize-y border border-gold-sand/45 bg-cream/10 px-4 py-3 font-body text-lg text-cream placeholder:text-cream/45 focus:border-gold-sand"
-              />
+              <div className="mt-1.5">
+                <RichTextField
+                  id={bodyId}
+                  value={body}
+                  onChange={setBody}
+                  placeholder={uiStrings.messagesForm.bodyPlaceholder}
+                  maxLength={BODY_MAX}
+                />
+              </div>
             </div>
             {send.isError ? (
               <p role="alert" className="font-body text-base text-terracotta">
@@ -111,6 +209,8 @@ export function Messages({ content }: MessagesProps) {
           </form>
         </div>
       )}
+
+      <MessageWall messages={shown} />
     </SectionShell>
   )
 }

@@ -7,6 +7,9 @@ import { LeafDivider } from './LeafDivider'
 import { Reveal } from './Reveal'
 
 /** Full-bleed color rooms — the palette does the separating, not hairlines. */
+/** Light enough to carry dark text, or not — what the navbar reads off a room. */
+const DARK_ROOMS = new Set(['olive', 'terracotta'])
+
 const TONES = {
   cream: {
     section: 'bg-cream',
@@ -47,6 +50,15 @@ interface SectionShellProps {
   tone?: keyof typeof TONES
   /** Desktop measure: `regular` for prose rooms, `wide` for grids and flows. */
   width?: 'regular' | 'wide'
+  /**
+   * The garden of this room, when the default pair is not what it wants.
+   *
+   * It is drawn in the same layer the default plants use — behind the words,
+   * across the whole room rather than inside the measure the text is set in.
+   * A section cannot do this for itself: everything it is handed goes inside
+   * that measure.
+   */
+  decor?: ReactNode
   headingLevel?: 'h1' | 'h2'
   children?: ReactNode
 }
@@ -62,6 +74,7 @@ export function SectionShell({
   icon: Icon,
   tone = 'cream',
   width = 'regular',
+  decor,
   headingLevel = 'h2',
   children,
 }: SectionShellProps) {
@@ -79,13 +92,21 @@ export function SectionShell({
     <section
       id={slug}
       aria-labelledby={headingId}
+      // The navbar floats with no colour of its own and takes the room's, so
+      // every room has to say which it is.
+      data-tone={DARK_ROOMS.has(tone) ? 'dark' : 'light'}
       className={`relative overflow-hidden ${palette.section} px-4 py-16 sm:px-8 sm:py-20 lg:py-24`}
     >
       {/* The garden behind the room: two plants of the set, faint, turning
-          slowly enough that you notice only if you stop to look. */}
+          slowly enough that you notice only if you stop to look — unless the
+          room brought its own. */}
       <div aria-hidden="true" className={`pointer-events-none absolute inset-0 ${palette.foliage}`}>
-        <NearPlant className="turn-slow absolute -top-16 -left-14 h-64 w-auto opacity-25 sm:h-80" />
-        <FarPlant className="turn-slower absolute -right-16 -bottom-20 h-72 w-auto opacity-20 sm:h-96" />
+        {decor ?? (
+          <>
+            <NearPlant className="turn-slow absolute -top-16 -left-14 h-64 w-auto opacity-25 sm:h-80" />
+            <FarPlant className="turn-slower absolute -right-16 -bottom-20 h-72 w-auto opacity-20 sm:h-96" />
+          </>
+        )}
       </div>
 
       <div className={`relative mx-auto w-full ${measure}`}>

@@ -303,6 +303,7 @@ export function PersonChapter({
         id={id}
         aria-label={person.name}
         data-nav-hide=""
+      data-tone="dark"
         className={`${ground} px-5 py-20 sm:px-10`}
       >
         {anchorId ? <span id={anchorId} aria-hidden="true" /> : null}
@@ -324,6 +325,7 @@ export function PersonChapter({
       id={id}
       aria-label={person.name}
       data-nav-hide=""
+      data-tone="dark"
       className={`relative ${ground}`}
       style={{ height: `${totalVh}vh` }}
     >

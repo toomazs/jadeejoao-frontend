@@ -68,6 +68,7 @@ export function DressCode({ content }: DressCodeProps) {
   return (
     <section
       id="dress_code"
+      data-tone="dark"
       aria-labelledby="dress_code-heading"
       className="relative overflow-hidden bg-deep-olive px-4 py-20 sm:px-8 sm:py-24"
     >
