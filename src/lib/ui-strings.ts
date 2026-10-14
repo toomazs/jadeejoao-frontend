@@ -125,11 +125,19 @@ export interface NavItem {
   short: string
 }
 
-/** Anchor nav labels (per the approved PPTX), in display order. */
+/**
+ * Anchor nav labels, in the order the page itself puts them.
+ *
+ * Not every section is here — this is the shortlist a guest jumps to — but the
+ * ones that are have to be in SECTION_ORDER's order, because that is the order
+ * they are scrolled past. Presentes sat before Estadia while the page put
+ * Estadia first, so reading the bar left to right and clicking down it sent you
+ * backwards up the page. A test holds the two in step.
+ */
 export const navItems: readonly NavItem[] = [
   { anchor: 'hero', label: 'Início', short: 'Início' },
   { anchor: 'rsvp', label: 'Confirmação de presença', short: 'Presença' },
-  { anchor: 'gifts_intro', label: 'Presenteie os noivos', short: 'Presentes' },
   { anchor: 'stay', label: 'Estadia', short: 'Estadia' },
+  { anchor: 'gifts_intro', label: 'Presenteie os noivos', short: 'Presentes' },
   { anchor: 'dress_code', label: 'Vestimenta', short: 'Vestimenta' },
 ]
