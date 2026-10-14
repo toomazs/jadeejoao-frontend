@@ -36,12 +36,69 @@
   font-display: swap;
 }
 
+/*
+ * The hand that writes on the photographs.
+ *
+ * Benedict was here, and it is beautiful at four words and large — a date, an
+ * "e" between two names. The album asked it to carry whole sentences at 24px,
+ * which is not what a thin connected script can do: "Começo do namoro. Foto da
+ * tia Taninha, que era nossa vizinha" became something to decipher rather than
+ * read.
+ *
+ * Caveat is the same idea — a real hand, not a typeface pretending — with the
+ * stroke weight and the open letterforms to survive a sentence. It also suits
+ * what these captions are: writing on an instant photo.
+ *
+ * Dancing Script is declared beside it, unused, because the choice is a matter
+ * of taste and switching between them is one line below. It flows more and sits
+ * closer to Benedict's romance; it also runs small, so it would want a size up
+ * at the caption. Whichever loses gets deleted.
+ */
 @font-face {
   font-family: 'Benedict';
   src: url('/fonts/benedict-regular.otf') format('opentype');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
+}
+
+/* Variable, 400 through 700, which is why the weight is a range. */
+@font-face {
+  font-family: 'Caveat';
+  src: url('/fonts/caveat-latin.woff2') format('woff2');
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* Portuguese lives entirely in the latin block above; this is for a name that
+   does not — a ł, a ș — so one borrowed letter cannot fall back to Arial. */
+@font-face {
+  font-family: 'Caveat';
+  src: url('/fonts/caveat-latin-ext.woff2') format('woff2');
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: 'Dancing Script';
+  src: url('/fonts/dancing-script-latin.woff2') format('woff2');
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Dancing Script';
+  src: url('/fonts/dancing-script-latin-ext.woff2') format('woff2');
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
 
 :root {
@@ -68,5 +125,7 @@
   /* Font stacks */
   --font-display: 'Afrah', 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
   --font-body: 'Arapey', Georgia, 'Times New Roman', serif;
-  --font-accent: 'Benedict', 'Segoe Script', 'Brush Script MT', cursive, serif;
+  /* The one line that chooses the hand. 'Dancing Script' and 'Benedict' are
+     both declared above and are drop-in replacements here. */
+  --font-accent: 'Caveat', 'Segoe Script', 'Brush Script MT', cursive, serif;
 }
