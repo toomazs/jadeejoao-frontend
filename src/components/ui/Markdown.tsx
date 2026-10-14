@@ -9,45 +9,101 @@ interface MarkdownProps {
   dropCap?: boolean
 }
 
-const INLINE_PATTERN = /\*\*(.+?)\*\*|\*(.+?)\*|_(.+?)_|\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g
+const LINK = /^\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/
 
-/** Renders the inline subset the couple actually writes: bold, italic, links. */
-function renderInline(text: string): ReactNode[] {
+/**
+ * The next unpaired `mark` at or after `from`, or -1.
+ *
+ * Unpaired is the whole difficulty. Inside `*a **b** c*` the closing asterisk
+ * of the italic is the last one — the doubled ones in the middle belong to the
+ * bold and have to be stepped over, not mistaken for the end.
+ */
+function closingMark(text: string, from: number, mark: string): number {
+  for (let at = from; at < text.length; at += 1) {
+    if (text[at] !== mark) continue
+    if (text[at + 1] === mark) {
+      at += 1 // a doubled mark: skip the pair whole
+      continue
+    }
+    return at
+  }
+  return -1
+}
+
+/**
+ * Bold, italic and links — the subset the couple writes, nested.
+ *
+ * This replaced a single alternating regex, which could only ever see one
+ * level. The letters are stored with each paragraph wrapped in asterisks, so
+ * every bold word the couple adds lands *inside* an italic: the old pattern
+ * met `*… **visão?** …*`, closed the italic at the first asterisk of the bold,
+ * and produced three italic runs and no bold at all. Emphasis contains
+ * emphasis, so the thing that reads it has to call itself.
+ */
+function renderInline(text: string, depth = 0): ReactNode[] {
   const nodes: ReactNode[] = []
-  let lastIndex = 0
-  let match: RegExpExecArray | null
+  let plain = ''
+  let at = 0
   let key = 0
-  INLINE_PATTERN.lastIndex = 0
-  while ((match = INLINE_PATTERN.exec(text)) !== null) {
-    if (match.index > lastIndex) {
-      nodes.push(text.slice(lastIndex, match.index))
+
+  const flush = () => {
+    if (plain) {
+      nodes.push(plain)
+      plain = ''
     }
-    const [, bold, star, underscore, linkLabel, linkHref] = match
-    if (bold !== undefined) {
-      nodes.push(<strong key={key}>{bold}</strong>)
-    } else if (star !== undefined) {
-      nodes.push(<em key={key}>{star}</em>)
-    } else if (underscore !== undefined) {
-      nodes.push(<em key={key}>{underscore}</em>)
-    } else if (linkLabel !== undefined && linkHref !== undefined) {
-      nodes.push(
-        <a
-          key={key}
-          href={linkHref}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-olive underline decoration-1 underline-offset-4 transition-colors hover:text-terracotta"
-        >
-          {linkLabel}
-        </a>,
-      )
-    }
-    lastIndex = INLINE_PATTERN.lastIndex
+  }
+  const wrap = (node: ReactNode) => {
+    flush()
+    nodes.push(node)
     key += 1
   }
-  if (lastIndex < text.length) {
-    nodes.push(text.slice(lastIndex))
+
+  while (at < text.length) {
+    const char = text[at]
+
+    if (char === '[') {
+      const link = LINK.exec(text.slice(at))
+      if (link) {
+        wrap(
+          <a
+            key={`${depth}-${key}`}
+            href={link[2]}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-olive underline decoration-1 underline-offset-4 transition-colors hover:text-terracotta"
+          >
+            {link[1]}
+          </a>,
+        )
+        at += link[0].length
+        continue
+      }
+    }
+
+    if (char === '*' && text[at + 1] === '*') {
+      const close = text.indexOf('**', at + 2)
+      if (close > at + 2) {
+        wrap(<strong key={`${depth}-${key}`}>{renderInline(text.slice(at + 2, close), depth + 1)}</strong>)
+        at = close + 2
+        continue
+      }
+    }
+
+    if (char === '*' || char === '_') {
+      const close = closingMark(text, at + 1, char)
+      if (close > at + 1) {
+        wrap(<em key={`${depth}-${key}`}>{renderInline(text.slice(at + 1, close), depth + 1)}</em>)
+        at = close + 1
+        continue
+      }
+    }
+
+    // A mark with nothing closing it is just a character the couple typed.
+    plain += char
+    at += 1
   }
+
+  flush()
   return nodes
 }
 
