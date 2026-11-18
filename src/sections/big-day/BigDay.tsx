@@ -54,18 +54,26 @@ interface BigDayProps {
 type ProgrammeItem = BigDayContent['programme'][number]
 
 /**
- * The emblems the couple can choose from in the admin. The payload carries a
- * name, this file draws it — so the schedule is editable without a deploy.
+ * Every emblem the contract allows on a programme moment.
+ *
+ * Taken from the generated schema rather than written out again, so the set
+ * has exactly one author: the API. The panel offered thirty-six of these while
+ * the contract listed ten, and the twenty-six in between — Lua among them —
+ * were choosable, drawable, and unsaveable.
  */
+type ProgrammeIcon = NonNullable<ProgrammeItem['icon']>
+
 /**
  * The little glyph beside an hour on the programme.
  *
  * Keyed by an English word rather than an icon name, so the panel can offer a
  * fixed set and the drawing can change without rewriting anybody's payload.
- * The first ten are the ones the couple already used; the rest are there so
- * choosing one is picking from a list instead of guessing a word.
+ *
+ * Typed as a complete Record of the contract's set on purpose: an icon the API
+ * accepts but this file cannot draw fails `npm run build`, instead of quietly
+ * leaving an hour on the site with nothing beside it.
  */
-const PROGRAMME_ICONS: Record<string, LucideIcon> = {
+const PROGRAMME_ICONS: Record<ProgrammeIcon, LucideIcon> = {
   guests: Users,
   ceremony: Church,
   vows: Heart,

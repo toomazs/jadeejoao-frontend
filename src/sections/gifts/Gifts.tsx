@@ -28,31 +28,6 @@ function problemDetail(error: unknown): string {
   return uiStrings.genericActionError
 }
 
-/**
- * How much has arrived, over the goal.
- *
- * Confirmed only. A declared PIX is a guest saying they sent one; the couple
- * then checks the bank and says whether it came. Counting the claim had the
- * page telling everybody that a hundred and fifty reais had been given to a
- * dinner nobody had paid for yet.
- */
-function Progress({ gift }: { gift: GiftView }) {
-  if (!gift.goal_centavos) return null
-  const raised = gift.confirmed_centavos
-  const percent = Math.min(100, Math.round((raised / gift.goal_centavos) * 100))
-  return (
-    <div className="mt-4">
-      <div className="h-2 w-full bg-sand-line">
-        <div className="h-full bg-terracotta" style={{ width: `${percent}%` }} />
-      </div>
-      <p className="mt-2 flex justify-between font-body text-base">
-        <span className="text-terracotta">{formatCentavos(raised)}</span>
-        <span className="text-dark-gray">{formatCentavos(gift.goal_centavos)}</span>
-      </p>
-    </div>
-  )
-}
-
 /** One side of the quota stepper: a quiet square, sized for a finger. */
 function StepButton({
   label,
@@ -419,8 +394,13 @@ function GiftShell({
   )
 }
 
-/** One PIX gift: a meta or cota the guest funds with the copia-e-cola. */
-function GiftCard({ gift, index }: { gift: GiftView; index: number }) {
+/**
+ * One PIX gift: a cota the guest funds with the copia-e-cola.
+ *
+ * Exported for its test, which is about what the card does and does not say
+ * about money — the section around it only fetches.
+ */
+export function GiftCard({ gift, index }: { gift: GiftView; index: number }) {
   return (
     <GiftShell
       id={`gift-${gift.gift_id}`}
@@ -438,14 +418,17 @@ function GiftCard({ gift, index }: { gift: GiftView; index: number }) {
         ) : undefined
       }
     >
-      <Progress gift={gift} />
-      {/* What a quota costs, on the card.
-          It was only legible once the PIX sheet was open, which made "12 cotas
-          restantes" a count of an unknown thing — and deciding whether to give
-          is deciding about a price. Hung on the price rather than on the count,
-          because a gift can have quotas without limiting how many. */}
+      {/* What a quota costs, on the card — and nothing else about money.
+          A bar with "R$ 0,00" under it is a fundraiser's scoreboard: it keeps
+          a public tally of how little has come in, and prints a goal that
+          invites a guest to stop once it is reached. Neither is what the
+          couple is asking for. The price of one cota is the single fact the
+          guest actually needs, and the sheet still lets them take as many as
+          they like.
+          Hung on the price rather than on the count, because a gift can have
+          quotas without limiting how many. */}
       {gift.quota_centavos || typeof gift.units_left === 'number' ? (
-        <p className="mt-2 font-body text-sm text-dark-gray">
+        <p className="mt-4 font-body text-sm text-dark-gray">
           {gift.quota_centavos ? (
             <>
               {uiStrings.gifts.quotaEach}{' '}
